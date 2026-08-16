@@ -1,0 +1,24 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}Search: {{ query }} | ShopKart{% endblock title %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <h1 class="text-xl font-bold text-slate-900 mb-6">
+    {% if query %}Search results for "<span class="text-brand">{{ query }}</span>"{% else %}All Products{% endif %}
+    <span class="text-sm font-normal text-slate-500">({{ products|length }} found)</span>
+  </h1>
+
+  {% if products %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+    {% for item in products %}
+      {% include 'shop/inc/product_card.html' %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl ring-1 ring-slate-200 p-16 text-center">
+    <p class="text-4xl mb-3">🔍</p>
+    <p class="text-slate-500">No products found for "{{ query }}"</p>
+    <a href="{% url 'collections' %}" class="inline-block mt-4 bg-brand hover:bg-brand-dark text-white font-semibold px-6 py-2.5 rounded-lg transition">Browse Categories</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}

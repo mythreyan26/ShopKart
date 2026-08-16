@@ -1,0 +1,61 @@
+{% load static %}
+<div class="group relative bg-white rounded-xl ring-1 ring-slate-200 hover:ring-brand/40 hover:shadow-lg transition overflow-hidden flex flex-col">
+  <a href="{% url 'product_details' item.category.slug item.slug %}" class="block relative aspect-[4/5] bg-slate-50 overflow-hidden">
+    {% if item.product_image %}
+    <img src="{{ item.product_image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center text-slate-300 text-4xl">🛍️</div>
+    {% endif %}
+    {% if item.discount_percent > 0 %}
+    <span class="absolute top-2 left-2 bg-green-600 text-white text-[11px] font-bold px-1.5 py-0.5 rounded">{{ item.discount_percent }}% OFF</span>
+    {% endif %}
+    {% if item.is_bestseller %}
+    <span class="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">BESTSELLER</span>
+    {% endif %}
+  </a>
+
+  {% if request.user.is_authenticated %}
+  <form action="{% url 'toggle_wishlist' item.id %}" method="post" class="absolute top-2 right-2 {% if item.is_bestseller %}mt-6{% endif %}">
+    {% csrf_token %}
+    <button type="submit" class="h-8 w-8 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 {% if item.id in wishlist_ids %}text-brand fill-brand{% else %}text-slate-400{% endif %}" viewBox="0 0 24 24" stroke="currentColor" fill="{% if item.id in wishlist_ids %}currentColor{% else %}none{% endif %}" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    </button>
+  </form>
+  {% endif %}
+
+  <div class="p-3 flex flex-col flex-1">
+    <p class="text-[11px] uppercase tracking-wide text-slate-400 font-medium">{{ item.brand }}</p>
+    <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-sm font-medium text-slate-800 line-clamp-2 mt-0.5 hover:text-brand transition">{{ item.name }}</a>
+
+    {% if item.review_count %}
+    <div class="flex items-center gap-1 mt-1.5">
+      <span class="flex items-center gap-0.5 bg-green-600 text-white text-[11px] font-semibold px-1.5 py-0.5 rounded">{{ item.avg_rating }} ★</span>
+      <span class="text-[11px] text-slate-400">({{ item.review_count }})</span>
+    </div>
+    {% endif %}
+
+    <div class="mt-2 flex items-baseline gap-2 flex-wrap">
+      <span class="text-lg font-bold text-slate-900">₹{{ item.selling_price|floatformat:0 }}</span>
+      {% if item.discount_percent > 0 %}
+      <span class="text-xs text-slate-400 line-through">₹{{ item.original_price|floatformat:0 }}</span>
+      {% endif %}
+    </div>
+    {% if item.free_delivery %}<p class="text-[11px] text-green-700 mt-0.5">Free Delivery</p>{% endif %}
+
+    <div class="mt-auto pt-3">
+      {% if request.user.is_authenticated %}
+      <form action="{% url 'add_to_cart' item.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="w-full text-sm font-semibold bg-brand hover:bg-brand-dark text-white rounded-lg py-2 transition flex items-center justify-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          Add to Cart
+        </button>
+      </form>
+      {% else %}
+      <a href="{% url 'login' %}" class="w-full text-sm font-semibold bg-brand hover:bg-brand-dark text-white rounded-lg py-2 transition flex items-center justify-center gap-1.5">Add to Cart</a>
+      {% endif %}
+    </div>
+  </div>
+</div>

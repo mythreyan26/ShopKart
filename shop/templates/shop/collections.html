@@ -1,0 +1,42 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}All Categories | ShopKart{% endblock title %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h1 class="text-2xl font-bold text-slate-900 mb-6">Shop by Category</h1>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+    {% for cat in catagory %}
+
+    <a href="{% url 'category_detail' cat.slug %}" class="group bg-white rounded-xl ring-1 ring-slate-200 hover:ring-brand hover:shadow-lg transition overflow-hidden">
+
+      <div class="aspect-square bg-slate-50 overflow-hidden">
+        {% if cat.image %}
+          <img src="{{ cat.image.url }}"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+               alt="{{ cat.name }}">
+        {% endif %}
+      </div>
+
+      <div class="p-4">
+        <h3 class="font-semibold text-slate-800 group-hover:text-brand transition">
+          {{ cat.name }}
+        </h3>
+
+        {% if cat.description %}
+          <p class="text-xs text-slate-500 mt-1 line-clamp-2">
+            {{ cat.description }}
+          </p>
+        {% endif %}
+      </div>
+
+    </a>
+
+    {% empty %}
+      <p class="text-slate-500 col-span-full">
+        No categories available yet.
+      </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

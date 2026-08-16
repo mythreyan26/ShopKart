@@ -1,0 +1,186 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}{{ product.name }} | ShopKart{% endblock title %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <div class="text-sm text-slate-500 mb-4 flex items-center flex-wrap gap-1">
+    <a href="{% url 'home' %}" class="hover:text-brand">Home</a>
+    <span class="mx-1">/</span>
+    <a href="{% url 'collections' %}" class="hover:text-brand">Categories</a>
+    {% if product.category.parent %}
+    <span class="mx-1">/</span>
+    <a href="{% url 'collections_view' product.category.parent.slug %}" class="hover:text-brand">{{ product.category.parent.name }}</a>
+    {% endif %}
+    <span class="mx-1">/</span>
+    <a href="{% url 'collections_view' product.category.slug %}" class="hover:text-brand">{{ product.category.name }}</a>
+    <span class="mx-1">/</span>
+    <span class="text-slate-800 font-medium">{{ product.name }}</span>
+  </div>
+
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-4 sm:p-8">
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Image Gallery with Vertical Side Thumbnails -->
+      <div x-data="{ activeImage: '{% if product.product_image %}{{ product.product_image.url }}{% endif %}' }" class="flex flex-col-reverse sm:flex-row gap-4 items-start">
+        
+        <!-- Side Thumbnails Strip (Left on desktop, bottom on mobile) -->
+        {% if product.product_image or product.gallery.all %}
+        <div class="flex sm:flex-col gap-2.5 overflow-x-auto sm:overflow-y-auto max-h-[500px] w-full sm:w-20 shrink-0 py-1 pr-1">
+          
+          <!-- Main Image Thumbnail -->
+          {% if product.product_image %}
+          <button type="button"
+                  @click="activeImage = '{{ product.product_image.url }}'"
+                  @mouseenter="activeImage = '{{ product.product_image.url }}'"
+                  class="h-16 w-16 sm:h-18 sm:w-18 shrink-0 rounded-xl overflow-hidden bg-white p-1 transition-all focus:outline-none"
+                  :class="activeImage === '{{ product.product_image.url }}' ? 'ring-2 ring-brand ring-offset-2 shadow-md' : 'ring-1 ring-slate-200 hover:ring-slate-400 opacity-70 hover:opacity-100'">
+            <img src="{{ product.product_image.url }}" alt="{{ product.name }} main" class="w-full h-full object-contain">
+          </button>
+          {% endif %}
+
+          <!-- Extra Side Angles / Gallery Images -->
+          {% for g in product.gallery.all %}
+          <button type="button"
+                  @click="activeImage = '{{ g.image.url }}'"
+                  @mouseenter="activeImage = '{{ g.image.url }}'"
+                  class="h-16 w-16 sm:h-18 sm:w-18 shrink-0 rounded-xl overflow-hidden bg-white p-1 transition-all focus:outline-none"
+                  :class="activeImage === '{{ g.image.url }}' ? 'ring-2 ring-brand ring-offset-2 shadow-md' : 'ring-1 ring-slate-200 hover:ring-slate-400 opacity-70 hover:opacity-100'">
+            <img src="{{ g.image.url }}" alt="{{ product.name }} side angle" class="w-full h-full object-contain">
+          </button>
+          {% endfor %}
+
+        </div>
+        {% endif %}
+
+        <!-- Large Main Image Preview -->
+        <div class="flex-1 w-full aspect-[4/5] bg-slate-50 rounded-2xl overflow-hidden ring-1 ring-slate-100 flex items-center justify-center p-4 relative group">
+          <template x-if="activeImage">
+            <img :src="activeImage" :alt="'{{ product.name }}'" class="w-full h-full object-contain transition-all duration-300 group-hover:scale-105">
+          </template>
+          <template x-if="!activeImage">
+            <div class="w-full h-full flex items-center justify-center text-6xl text-slate-300">📱</div>
+          </template>
+
+          {% if product.discount_percent > 0 %}
+          <span class="absolute top-4 left-4 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+            {{ product.discount_percent }}% OFF
+          </span>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Info -->
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">{{ product.brand }}</p>
+        <h1 class="text-2xl font-bold text-slate-900 mt-1">{{ product.name }}</h1>
+
+        <div class="flex items-center gap-2 mt-2">
+          {% if product.review_count %}
+          <span class="flex items-center gap-1 bg-green-600 text-white text-xs font-semibold px-2 py-0.5 rounded">{{ product.avg_rating }} ★</span>
+          <span class="text-sm text-slate-500">{{ product.review_count }} rating{{ product.review_count|pluralize }}</span>
+          {% else %}
+          <span class="text-sm text-slate-400">No ratings yet</span>
+          {% endif %}
+          {% if product.is_bestseller %}<span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">BESTSELLER</span>{% endif %}
+        </div>
+
+        <div class="mt-4 flex items-baseline gap-3">
+          <span class="text-3xl font-extrabold text-slate-900">₹{{ product.selling_price|floatformat:0 }}</span>
+          {% if product.discount_percent > 0 %}
+          <span class="text-lg text-slate-400 line-through">₹{{ product.original_price|floatformat:0 }}</span>
+          <span class="text-green-600 font-semibold">{{ product.discount_percent }}% off</span>
+          {% endif %}
+        </div>
+        {% if product.free_delivery %}<p class="text-sm text-green-700 mt-1 font-medium">Free Delivery</p>{% endif %}
+
+        <p class="mt-2 text-sm {% if product.in_stock %}text-green-700{% else %}text-red-600{% endif %} font-medium">
+          {% if product.in_stock %}In Stock ({{ product.quantity }} available){% else %}Out of Stock{% endif %}
+        </p>
+
+        {% if product.description %}
+        <p class="mt-4 text-slate-600 text-sm leading-relaxed">{{ product.description }}</p>
+        {% endif %}
+
+        {% if product.highlight_list %}
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-slate-800 mb-2">Highlights</h3>
+          <ul class="space-y-1.5">
+            {% for h in product.highlight_list %}
+            <li class="flex items-start gap-2 text-sm text-slate-600">
+              <span class="text-green-600 mt-0.5">✓</span> {{ h }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 flex gap-3">
+          {% if request.user.is_authenticated %}
+          <form action="{% url 'add_to_cart' product.id %}" method="post" class="flex-1">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-lg transition">Add to Cart</button>
+          </form>
+          <form action="{% url 'toggle_wishlist' product.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="h-12 w-12 rounded-lg ring-1 ring-slate-300 flex items-center justify-center hover:bg-slate-50 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {% if in_wishlist %}text-brand{% else %}text-slate-400{% endif %}" viewBox="0 0 24 24" stroke="currentColor" fill="{% if in_wishlist %}currentColor{% else %}none{% endif %}" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}" class="flex-1 text-center bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-lg transition">Login to Buy</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200 p-6 sm:p-8 mt-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Ratings & Reviews</h2>
+
+    {% if reviews %}
+    <div class="space-y-5 mb-6">
+      {% for r in reviews %}
+      <div class="border-b border-slate-100 pb-4 last:border-0">
+        <div class="flex items-center gap-2">
+          <span class="bg-green-600 text-white text-xs font-semibold px-1.5 py-0.5 rounded">{{ r.rating }} ★</span>
+          {% if r.title %}<span class="font-semibold text-sm text-slate-800">{{ r.title }}</span>{% endif %}
+        </div>
+        {% if r.comment %}<p class="text-sm text-slate-600 mt-1.5">{{ r.comment }}</p>{% endif %}
+        <p class="text-xs text-slate-400 mt-1.5">{{ r.user.first_name|default:r.user.username }} &middot; {{ r.created_at|date:"M d, Y" }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-slate-500 mb-6">No reviews yet. Be the first to review this product!</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated and not already_reviewed %}
+    <form method="post" class="border-t border-slate-100 pt-5 space-y-3 max-w-md">
+      {% csrf_token %}
+      <h3 class="font-semibold text-sm text-slate-800">Write a Review</h3>
+      {{ review_form.rating }}
+      {{ review_form.title }}
+      {{ review_form.comment }}
+      <button type="submit" class="bg-navy hover:bg-navy-light text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition">Submit Review</button>
+    </form>
+    {% elif already_reviewed %}
+    <p class="text-sm text-slate-500 border-t border-slate-100 pt-5">You've already reviewed this product. Thanks!</p>
+    {% endif %}
+  </div>
+
+  <!-- Related products -->
+  {% if related %}
+  <div class="mt-8">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">You may also like</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {% for item in related %}
+        {% include 'shop/inc/product_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}

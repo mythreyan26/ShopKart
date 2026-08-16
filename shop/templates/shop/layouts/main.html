@@ -1,0 +1,42 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ShopKart{% endblock title %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#FF6A00', dark: '#E85D00', light: '#FFF1E6' },
+            navy: { DEFAULT: '#131A2B', light: '#1E2A45' },
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>body{font-family:'Inter',ui-sans-serif,system-ui;} [x-cloak]{display:none !important;}</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  {% include 'shop/inc/navbar.html' %}
+  {% include 'shop/inc/message.html' %}
+
+  <main class="flex-1">
+    {% block content %}{% endblock content %}
+  </main>
+
+  {% include 'shop/inc/footer.html' %}
+  {% block scripts %}{% endblock scripts %}
+</body>
+</html>

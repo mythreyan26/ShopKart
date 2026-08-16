@@ -1,0 +1,57 @@
+{% load static %}
+<div x-data="{ slide: 0, slides: 3, timer: null }"
+     x-init="timer = setInterval(() => slide = (slide + 1) % slides, 5000)"
+     class="relative overflow-hidden">
+
+  <div class="flex transition-transform duration-700 ease-out" :style="`transform: translateX(-${slide * 100}%)`">
+    <!-- Slide 1: Electronics -->
+    <div class="min-w-full bg-gradient-to-br from-amber-600 via-orange-500 to-amber-400">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="text-white max-w-xl">
+          <p class="uppercase tracking-widest text-xs sm:text-sm font-semibold text-white/90">Big Shopping Days</p>
+          <h1 class="text-3xl sm:text-5xl font-extrabold mt-2 leading-tight">Up to 60% off<br>on Electronics</h1>
+          <p class="mt-4 text-white/90">Top brands. Unbeatable prices. Free delivery on eligible orders.</p>
+          <a href="{% url 'collections_view' 'electronics' %}" class="inline-block mt-6 bg-navy hover:bg-navy-light text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition">Shop Electronics</a>
+        </div>
+        <div class="hidden md:block w-72 lg:w-96 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/30 transform -rotate-1 hover:rotate-0 transition duration-300">
+          <img src="{% static 'images/banner_electronics.jpg' %}" alt="Electronics Collection" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+    <!-- Slide 2: Fashion -->
+    <div class="min-w-full bg-gradient-to-br from-indigo-700 via-blue-600 to-sky-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="text-white max-w-xl">
+          <p class="uppercase tracking-widest text-xs sm:text-sm font-semibold text-white/90">New Season</p>
+          <h1 class="text-3xl sm:text-5xl font-extrabold mt-2 leading-tight">Refresh Your<br>Fashion Wardrobe</h1>
+          <p class="mt-4 text-white/90">Trending styles across apparel and footwear, starting at ₹499.</p>
+          <a href="{% url 'collections_view' 'fashion' %}" class="inline-block mt-6 bg-navy hover:bg-navy-light text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition">Explore Fashion</a>
+        </div>
+        <div class="hidden md:block w-72 lg:w-96 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/30 transform rotate-1 hover:rotate-0 transition duration-300">
+          <img src="{% static 'images/banner_fashion.jpg' %}" alt="Fashion Collection" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+    <!-- Slide 3: Home & Living -->
+    <div class="min-w-full bg-gradient-to-br from-emerald-700 via-teal-600 to-green-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="text-white max-w-xl">
+          <p class="uppercase tracking-widest text-xs sm:text-sm font-semibold text-white/90">Home Essentials</p>
+          <h1 class="text-3xl sm:text-5xl font-extrabold mt-2 leading-tight">Make Your Home<br>Feel Brand New</h1>
+          <p class="mt-4 text-white/90">Furniture, decor and kitchen must-haves, delivered fast.</p>
+          <a href="{% url 'collections_view' 'home-kitchen' %}" class="inline-block mt-6 bg-navy hover:bg-navy-light text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition">Shop Home</a>
+        </div>
+        <div class="hidden md:block w-72 lg:w-96 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/30 transform -rotate-1 hover:rotate-0 transition duration-300">
+          <img src="{% static 'images/banner_home.jpg' %}" alt="Home Essentials" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dots -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+    <template x-for="i in slides">
+      <button @click="slide = i - 1" class="h-2 rounded-full transition-all" :class="slide === i - 1 ? 'w-6 bg-white' : 'w-2 bg-white/50'"></button>
+    </template>
+  </div>
+</div>

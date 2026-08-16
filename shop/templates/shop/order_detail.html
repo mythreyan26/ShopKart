@@ -1,0 +1,53 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}Order #{{ order.id }} | ShopKart{% endblock title %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <a href="{% url 'my_orders' %}" class="text-sm text-slate-500 hover:text-brand">&larr; Back to Orders</a>
+  <div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">Order #{{ order.id }}</h1>
+    <span class="text-xs font-semibold px-2.5 py-1 rounded-full
+      {% if order.status == 'delivered' %}bg-green-100 text-green-700
+      {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+      {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
+      {% else %}bg-amber-100 text-amber-700{% endif %}">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="md:col-span-2 space-y-3">
+      {% for oi in order.items.all %}
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-4 flex items-center gap-4">
+        <div class="h-16 w-16 rounded-lg overflow-hidden bg-slate-50 shrink-0">
+          {% if oi.product.product_image %}<img src="{{ oi.product.product_image.url }}" class="w-full h-full object-cover">{% endif %}
+        </div>
+        <div class="flex-1">
+          <p class="font-medium text-slate-800">{{ oi.product_name }}</p>
+          <p class="text-xs text-slate-400">Qty: {{ oi.quantity }} &middot; ₹{{ oi.price|floatformat:0 }} each</p>
+        </div>
+        <p class="font-bold text-slate-900">₹{{ oi.total_price|floatformat:0 }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-5">
+        <h3 class="font-bold text-slate-900 mb-3 text-sm">Delivery Address</h3>
+        {% if order.address %}
+        <p class="text-sm text-slate-600">{{ order.address.full_name }}<br>{{ order.address.address_line }}<br>{{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}<br>{{ order.address.phone }}</p>
+        {% endif %}
+      </div>
+      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-5">
+        <h3 class="font-bold text-slate-900 mb-3 text-sm">Payment Summary</h3>
+        <div class="space-y-1.5 text-sm">
+          <div class="flex justify-between text-slate-600"><span>Subtotal</span><span>₹{{ order.subtotal|floatformat:0 }}</span></div>
+          <div class="flex justify-between text-slate-600"><span>Delivery</span><span>{% if order.delivery_fee == 0 %}FREE{% else %}₹{{ order.delivery_fee|floatformat:0 }}{% endif %}</span></div>
+          <hr class="my-1.5 border-slate-100">
+          <div class="flex justify-between font-bold text-slate-900"><span>Total</span><span>₹{{ order.total_amount|floatformat:0 }}</span></div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">Paid via {{ order.get_payment_method_display }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

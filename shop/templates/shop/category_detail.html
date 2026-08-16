@@ -1,0 +1,73 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}{{ category.name }} | ShopKart{% endblock title %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-900">
+            {{ category.name }}
+        </h1>
+
+        {% if category.description %}
+            <p class="text-slate-500 mt-2">
+                {{ category.description }}
+            </p>
+        {% endif %}
+    </div>
+
+
+    {% if subcategories %}
+
+        <h2 class="text-lg font-semibold text-slate-800 mb-5">
+            Shop by Subcategory
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+
+            {% for subcat in subcategories %}
+
+            <a href="{% url 'category_detail' subcat.slug %}"
+               class="group bg-white rounded-xl ring-1 ring-slate-200 hover:ring-brand hover:shadow-lg transition overflow-hidden">
+
+                <div class="aspect-square bg-slate-50 overflow-hidden">
+
+                    {% if subcat.image %}
+                        <img src="{{ subcat.image.url }}"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                             alt="{{ subcat.name }}">
+                    {% endif %}
+
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-semibold text-slate-800 group-hover:text-brand transition">
+                        {{ subcat.name }}
+                    </h3>
+
+                    {% if subcat.description %}
+                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">
+                            {{ subcat.description }}
+                        </p>
+                    {% endif %}
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="text-slate-500">
+            No subcategories available.
+        </p>
+
+    {% endif %}
+
+</div>
+
+{% endblock content %}

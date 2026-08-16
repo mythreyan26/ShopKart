@@ -1,0 +1,23 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}My Wishlist | ShopKart{% endblock title %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <h1 class="text-2xl font-bold text-slate-900 mb-6">My Wishlist</h1>
+
+  {% if items %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+    {% for wi in items %}
+      {% with item=wi.product %}
+        {% include 'shop/inc/product_card.html' %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl ring-1 ring-slate-200 p-16 text-center">
+    <p class="text-5xl mb-4">💔</p>
+    <p class="text-slate-600 font-medium">Your wishlist is empty</p>
+    <a href="{% url 'collections' %}" class="inline-block mt-4 bg-brand hover:bg-brand-dark text-white font-semibold px-6 py-2.5 rounded-lg transition">Discover Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
