@@ -1,11 +1,14 @@
+import json
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Avg
+from django.http import JsonResponse, HttpResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from .models import Category, Product, Cart, Wishlist, Review, Address, Order, OrderItem
+from .models import Category, Product, ProductColor, ProductColorImage, Cart, Wishlist, Review, Address, Order, OrderItem, Coupon
 from .form import CustomUserForm, AddressForm, ReviewForm
 
 FREE_DELIVERY_THRESHOLD = 499
@@ -38,6 +41,33 @@ def search(request):
     return render(request, "shop/search.html", {"products": results, "query": query})
 
 
+def search_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    if not query or len(query) < 2:
+        return JsonResponse({'results': []})
+
+    products = Product.objects.filter(
+        Q(name__icontains=query) | Q(brand__icontains=query) | Q(category__name__icontains=query),
+        status=0
+    )[:6]
+
+    results = []
+    for p in products:
+        cslug = p.category.slug if p.category else (p.categories.first().slug if p.categories.exists() else 'all')
+        results.append({
+            'id': p.id,
+            'name': p.name,
+            'brand': p.brand,
+            'price': int(p.selling_price),
+            'original_price': int(p.original_price) if p.original_price else None,
+            'discount': p.discount_percent,
+            'image': p.product_image.url if p.product_image else '',
+            'url': reverse('product_details', args=[cslug, p.slug]),
+            'rating': p.avg_rating,
+        })
+    return JsonResponse({'results': results})
+
+
 def collections(request):
     categories = Category.objects.filter(
         status=0,
@@ -50,18 +80,23 @@ def collections(request):
     )
 
 def category_detail(request, slug):
-    category = get_object_or_404(Category, slug=slug)
+    category = Category.objects.filter(slug=slug, status=0).first() or Category.objects.filter(name=slug, status=0).first()
+    if not category:
+        messages.warning(request, "No such category found!")
+        return redirect('collections')
 
     subcategories = category.subcategories.filter(status=0)
 
-    return render(
-        request,
-        "shop/category_detail.html",
-        {
+    # If this category has subcategories, display ONLY subcategories
+    if subcategories.exists():
+        return render(request, "shop/category_detail.html", {
             "category": category,
             "subcategories": subcategories,
-        }
-    )
+        })
+
+    # If it is a leaf subcategory, display its products
+    return collectionsview(request, slug)
+
 
 def collectionsview(request, name):
     category = Category.objects.filter(slug=name, status=0).first() or Category.objects.filter(name=name, status=0).first()
@@ -70,9 +105,21 @@ def collectionsview(request, name):
         return redirect('collections')
 
     subcategories = category.subcategories.filter(status=0)
-    subcat_ids = list(subcategories.values_list('id', flat=True))
 
-    products = Product.objects.filter(Q(category=category) | Q(category_id__in=subcat_ids), status=0)
+    # If category has subcategories and no filter query params, display ONLY subcategories
+    if subcategories.exists() and not request.GET.get('min_price') and not request.GET.get('max_price') and not request.GET.get('sort'):
+        return render(request, "shop/category_detail.html", {
+            "category": category,
+            "subcategories": subcategories,
+        })
+
+    subcat_ids = list(subcategories.values_list('id', flat=True))
+    all_cat_ids = [category.id] + subcat_ids
+
+    products = Product.objects.filter(
+        Q(category_id__in=all_cat_ids) | Q(categories__id__in=all_cat_ids),
+        status=0
+    ).distinct()
 
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
@@ -118,9 +165,12 @@ def product_details(request, cname, pname):
         return redirect('collections')
 
     if not category:
-        category = product.category
+        category = product.category or product.categories.first()
 
-    related = Product.objects.filter(category=product.category, status=0).exclude(pk=product.pk)[:4]
+    related = Product.objects.filter(
+        Q(category=category) | Q(categories=category),
+        status=0
+    ).exclude(pk=product.pk).distinct()[:4]
     reviews = product.reviews.all()[:20]
     in_wishlist = False
     already_reviewed = False
@@ -140,6 +190,45 @@ def product_details(request, cname, pname):
     else:
         form = ReviewForm()
 
+    # Preload and serialize colors & their gallery images
+    colors_qs = list(product.colors.prefetch_related('images').all())
+    colors_data = []
+    default_color = None
+
+    for c in colors_qs:
+        gallery_urls = []
+        if c.image:
+            gallery_urls.append(c.image.url)
+        for g_img in c.images.all():
+            if g_img.image and g_img.image.url not in gallery_urls:
+                gallery_urls.append(g_img.image.url)
+
+        # If this color only has its main image, also include product gallery
+        if len(gallery_urls) <= 1:
+            for pg in product.gallery.all():
+                if pg.image and pg.image.url not in gallery_urls:
+                    gallery_urls.append(pg.image.url)
+
+        c_item = {
+            'id': c.id,
+            'name': c.name,
+            'color_code': c.color_code,
+            'image_url': c.image.url if c.image else (product.product_image.url if product.product_image else ''),
+            'price': c.effective_price,
+            'original_price': c.effective_original_price,
+            'discount_percent': c.discount_percent,
+            'in_stock': c.in_stock,
+            'quantity': c.quantity,
+            'is_default': c.is_default,
+            'gallery': gallery_urls,
+        }
+        colors_data.append(c_item)
+        if c.is_default and not default_color:
+            default_color = c_item
+
+    if colors_data and not default_color:
+        default_color = colors_data[0]
+
     return render(request, "shop/products/product_details.html", {
         "products": product,
         "product": product,
@@ -148,7 +237,11 @@ def product_details(request, cname, pname):
         "in_wishlist": in_wishlist,
         "already_reviewed": already_reviewed,
         "review_form": form,
+        "colors": colors_qs,
+        "colors_json": json.dumps(colors_data),
+        "default_color": default_color,
     })
+
 
 
 # ---------- Auth ----------
@@ -187,32 +280,118 @@ def register(request):
     return render(request, "shop/register.html", {'form': form})
 
 
-# ---------- Cart ----------
+# ---------- Cart & Coupons ----------
+
+def _calculate_cart_totals(user, session):
+    items = Cart.objects.filter(user=user).select_related('product', 'color')
+    subtotal = sum(item.total_price for item in items)
+
+    coupon_code = session.get('coupon_code')
+    coupon = None
+    discount_amount = 0
+
+    if coupon_code and subtotal > 0:
+        coupon = Coupon.objects.filter(code__iexact=coupon_code, active=True).first()
+        if coupon and subtotal >= coupon.min_order_amount:
+            discount_amount = coupon.calculate_discount(subtotal)
+        else:
+            if 'coupon_code' in session:
+                del session['coupon_code']
+                session.modified = True
+            coupon = None
+
+    subtotal_after_discount = max(0, subtotal - discount_amount)
+    delivery_fee = 0 if subtotal >= FREE_DELIVERY_THRESHOLD or subtotal == 0 else DELIVERY_FEE
+    grand_total = subtotal_after_discount + delivery_fee
+
+    return {
+        'items': items,
+        'subtotal': subtotal,
+        'coupon': coupon,
+        'discount_amount': discount_amount,
+        'subtotal_after_discount': subtotal_after_discount,
+        'delivery_fee': delivery_fee,
+        'total': grand_total,
+    }
+
 
 @login_required
 def cart_view(request):
-    items = Cart.objects.filter(user=request.user).select_related('product')
-    subtotal = sum(item.total_price for item in items)
-    delivery_fee = 0 if subtotal >= FREE_DELIVERY_THRESHOLD or subtotal == 0 else DELIVERY_FEE
-    total = subtotal + delivery_fee
+    cart_data = _calculate_cart_totals(request.user, request.session)
+    available_coupons = Coupon.objects.filter(active=True)[:4]
+    
     return render(request, "shop/cart.html", {
-        "items": items,
-        "subtotal": subtotal,
-        "delivery_fee": delivery_fee,
-        "total": total,
+        "items": cart_data['items'],
+        "subtotal": cart_data['subtotal'],
+        "coupon": cart_data['coupon'],
+        "discount_amount": cart_data['discount_amount'],
+        "subtotal_after_discount": cart_data['subtotal_after_discount'],
+        "delivery_fee": cart_data['delivery_fee'],
+        "total": cart_data['total'],
         "free_delivery_threshold": FREE_DELIVERY_THRESHOLD,
+        "available_coupons": available_coupons,
     })
+
+
+@login_required
+@require_POST
+def apply_coupon(request):
+    code = request.POST.get('coupon_code', '').strip().upper()
+    if not code:
+        messages.error(request, "Please enter a coupon code.")
+        return redirect(request.META.get('HTTP_REFERER', 'cart'))
+
+    coupon = Coupon.objects.filter(code__iexact=code, active=True).first()
+    if not coupon:
+        messages.error(request, f"Coupon code '{code}' is invalid or expired.")
+        return redirect(request.META.get('HTTP_REFERER', 'cart'))
+
+    items = Cart.objects.filter(user=request.user)
+    subtotal = sum(item.total_price for item in items)
+
+    if subtotal < coupon.min_order_amount:
+        messages.warning(request, f"Coupon '{coupon.code}' requires a minimum order of ₹{int(coupon.min_order_amount)}.")
+        return redirect(request.META.get('HTTP_REFERER', 'cart'))
+
+    discount = coupon.calculate_discount(subtotal)
+    request.session['coupon_code'] = coupon.code
+    request.session.modified = True
+    messages.success(request, f"Coupon '{coupon.code}' applied! You saved ₹{int(discount)}.")
+    return redirect(request.META.get('HTTP_REFERER', 'cart'))
+
+
+@login_required
+def remove_coupon(request):
+    if 'coupon_code' in request.session:
+        del request.session['coupon_code']
+        request.session.modified = True
+        messages.info(request, "Coupon removed.")
+    return redirect(request.META.get('HTTP_REFERER', 'cart'))
 
 
 @login_required
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id, status=0)
-    cart_item, created = Cart.objects.get_or_create(user=request.user, product=product, defaults={'product_qty': 1})
+    color_id = request.POST.get('color_id')
+    color = None
+    if color_id:
+        color = ProductColor.objects.filter(pk=color_id, product=product).first()
+    if not color and product.colors.exists():
+        color = product.colors.filter(is_default=True).first() or product.colors.first()
+
+    cart_item, created = Cart.objects.get_or_create(
+        user=request.user,
+        product=product,
+        color=color,
+        defaults={'product_qty': 1}
+    )
     if not created:
         cart_item.product_qty += 1
         cart_item.save()
-    messages.success(request, f"Added '{product.name}' to your cart")
+
+    color_str = f" ({color.name})" if color else ""
+    messages.success(request, f"Added '{product.name}{color_str}' to your cart")
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
@@ -261,44 +440,104 @@ def toggle_wishlist(request, product_id):
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
-# ---------- Checkout / Orders ----------
+# ---------- Checkout & Orders ----------
 
 @login_required
 def checkout(request):
-    items = Cart.objects.filter(user=request.user).select_related('product')
+    cart_data = _calculate_cart_totals(request.user, request.session)
+    items = cart_data['items']
+
     if not items.exists():
-        messages.warning(request, "Your cart is empty")
+        messages.warning(request, "Your cart is empty. Please add items to place an order.")
         return redirect('cart')
 
     addresses = Address.objects.filter(user=request.user)
-    subtotal = sum(item.total_price for item in items)
-    delivery_fee = 0 if subtotal >= FREE_DELIVERY_THRESHOLD else DELIVERY_FEE
-    total = subtotal + delivery_fee
+    subtotal = cart_data['subtotal']
+    discount_amount = cart_data['discount_amount']
+    coupon = cart_data['coupon']
+    delivery_fee = cart_data['delivery_fee']
+    total = cart_data['total']
 
     if request.method == 'POST':
         address_id = request.POST.get('address_id')
         payment_method = request.POST.get('payment_method', 'cod')
-        address = Address.objects.filter(pk=address_id, user=request.user).first()
+
+        address = None
+        if address_id:
+            address = Address.objects.filter(pk=address_id, user=request.user).first()
+
+        # If no address selected, check if user filled in the new address form directly on checkout
         if not address:
-            messages.error(request, "Please select a delivery address")
+            full_name = request.POST.get('full_name', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            address_line = request.POST.get('address_line', '').strip()
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+
+            if full_name and phone and address_line and city and pincode:
+                is_def = not addresses.exists() or bool(request.POST.get('is_default'))
+                if is_def:
+                    Address.objects.filter(user=request.user).update(is_default=False)
+                address = Address.objects.create(
+                    user=request.user,
+                    full_name=full_name,
+                    phone=phone,
+                    address_line=address_line,
+                    city=city,
+                    state=state,
+                    pincode=pincode,
+                    is_default=is_def
+                )
+
+        # Fallback to default or first address if available
+        if not address and addresses.exists():
+            address = addresses.filter(is_default=True).first() or addresses.first()
+
+        if not address:
+            messages.error(request, "Please enter your delivery address to place your order.")
             return redirect('checkout')
 
         order = Order.objects.create(
-            user=request.user, address=address, payment_method=payment_method,
-            subtotal=subtotal, delivery_fee=delivery_fee, total_amount=total,
+            user=request.user,
+            address=address,
+            payment_method=payment_method,
+            subtotal=subtotal,
+            coupon_code=coupon.code if coupon else '',
+            discount_amount=discount_amount,
+            delivery_fee=delivery_fee,
+            total_amount=total,
+            status='placed'
         )
         for item in items:
             OrderItem.objects.create(
-                order=order, product=item.product, product_name=item.product.name,
-                quantity=item.product_qty, price=item.product.selling_price,
+                order=order,
+                product=item.product,
+                product_name=item.product.name,
+                color_name=item.color.name if item.color else '',
+                color_code=item.color.color_code if item.color else '',
+                quantity=item.product_qty,
+                price=item.unit_price,
             )
+        
+        # Clear cart and session coupon
         items.delete()
-        messages.success(request, "Your order has been placed!")
+        if 'coupon_code' in request.session:
+            del request.session['coupon_code']
+            request.session.modified = True
+
+        messages.success(request, f"Order #{order.id} placed successfully!")
         return redirect('order_success', order_id=order.id)
 
     return render(request, "shop/checkout.html", {
-        "items": items, "addresses": addresses, "subtotal": subtotal,
-        "delivery_fee": delivery_fee, "total": total, "address_form": AddressForm(),
+        "items": items,
+        "addresses": addresses,
+        "subtotal": subtotal,
+        "coupon": coupon,
+        "discount_amount": discount_amount,
+        "delivery_fee": delivery_fee,
+        "total": total,
+        "address_form": AddressForm(),
     })
 
 
@@ -319,6 +558,21 @@ def add_address(request):
 
 
 @login_required
+def delete_address(request, address_id):
+    Address.objects.filter(pk=address_id, user=request.user).delete()
+    messages.success(request, "Address deleted successfully")
+    return redirect(request.META.get('HTTP_REFERER', 'profile'))
+
+
+@login_required
+def set_default_address(request, address_id):
+    Address.objects.filter(user=request.user).update(is_default=False)
+    Address.objects.filter(pk=address_id, user=request.user).update(is_default=True)
+    messages.success(request, "Default delivery address updated.")
+    return redirect(request.META.get('HTTP_REFERER', 'profile'))
+
+
+@login_required
 def order_success(request, order_id):
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     return render(request, "shop/order_success.html", {"order": order})
@@ -334,3 +588,45 @@ def my_orders(request):
 def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     return render(request, "shop/order_detail.html", {"order": order})
+
+
+@login_required
+def invoice_view(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    return render(request, "shop/invoice.html", {"order": order})
+
+
+# ---------- User Profile Hub ----------
+
+@login_required
+def profile_view(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related('items')
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-created_at')
+    wishlist_count = Wishlist.objects.filter(user=request.user).count()
+    total_spent = sum(o.total_amount for o in orders.exclude(status='cancelled'))
+
+    return render(request, "shop/profile.html", {
+        "orders": orders,
+        "addresses": addresses,
+        "wishlist_count": wishlist_count,
+        "total_spent": total_spent,
+        "address_form": AddressForm(),
+    })
+
+
+@login_required
+@require_POST
+def update_profile(request):
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip()
+
+    user = request.user
+    user.first_name = first_name
+    user.last_name = last_name
+    if email:
+        user.email = email
+    user.save()
+    messages.success(request, "Profile updated successfully!")
+    return redirect('profile')
+

@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "ShopKart",
+    "slug": "shopkart-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../static/images/icons/icon-512.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#FF6A00",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shopkart.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../static/images/icons/icon-512.png",
+        "backgroundColor": "#FF6A00"
+      },
+      "package": "com.shopkart.mobile"
+    },
+    "web": {
+      "favicon": "../static/images/icons/favicon-32.png"
+    }
+  }
+}

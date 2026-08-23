@@ -17,9 +17,40 @@
   </div>
 
   {% if subcategories %}
+  <!-- Featured Visual Subcategory Cards -->
+  <div class="mb-8 bg-white rounded-2xl p-6 ring-1 ring-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span>📁</span>
+          <span>Shop by Subcategory</span>
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Explore specific departments inside {{ category.name }}</p>
+      </div>
+      <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">
+        {{ subcategories|length }} Subcategories
+      </span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {% for sub in subcategories %}
+      <a href="{% url 'collections_view' sub.slug %}" class="group bg-slate-50 hover:bg-white rounded-xl p-3.5 ring-1 ring-slate-200 hover:ring-brand hover:shadow-md transition text-center flex flex-col items-center">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white ring-1 ring-slate-200 overflow-hidden flex items-center justify-center mb-2.5 p-1 group-hover:scale-105 transition shadow-sm">
+          {% if sub.image %}
+          <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="w-full h-full object-cover rounded-full">
+          {% else %}
+          <span class="text-2xl">📦</span>
+          {% endif %}
+        </div>
+        <span class="text-xs font-semibold text-slate-800 group-hover:text-brand transition line-clamp-1">{{ sub.name }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
   <!-- Subcategory Quick Filter Pills (for Parent Category) -->
   <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4">
-    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Subcategories:</span>
+    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Filter:</span>
     <span class="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand text-white shrink-0">All {{ category.name }}</span>
     {% for sub in subcategories %}
     <a href="{% url 'collections_view' sub.slug %}" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-brand hover:text-brand shrink-0 transition">
@@ -30,7 +61,7 @@
   {% elif sibling_subcategories %}
   <!-- Sibling Subcategory Quick Filter Pills (for Subcategory) -->
   <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4">
-    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Subcategories:</span>
+    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Department:</span>
     <a href="{% url 'collections_view' category.parent.slug %}" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-brand hover:text-brand shrink-0 transition">
       All {{ category.parent.name }}
     </a>

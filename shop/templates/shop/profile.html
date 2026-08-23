@@ -1,0 +1,204 @@
+{% extends 'shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}My Profile & Account — ShopKart{% endblock title %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ addingAddress: false }">
+  
+  <!-- Profile Hero Header -->
+  <div class="bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-md relative overflow-hidden">
+    <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+      <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-brand to-amber-500 flex items-center justify-center text-3xl sm:text-4xl font-black shadow-lg border-2 border-white/20">
+        {{ request.user.username|slice:":1"|upper }}
+      </div>
+      <div class="flex-1">
+        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+          <h1 class="text-2xl sm:text-3xl font-extrabold">{{ request.user.get_full_name|default:request.user.username }}</h1>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider bg-brand/30 border border-brand text-orange-200 px-2.5 py-0.5 rounded-full">
+            Member
+          </span>
+        </div>
+        <p class="text-slate-300 text-sm">@{{ request.user.username }} &middot; {{ request.user.email|default:"No email registered" }}</p>
+        <p class="text-xs text-slate-400 mt-2">Member since {{ request.user.date_joined|date:"F Y" }}</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats Strip -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10 text-center">
+      <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+        <p class="text-xs text-slate-300 font-medium">Total Orders</p>
+        <p class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ orders|length }}</p>
+      </div>
+      <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+        <p class="text-xs text-slate-300 font-medium">Total Spent</p>
+        <p class="text-xl sm:text-2xl font-black text-brand-light mt-0.5">₹{{ total_spent|floatformat:0 }}</p>
+      </div>
+      <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+        <p class="text-xs text-slate-300 font-medium">Wishlist Items</p>
+        <p class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ wishlist_count }}</p>
+      </div>
+      <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+        <p class="text-xs text-slate-300 font-medium">Saved Addresses</p>
+        <p class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ addresses|length }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- LEFT: Personal Details & Saved Addresses -->
+    <div class="lg:col-span-7 space-y-8">
+      
+      <!-- Edit Profile Card -->
+      <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 shadow-xs">
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <span>👤</span>
+          <span>Personal Information</span>
+        </h2>
+        
+        <form action="{% url 'update_profile' %}" method="post" class="space-y-4">
+          {% csrf_token %}
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">First Name</label>
+              <input type="text" name="first_name" value="{{ request.user.first_name }}" placeholder="First name"
+                     class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Last Name</label>
+              <input type="text" name="last_name" value="{{ request.user.last_name }}" placeholder="Last name"
+                     class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Email Address</label>
+            <input type="email" name="email" value="{{ request.user.email }}" placeholder="your.email@example.com"
+                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:bg-white transition">
+          </div>
+          <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl transition shadow-xs">
+            Save Changes
+          </button>
+        </form>
+      </div>
+
+      <!-- Address Book Manager -->
+      <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>📍</span>
+            <span>Saved Addresses</span>
+          </h2>
+          <button @click="addingAddress = !addingAddress" class="text-xs font-bold text-brand hover:underline" x-text="addingAddress ? 'Cancel' : '+ Add Address'"></button>
+        </div>
+
+        <!-- Add Address Form Form -->
+        <div x-show="addingAddress" x-cloak class="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <h3 class="font-bold text-sm text-slate-800 mb-3">Add New Delivery Address</h3>
+          <form action="{% url 'add_address' %}" method="post" class="space-y-3">
+            {% csrf_token %}
+            <div class="grid sm:grid-cols-2 gap-3">
+              {{ address_form.full_name }}
+              {{ address_form.phone }}
+            </div>
+            <div>{{ address_form.address_line }}</div>
+            <div class="grid sm:grid-cols-3 gap-3">
+              {{ address_form.city }}
+              {{ address_form.state }}
+              {{ address_form.pincode }}
+            </div>
+            <label class="flex items-center gap-2 text-xs text-slate-600 font-medium">
+              {{ address_form.is_default }} Set as default address
+            </label>
+            <button type="submit" class="bg-navy hover:bg-navy-light text-white text-xs font-bold px-5 py-2.5 rounded-xl transition">
+              Save Address
+            </button>
+          </form>
+        </div>
+
+        {% if addresses %}
+        <div class="space-y-3">
+          {% for a in addresses %}
+          <div class="p-4 rounded-2xl border border-slate-200 {% if a.is_default %}bg-orange-50/30 border-orange-200{% else %}bg-white{% endif %} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm text-slate-900">{{ a.full_name }}</span>
+                <span class="text-xs text-slate-400">&middot; {{ a.phone }}</span>
+                {% if a.is_default %}
+                <span class="text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Default</span>
+                {% endif %}
+              </div>
+              <p class="text-xs text-slate-600 mt-1">{{ a.address_line }}, {{ a.city }}, {{ a.state }} - {{ a.pincode }}</p>
+            </div>
+            
+            <div class="flex items-center gap-2 shrink-0">
+              {% if not a.is_default %}
+              <a href="{% url 'set_default_address' a.id %}" class="text-xs font-semibold text-slate-600 hover:text-brand px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-orange-100 transition">
+                Set Default
+              </a>
+              {% endif %}
+              <a href="{% url 'delete_address' a.id %}" onclick="return confirm('Delete this address?')" class="text-xs font-semibold text-red-500 hover:text-red-700 p-1">
+                ✕
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-slate-400 text-center py-4">No saved addresses yet. Click "+ Add Address" to create one.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Recent Orders & Invoices Preview -->
+    <div class="lg:col-span-5 space-y-6">
+      
+      <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>📦</span>
+            <span>Recent Orders</span>
+          </h2>
+          <a href="{% url 'my_orders' %}" class="text-xs font-bold text-brand hover:underline">View All →</a>
+        </div>
+
+        {% if orders %}
+        <div class="space-y-3">
+          {% for o in orders|slice:":4" %}
+          <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-xs text-navy">Order #{{ o.id }}</span>
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full
+                {% if o.status == 'delivered' %}bg-emerald-100 text-emerald-700
+                {% elif o.status == 'cancelled' %}bg-red-100 text-red-700
+                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ o.get_status_display }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">{{ o.created_at|date:"M d, Y" }} &middot; {{ o.items.count }} item{{ o.items.count|pluralize }}</p>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-xs font-black text-slate-800">₹{{ o.total_amount|floatformat:0 }}</span>
+              <div class="flex gap-2">
+                <a href="{% url 'invoice' o.id %}" target="_blank" class="text-[11px] font-semibold text-slate-600 hover:text-navy">Receipt 📄</a>
+                <a href="{% url 'order_detail' o.id %}" class="text-[11px] font-bold text-brand hover:underline">Track Order →</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+          <p class="text-3xl mb-2">🛍️</p>
+          <p class="text-xs text-slate-500">You haven't placed any orders yet.</p>
+          <a href="{% url 'collections' %}" class="inline-block mt-3 px-4 py-2 bg-brand text-white font-bold text-xs rounded-xl">Start Shopping</a>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock content %}

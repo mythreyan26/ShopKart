@@ -16,22 +16,79 @@
           <span class="text-xl font-extrabold tracking-tight">Shop<span class="text-brand">Kart</span></span>
         </a>
 
-        <!-- Search (desktop) -->
-        <form action="{% url 'search' %}" method="get" class="hidden sm:flex flex-1 max-w-2xl mx-4">
-          <div class="flex w-full rounded-md overflow-hidden shadow-sm ring-1 ring-white/10">
-            <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search for products, brands and more"
-                   class="w-full px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none">
+        <!-- Search (desktop with Instant Live Autocomplete) -->
+        <div class="relative flex-1 max-w-2xl mx-4 hidden sm:block"
+             x-data="{
+               query: '{{ query|default:'' }}',
+               suggestions: [],
+               loading: false,
+               open: false,
+               fetchSuggestions() {
+                 if (!this.query || this.query.trim().length < 2) {
+                   this.suggestions = [];
+                   this.open = false;
+                   return;
+                 }
+                 this.loading = true;
+                 fetch(`/search/autocomplete?q=${encodeURIComponent(this.query.trim())}`)
+                   .then(r => r.json())
+                   .then(d => {
+                     this.suggestions = d.results || [];
+                     this.open = this.suggestions.length > 0;
+                     this.loading = false;
+                   })
+                   .catch(() => { this.loading = false; });
+               }
+             }"
+             @click.outside="open = false">
+          <form action="{% url 'search' %}" method="get" class="flex w-full rounded-md overflow-hidden shadow-sm ring-1 ring-white/10">
+            <input type="text" name="q" x-model="query" @input.debounce.250ms="fetchSuggestions()" @focus="if(suggestions.length) open = true"
+                   placeholder="Search for products, brands and categories..."
+                   class="w-full px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none text-sm">
             <button type="submit" class="bg-brand hover:bg-brand-dark px-4 flex items-center justify-center transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
               </svg>
             </button>
-          </div>
-        </form>
+          </form>
 
+          <!-- Autocomplete Dropdown -->
+          <div x-show="open" x-cloak x-transition
+               class="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl shadow-2xl ring-1 ring-black/10 divide-y divide-slate-100 overflow-hidden z-50">
+            <template x-for="item in suggestions" :key="item.id">
+              <a :href="item.url" class="flex items-center gap-3 p-3 hover:bg-orange-50/50 transition group">
+                <img :src="item.image || '/static/images/icons/icon-192.png'" class="w-11 h-11 object-contain rounded-xl bg-slate-50 p-1 border border-slate-100 flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                  <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider" x-text="item.brand"></p>
+                  <p class="text-sm font-semibold text-slate-800 group-hover:text-brand truncate leading-snug" x-text="item.name"></p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <p class="text-sm font-black text-navy">₹<span x-text="item.price.toLocaleString('en-IN')"></span></p>
+                  <template x-if="item.discount > 0">
+                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded" x-text="item.discount + '% OFF'"></span>
+                  </template>
+                </div>
+              </a>
+            </template>
+            <a :href="'/search?q=' + encodeURIComponent(query)" class="block p-2.5 text-center text-xs font-bold text-brand bg-slate-50 hover:bg-orange-50 transition">
+              View all matching products for "<span x-text="query"></span>" →
+            </a>
+          </div>
+        </div>
+
+        <!-- Right icons -->
         <!-- Right icons -->
         <div class="flex items-center gap-1 sm:gap-2 ml-auto">
           {% if request.user.is_authenticated %}
+            <!-- Direct Orders Button in Top Bar -->
+            <a href="{% url 'my_orders' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/10 transition text-xs sm:text-sm font-semibold text-white/95">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+              <span class="hidden sm:inline">Orders</span>
+            </a>
+
+            <!-- User Menu -->
             <div class="relative" x-data="{ open: false }">
               <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-1 px-2.5 py-1.5 rounded hover:bg-white/10 transition text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -39,10 +96,16 @@
                 </svg>
                 <span class="hidden md:inline font-medium">{{ request.user.username }}</span>
               </button>
-              <div x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-white text-slate-800 rounded-lg shadow-xl ring-1 ring-black/5 py-2 z-50">
-                <a href="{% url 'my_orders' %}" class="block px-4 py-2 text-sm hover:bg-slate-50">My Orders</a>
+              <div x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-52 bg-white text-slate-800 rounded-xl shadow-xl ring-1 ring-black/5 py-2 z-50">
+                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm font-semibold hover:bg-slate-50 text-slate-900 flex items-center justify-between">
+                  <span>My Profile</span>
+                  <span class="text-xs bg-orange-100 text-brand px-1.5 py-0.5 rounded">Hub</span>
+                </a>
+                <a href="{% url 'my_orders' %}" class="block px-4 py-2 text-sm font-bold text-slate-900 hover:bg-orange-50 hover:text-brand flex items-center gap-2">
+                  <span>📦</span>
+                  <span>My Orders</span>
+                </a>
                 <a href="{% url 'wishlist' %}" class="block px-4 py-2 text-sm hover:bg-slate-50">Wishlist</a>
-                <a href="{% url 'checkout' %}" class="block px-4 py-2 text-sm hover:bg-slate-50">Addresses</a>
                 <hr class="my-1 border-slate-100">
                 <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-slate-50">Logout</a>
               </div>
@@ -52,7 +115,15 @@
             <a href="{% url 'register' %}" class="hidden sm:inline-block px-3 py-1.5 rounded text-sm font-semibold bg-brand hover:bg-brand-dark transition">Sign Up</a>
           {% endif %}
 
-          <a href="{% url 'wishlist' %}" class="relative p-2 rounded hover:bg-white/10 transition">
+          <!-- Install App Button -->
+          <button onclick="document.getElementById('pwa-install-btn')?.click() || document.getElementById('pwa-install-banner')?.classList.remove('hidden')" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-xs font-semibold text-white/95 border border-white/10">
+            <svg class="w-4 h-4 text-brand-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span>Get App</span>
+          </button>
+
+          <a href="{% url 'wishlist' %}" class="relative p-2 rounded hover:bg-white/10 transition" title="Wishlist">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
@@ -61,7 +132,7 @@
             {% endif %}
           </a>
 
-          <a href="{% url 'cart' %}" class="relative flex items-center gap-1.5 p-2 rounded hover:bg-white/10 transition">
+          <a href="{% url 'cart' %}" class="relative flex items-center gap-1.5 p-2 rounded hover:bg-white/10 transition" title="Cart">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
@@ -73,22 +144,55 @@
         </div>
       </div>
 
-      <!-- Search (mobile) -->
-      <form action="{% url 'search' %}" method="get" class="sm:hidden pb-3">
-        <div class="flex w-full rounded-md overflow-hidden shadow-sm">
-          <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search products"
+      <!-- Search (mobile with autocomplete) -->
+      <div class="sm:hidden pb-3 relative"
+           x-data="{
+             mQuery: '{{ query|default:'' }}',
+             mSuggestions: [],
+             mOpen: false,
+             fetchMSuggestions() {
+               if (!this.mQuery || this.mQuery.trim().length < 2) {
+                 this.mSuggestions = [];
+                 this.mOpen = false;
+                 return;
+               }
+               fetch(`/search/autocomplete?q=${encodeURIComponent(this.mQuery.trim())}`)
+                 .then(r => r.json())
+                 .then(d => {
+                   this.mSuggestions = d.results || [];
+                   this.mOpen = this.mSuggestions.length > 0;
+                 });
+             }
+           }"
+           @click.outside="mOpen = false">
+        <form action="{% url 'search' %}" method="get" class="flex w-full rounded-md overflow-hidden shadow-sm">
+          <input type="text" name="q" x-model="mQuery" @input.debounce.250ms="fetchMSuggestions()"
+                 placeholder="Search products, brands..."
                  class="w-full px-3 py-2 text-sm text-slate-900 focus:outline-none">
           <button type="submit" class="bg-brand px-3.5 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
             </svg>
           </button>
+        </form>
+
+        <div x-show="mOpen" x-cloak x-transition
+             class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl ring-1 ring-black/10 divide-y divide-slate-100 overflow-hidden z-50">
+          <template x-for="item in mSuggestions" :key="item.id">
+            <a :href="item.url" class="flex items-center gap-2.5 p-2.5 hover:bg-orange-50/50">
+              <img :src="item.image || '/static/images/icons/icon-192.png'" class="w-8 h-8 object-contain rounded bg-slate-50 border border-slate-100 flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-800 truncate" x-text="item.name"></p>
+                <p class="text-[11px] font-bold text-navy">₹<span x-text="item.price.toLocaleString('en-IN')"></span></p>
+              </div>
+            </a>
+          </template>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
-  <!-- Category strip -->
+  <!-- Category strip & Direct Orders Bar -->
   <nav class="bg-navy-light text-white/90 text-sm hidden lg:block border-t border-white/5 relative z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-6 py-2 overflow-visible">
@@ -112,6 +216,12 @@
           <a href="{% url 'collections_view' cat.slug %}" class="hover:text-brand transition whitespace-nowrap">{{ cat.name }}</a>
           {% endif %}
         {% endfor %}
+
+        <!-- Direct Orders & Tracking Shortcut on Sub-Nav -->
+        <a href="{% url 'my_orders' %}" class="ml-auto flex items-center gap-1.5 text-xs font-bold text-orange-200 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition shrink-0">
+          <span>📦</span>
+          <span>Orders & Tracking</span>
+        </a>
       </div>
     </div>
   </nav>
@@ -125,7 +235,15 @@
         <button @click="mobileOpen=false" class="p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <div class="space-y-1">
-        <a href="{% url 'collections' %}" class="block px-2 py-2 rounded font-semibold text-brand">All Categories</a>
+        <!-- Prominent Orders Link in Mobile Menu -->
+        <a href="{% url 'my_orders' %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-orange-50 text-brand font-bold text-sm mb-2">
+          <span class="flex items-center gap-2">
+            <span>📦</span>
+            <span>My Orders & Tracking</span>
+          </span>
+          <span>→</span>
+        </a>
+        <a href="{% url 'collections' %}" class="block px-2 py-2 rounded font-semibold text-slate-800 hover:text-brand">All Categories</a>
         {% for cat in nav_categories %}
           {% if cat.subcategories.all %}
           <div x-data="{ open: false }">
@@ -146,8 +264,14 @@
           {% endif %}
         {% endfor %}
         <hr class="my-3">
-        <a href="{% url 'my_orders' %}" class="block px-2 py-2 rounded hover:bg-slate-50">My Orders</a>
-        <a href="{% url 'wishlist' %}" class="block px-2 py-2 rounded hover:bg-slate-50">Wishlist</a>
+        <a href="{% url 'profile' %}" class="block px-2 py-2 rounded font-medium hover:bg-slate-50">My Profile Hub</a>
+        <a href="{% url 'wishlist' %}" class="block px-2 py-2 rounded font-medium hover:bg-slate-50">My Wishlist</a>
+        <button onclick="mobileOpen=false; document.getElementById('pwa-install-btn')?.click() || document.getElementById('pwa-install-banner')?.classList.remove('hidden')" class="w-full text-left flex items-center gap-2 px-2 py-2 rounded text-brand font-semibold hover:bg-orange-50 transition">
+          <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span>Install ShopKart App</span>
+        </button>
       </div>
     </div>
   </div>

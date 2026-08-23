@@ -6,8 +6,29 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+  <!-- Orders Quick Access Strip for Logged in Users -->
+  {% if request.user.is_authenticated %}
+  <div class="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 rounded-2xl p-4 sm:p-5 border border-orange-200/80 my-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
+    <div class="flex items-center gap-3.5 text-center sm:text-left">
+      <div class="w-11 h-11 rounded-xl bg-brand text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+        📦
+      </div>
+      <div>
+        <h3 class="text-sm sm:text-base font-extrabold text-slate-900">Manage Your Orders & Track Deliveries</h3>
+        <p class="text-xs text-slate-600">View recent orders, print tax invoices, and track live delivery status in real-time.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <a href="{% url 'my_orders' %}" class="px-4 py-2.5 bg-slate-900 hover:bg-brand text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-1.5">
+        <span>View My Orders</span>
+        <span>→</span>
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Category quick links -->
-  <section class="py-8">
+  <section class="py-6">
     <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4">
       {% for cat in categories %}
       <a href="{% url 'collections_view' cat.slug %}" class="group flex flex-col items-center gap-2 text-center">

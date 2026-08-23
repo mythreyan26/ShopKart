@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'shop.middleware.APICORSMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'ms_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -65,12 +66,119 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'shop.context_processors.cart_context',
+                'shop.context_processors.admin_dashboard_context',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'ms_project.wsgi.application'
+
+
+# ==============================================================================
+# Jazzmin Admin Theme Configuration
+# ==============================================================================
+
+JAZZMIN_SETTINGS = {
+    "site_title": "ShopKart Pro Admin",
+    "site_header": "ShopKart Pro",
+    "site_brand": "ShopKart Pro",
+    "site_logo": None,
+    "login_logo": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "welcome_sign": "Welcome to ShopKart Pro Executive Suite",
+    "copyright": "ShopKart Pro Inc.",
+    "search_model": ["shop.Product", "shop.Order", "shop.Category"],
+    "user_avatar": None,
+
+    "topmenu_links": [
+        {"name": "Home Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Live Store", "url": "/", "new_window": True},
+        {"model": "auth.User"},
+    ],
+
+    "usermenu_links": [
+        {"name": "Live Storefront", "url": "/", "new_window": True, "icon": "fas fa-external-link-alt"},
+    ],
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+
+    "order_with_respect_to": [
+        "shop.Product",
+        "shop.ProductColor",
+        "shop.Category",
+        "shop.Order",
+        "shop.OrderItem",
+        "shop.Review",
+        "shop.Cart",
+        "shop.Wishlist",
+        "shop.Address",
+        "auth.User",
+        "auth.Group",
+    ],
+
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "shop.Category": "fas fa-layer-group",
+        "shop.Product": "fas fa-box-open",
+        "shop.ProductColor": "fas fa-palette",
+        "shop.ProductImage": "fas fa-images",
+        "shop.Order": "fas fa-shopping-bag",
+        "shop.OrderItem": "fas fa-receipt",
+        "shop.Review": "fas fa-star",
+        "shop.Cart": "fas fa-shopping-cart",
+        "shop.Wishlist": "fas fa-heart",
+        "shop.Address": "fas fa-map-marker-alt",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "custom_css": "css/admin_custom.css",
+    "custom_js": None,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "auth.user": "collapsible",
+        "auth.group": "vertical_tabs",
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-dark",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": True,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
 
 
 # Database

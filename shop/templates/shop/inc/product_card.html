@@ -1,6 +1,6 @@
 {% load static %}
 <div class="group relative bg-white rounded-xl ring-1 ring-slate-200 hover:ring-brand/40 hover:shadow-lg transition overflow-hidden flex flex-col">
-  <a href="{% url 'product_details' item.category.slug item.slug %}" class="block relative aspect-[4/5] bg-slate-50 overflow-hidden">
+  <a href="{{ item.get_absolute_url }}" class="block relative aspect-[4/5] bg-slate-50 overflow-hidden">
     {% if item.product_image %}
     <img src="{{ item.product_image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
     {% else %}
@@ -27,7 +27,7 @@
 
   <div class="p-3 flex flex-col flex-1">
     <p class="text-[11px] uppercase tracking-wide text-slate-400 font-medium">{{ item.brand }}</p>
-    <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-sm font-medium text-slate-800 line-clamp-2 mt-0.5 hover:text-brand transition">{{ item.name }}</a>
+    <a href="{{ item.get_absolute_url }}" class="text-sm font-medium text-slate-800 line-clamp-2 mt-0.5 hover:text-brand transition">{{ item.name }}</a>
 
     {% if item.review_count %}
     <div class="flex items-center gap-1 mt-1.5">

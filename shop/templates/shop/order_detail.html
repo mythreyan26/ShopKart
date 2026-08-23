@@ -2,50 +2,143 @@
 {% block title %}Order #{{ order.id }} | ShopKart{% endblock title %}
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <a href="{% url 'my_orders' %}" class="text-sm text-slate-500 hover:text-brand">&larr; Back to Orders</a>
-  <div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
-    <h1 class="text-2xl font-bold text-slate-900">Order #{{ order.id }}</h1>
-    <span class="text-xs font-semibold px-2.5 py-1 rounded-full
-      {% if order.status == 'delivered' %}bg-green-100 text-green-700
-      {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
-      {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
-      {% else %}bg-amber-100 text-amber-700{% endif %}">
-      {{ order.get_status_display }}
+  <div class="flex items-center justify-between gap-3 mb-4">
+    <a href="{% url 'my_orders' %}" class="text-sm font-semibold text-slate-500 hover:text-brand transition inline-flex items-center gap-1">&larr; Back to Orders</a>
+    <a href="{% url 'invoice' order.id %}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <span>Print Invoice</span>
+    </a>
+  </div>
+  
+  <!-- Order Header Banner -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-white rounded-2xl p-5 ring-1 ring-slate-200/90 shadow-xs">
+    <div>
+      <h1 class="text-2xl font-black text-slate-900">Order #{{ order.id }}</h1>
+      <p class="text-xs text-slate-400 mt-0.5">Placed on {{ order.created_at|date:"M d, Y, h:i A" }}</p>
+    </div>
+    <span class="text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider
+      {% if order.status == 'delivered' %}bg-emerald-100 text-emerald-800
+      {% elif order.status == 'cancelled' %}bg-rose-100 text-rose-800
+      {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-100 text-blue-800
+      {% else %}bg-amber-100 text-amber-800{% endif %}">
+      ● {{ order.get_status_display }}
     </span>
   </div>
 
+  <!-- Visual Order Tracking Stepper -->
+  {% if order.status != 'cancelled' %}
+  <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-6 mb-6 shadow-xs">
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6">Delivery Progress</h3>
+    <div class="grid grid-cols-4 relative text-center">
+      <!-- Line background -->
+      <div class="absolute top-4 left-[12%] right-[12%] h-1 bg-slate-200 -z-0"></div>
+      
+      <!-- Step 1: Placed -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-brand text-white shadow-sm ring-4 ring-orange-50">✓</div>
+        <p class="text-xs font-bold text-slate-800 mt-2">Placed</p>
+        <p class="text-[10px] text-slate-400">{{ order.created_at|date:"M d" }}</p>
+      </div>
+
+      <!-- Step 2: Confirmed -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-brand text-white shadow-sm ring-4 ring-orange-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+          {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}✓{% else %}2{% endif %}
+        </div>
+        <p class="text-xs font-bold {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-2">Packed</p>
+        <p class="text-[10px] text-slate-400">Warehouse</p>
+      </div>
+
+      <!-- Step 3: Shipped -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-brand text-white shadow-sm ring-4 ring-orange-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+          {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}✓{% else %}3{% endif %}
+        </div>
+        <p class="text-xs font-bold {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-2">Shipped</p>
+        <p class="text-[10px] text-slate-400">In Transit</p>
+      </div>
+
+      <!-- Step 4: Delivered -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'delivered' %}bg-emerald-600 text-white shadow-sm ring-4 ring-emerald-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+          {% if order.status == 'delivered' %}✓{% else %}4{% endif %}
+        </div>
+        <p class="text-xs font-bold {% if order.status == 'delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-2">Delivered</p>
+        <p class="text-[10px] text-slate-400">Destination</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="grid md:grid-cols-3 gap-6">
+    <!-- Items List -->
     <div class="md:col-span-2 space-y-3">
       {% for oi in order.items.all %}
-      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-4 flex items-center gap-4">
-        <div class="h-16 w-16 rounded-lg overflow-hidden bg-slate-50 shrink-0">
-          {% if oi.product.product_image %}<img src="{{ oi.product.product_image.url }}" class="w-full h-full object-cover">{% endif %}
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-4 sm:p-5 flex items-center gap-4 shadow-xs">
+        <div class="h-16 w-16 rounded-xl overflow-hidden bg-slate-50 p-1 ring-1 ring-slate-100 shrink-0 flex items-center justify-center">
+          {% if oi.product and oi.product.product_image %}
+            <img src="{{ oi.product.product_image.url }}" class="w-full h-full object-contain">
+          {% else %}
+            <div class="text-xl">📦</div>
+          {% endif %}
         </div>
-        <div class="flex-1">
-          <p class="font-medium text-slate-800">{{ oi.product_name }}</p>
-          <p class="text-xs text-slate-400">Qty: {{ oi.quantity }} &middot; ₹{{ oi.price|floatformat:0 }} each</p>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-slate-800 text-sm truncate">{{ oi.product_name }}</p>
+          <div class="flex items-center gap-2 mt-1 flex-wrap">
+            <span class="text-xs text-slate-400">Qty: {{ oi.quantity }} &middot; ₹{{ oi.price|floatformat:0 }} each</span>
+            {% if oi.color_name %}
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 ring-1 ring-slate-200">
+              <span class="w-2 h-2 rounded-full border border-black/10" style="background-color: {{ oi.color_code|default:'#cbd5e1' }};"></span>
+              <span>{{ oi.color_name }}</span>
+            </span>
+            {% endif %}
+          </div>
         </div>
-        <p class="font-bold text-slate-900">₹{{ oi.total_price|floatformat:0 }}</p>
+        <p class="font-extrabold text-slate-900 text-sm sm:text-base">₹{{ oi.total_price|floatformat:0 }}</p>
       </div>
       {% endfor %}
     </div>
 
+    <!-- Side Summaries -->
     <div class="space-y-4">
-      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-5">
-        <h3 class="font-bold text-slate-900 mb-3 text-sm">Delivery Address</h3>
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-5 shadow-xs">
+        <h3 class="font-bold text-slate-900 mb-2.5 text-sm">Delivery Address</h3>
         {% if order.address %}
-        <p class="text-sm text-slate-600">{{ order.address.full_name }}<br>{{ order.address.address_line }}<br>{{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}<br>{{ order.address.phone }}</p>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          <strong class="text-slate-800">{{ order.address.full_name }}</strong><br>
+          {{ order.address.address_line }}<br>
+          {{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}<br>
+          Phone: {{ order.address.phone }}
+        </p>
         {% endif %}
       </div>
-      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-5">
+
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-5 shadow-xs">
         <h3 class="font-bold text-slate-900 mb-3 text-sm">Payment Summary</h3>
-        <div class="space-y-1.5 text-sm">
-          <div class="flex justify-between text-slate-600"><span>Subtotal</span><span>₹{{ order.subtotal|floatformat:0 }}</span></div>
-          <div class="flex justify-between text-slate-600"><span>Delivery</span><span>{% if order.delivery_fee == 0 %}FREE{% else %}₹{{ order.delivery_fee|floatformat:0 }}{% endif %}</span></div>
-          <hr class="my-1.5 border-slate-100">
-          <div class="flex justify-between font-bold text-slate-900"><span>Total</span><span>₹{{ order.total_amount|floatformat:0 }}</span></div>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>Subtotal</span>
+            <span class="font-semibold text-slate-800">₹{{ order.subtotal|floatformat:0 }}</span>
+          </div>
+
+          {% if order.discount_amount > 0 %}
+          <div class="flex justify-between text-emerald-600 font-semibold">
+            <span>Coupon Discount ({{ order.coupon_code }})</span>
+            <span>- ₹{{ order.discount_amount|floatformat:0 }}</span>
+          </div>
+          {% endif %}
+
+          <div class="flex justify-between text-slate-600">
+            <span>Delivery Fee</span>
+            <span>{% if order.delivery_fee == 0 %}<span class="text-emerald-700 font-bold">FREE</span>{% else %}₹{{ order.delivery_fee|floatformat:0 }}{% endif %}</span>
+          </div>
+          <hr class="my-2 border-slate-100">
+          <div class="flex justify-between font-extrabold text-slate-900 text-sm">
+            <span>Total Amount</span>
+            <span class="text-brand">₹{{ order.total_amount|floatformat:0 }}</span>
+          </div>
         </div>
-        <p class="text-xs text-slate-400 mt-3">Paid via {{ order.get_payment_method_display }}</p>
+        <p class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-100">Paid via {{ order.get_payment_method_display }}</p>
       </div>
     </div>
   </div>

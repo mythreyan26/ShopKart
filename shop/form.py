@@ -18,6 +18,11 @@ class CustomUserForm(UserCreationForm):
 
 
 class AddressForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
     class Meta:
         model = Address
         fields = ['full_name', 'phone', 'address_line', 'city', 'state', 'pincode', 'is_default']

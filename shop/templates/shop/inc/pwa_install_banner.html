@@ -1,0 +1,131 @@
+{% load static %}
+<!-- PWA Install Drawer / Banner (Universal across Android, iOS, Windows, Mac) -->
+<div id="pwa-install-banner" class="hidden fixed bottom-16 md:bottom-6 right-4 left-4 md:left-auto md:max-w-md z-50 animate-bounce-short">
+  <div class="bg-navy text-white p-4 rounded-2xl shadow-2xl border border-slate-700/80 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <img src="{% static 'images/icons/icon-192.png' %}" alt="ShopKart App" class="w-12 h-12 rounded-xl shadow-md flex-shrink-0 bg-brand">
+      <div>
+        <h4 class="font-bold text-sm text-white flex items-center gap-1.5">
+          <span>ShopKart App</span>
+          <span class="text-[10px] bg-brand text-white px-1.5 py-0.5 rounded font-extrabold uppercase">Fast</span>
+        </h4>
+        <p id="pwa-install-desc" class="text-xs text-slate-300">Install app on your device for a faster, offline-ready shopping experience!</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button id="pwa-install-btn" class="px-3.5 py-2 bg-brand hover:bg-brand-dark active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-md">
+        Install
+      </button>
+      <button id="pwa-close-btn" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Dismiss">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Install Instruction Modal -->
+<div id="ios-install-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div class="bg-white text-navy w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-fade-in">
+    <button id="ios-close-btn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <div class="text-center mb-4">
+      <img src="{% static 'images/icons/icon-192.png' %}" alt="ShopKart" class="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-md">
+      <h3 class="font-extrabold text-lg text-slate-900">Install ShopKart on iOS</h3>
+      <p class="text-xs text-slate-500 mt-1">Install to your iPhone/iPad Home Screen in 2 simple steps:</p>
+    </div>
+    <div class="space-y-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+        <p>Tap the <strong>Share</strong> button <svg class="inline w-4 h-4 text-blue-500 align-text-bottom" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg> in Safari's bottom toolbar.</p>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+        <p>Scroll down and tap <strong>'Add to Home Screen'</strong> ⊕.</p>
+      </div>
+    </div>
+    <button id="ios-understood-btn" class="w-full mt-5 py-3 bg-brand hover:bg-brand-dark text-white font-bold rounded-xl transition">
+      Got It!
+    </button>
+  </div>
+</div>
+
+<script>
+  let deferredPrompt = null;
+  const banner = document.getElementById('pwa-install-banner');
+  const installBtn = document.getElementById('pwa-install-btn');
+  const closeBtn = document.getElementById('pwa-close-btn');
+  const iosModal = document.getElementById('ios-install-modal');
+  const iosCloseBtn = document.getElementById('ios-close-btn');
+  const iosUnderstoodBtn = document.getElementById('ios-understood-btn');
+
+  // Check if iOS
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+  // Check if already in standalone mode (already installed)
+  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+
+  // Listen for beforeinstallprompt event (Android / Chromium / Desktop)
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('pwa_prompt_dismissed') && !isInStandaloneMode()) {
+      banner.classList.remove('hidden');
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          banner.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      } else if (isIos()) {
+        iosModal.classList.remove('hidden');
+      } else {
+        alert("To install ShopKart, click the 'Install' icon in your browser address bar or menu.");
+      }
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      banner.classList.add('hidden');
+      localStorage.setItem('pwa_prompt_dismissed', 'true');
+    });
+  }
+
+  if (iosCloseBtn) iosCloseBtn.addEventListener('click', () => iosModal.classList.add('hidden'));
+  if (iosUnderstoodBtn) iosUnderstoodBtn.addEventListener('click', () => iosModal.classList.add('hidden'));
+
+  // Show iOS banner once if not standalone
+  if (isIos() && !isInStandaloneMode() && !localStorage.getItem('pwa_prompt_dismissed')) {
+    setTimeout(() => {
+      if (banner) banner.classList.remove('hidden');
+      const desc = document.getElementById('pwa-install-desc');
+      if (desc) desc.textContent = "Tap Install to add ShopKart to your iPhone/iPad Home Screen!";
+    }, 2500);
+  }
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => {
+          console.log('ShopKart ServiceWorker registered with scope:', reg.scope);
+        })
+        .catch((err) => {
+          console.log('ShopKart ServiceWorker registration failed:', err);
+        });
+    });
+  }
+</script>

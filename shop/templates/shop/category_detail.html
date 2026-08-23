@@ -1,73 +1,133 @@
 {% extends 'shop/layouts/main.html' %}
+{% load static %}
 
-{% block title %}{{ category.name }} | ShopKart{% endblock title %}
+{% block title %}{{ category.name }} - Subcategories | ShopKart{% endblock title %}
 
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <!-- Breadcrumbs -->
+  <div class="text-sm text-slate-500 mb-6 flex items-center flex-wrap gap-1.5 font-medium">
+    <a href="{% url 'home' %}" class="hover:text-brand transition flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Home</span>
+    </a>
+    <span class="text-slate-300">/</span>
+    <a href="{% url 'collections' %}" class="hover:text-brand transition">Categories</a>
+    <span class="text-slate-300">/</span>
+    <span class="text-slate-900 font-bold">{{ category.name }}</span>
+  </div>
 
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-900">
-            {{ category.name }}
-        </h1>
-
+  <!-- Category Header Hero Banner -->
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-navy to-slate-800 text-white p-8 sm:p-12 mb-10 shadow-xl border border-slate-700/60">
+    <div class="relative z-10 max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand/20 border border-brand/40 text-brand-light text-xs font-bold uppercase tracking-wider mb-4">
+        <span>📁</span>
+        <span>Department Overview</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3">
+        {{ category.name }}
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
         {% if category.description %}
-            <p class="text-slate-500 mt-2">
-                {{ category.description }}
-            </p>
+          {{ category.description }}
+        {% else %}
+          Explore curated subcategories and departments inside {{ category.name }}. Select a department to browse products, specs, and deals.
         {% endif %}
+      </p>
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="px-4 py-1.5 rounded-full bg-white/10 text-white text-xs font-bold backdrop-blur-sm border border-white/15">
+          {{ subcategories|length }} Subcategories Available
+        </span>
+        <a href="{% url 'collections' %}" class="text-xs text-slate-400 hover:text-white transition font-medium flex items-center gap-1">
+          <span>&larr; View all categories</span>
+        </a>
+      </div>
     </div>
 
+    <!-- Decorative background ambient glow -->
+    <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-brand/20 blur-3xl pointer-events-none"></div>
+  </div>
+
+  <!-- Subcategories Large Grid Section -->
+  <div class="mb-14">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Shop by Subcategory
+        </h2>
+        <p class="text-sm text-slate-500 mt-1">Select any department below to explore available items</p>
+      </div>
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+        Showing {{ subcategories|length }} Departments
+      </span>
+    </div>
 
     {% if subcategories %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+      {% for subcat in subcategories %}
+      <a href="{% url 'collections_view' subcat.slug %}"
+         class="group bg-white rounded-3xl p-5 sm:p-6 ring-1 ring-slate-200/90 hover:ring-brand/50 hover:shadow-2xl transition-all duration-300 flex flex-col transform hover:-translate-y-2">
+        
+        <!-- Subcategory Large Image Container -->
+        <div class="w-full h-56 sm:h-64 rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 ring-1 ring-slate-100 overflow-hidden flex items-center justify-center p-6 mb-5 relative group-hover:from-orange-50/40 group-hover:to-orange-100/30 transition-colors duration-300">
+          {% if subcat.image %}
+          <img src="{{ subcat.image.url }}"
+               alt="{{ subcat.name }}"
+               class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 ease-out filter drop-shadow-md">
+          {% else %}
+          <div class="flex flex-col items-center justify-center text-slate-400">
+            <span class="text-5xl mb-2">📦</span>
+            <span class="text-xs font-semibold uppercase tracking-wider">Department</span>
+          </div>
+          {% endif %}
 
-        <h2 class="text-lg font-semibold text-slate-800 mb-5">
-            Shop by Subcategory
-        </h2>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-
-            {% for subcat in subcategories %}
-
-            <a href="{% url 'category_detail' subcat.slug %}"
-               class="group bg-white rounded-xl ring-1 ring-slate-200 hover:ring-brand hover:shadow-lg transition overflow-hidden">
-
-                <div class="aspect-square bg-slate-50 overflow-hidden">
-
-                    {% if subcat.image %}
-                        <img src="{{ subcat.image.url }}"
-                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                             alt="{{ subcat.name }}">
-                    {% endif %}
-
-                </div>
-
-                <div class="p-4">
-                    <h3 class="font-semibold text-slate-800 group-hover:text-brand transition">
-                        {{ subcat.name }}
-                    </h3>
-
-                    {% if subcat.description %}
-                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-                            {{ subcat.description }}
-                        </p>
-                    {% endif %}
-                </div>
-
-            </a>
-
-            {% endfor %}
-
+          <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-600 shadow-sm ring-1 ring-black/5">
+            {{ category.name }}
+          </div>
         </div>
 
+        <!-- Subcategory Title & Details -->
+        <div class="flex flex-col flex-1">
+          <h3 class="font-extrabold text-lg sm:text-xl text-slate-900 group-hover:text-brand transition duration-200 mb-1.5 line-clamp-1">
+            {{ subcat.name }}
+          </h3>
+
+          {% if subcat.description %}
+          <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4">
+            {{ subcat.description }}
+          </p>
+          {% else %}
+          <p class="text-xs text-slate-400 mb-4">
+            Explore premium {{ subcat.name|lower }} collection
+          </p>
+          {% endif %}
+
+          <!-- Large Action Button -->
+          <div class="mt-auto pt-2">
+            <div class="w-full py-3 px-4 rounded-xl bg-slate-100 group-hover:bg-brand text-slate-800 group-hover:text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-sm">
+              <span>Browse {{ subcat.name }}</span>
+              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </a>
+      {% endfor %}
+    </div>
     {% else %}
-
-        <p class="text-slate-500">
-            No subcategories available.
-        </p>
-
+    <div class="bg-white rounded-3xl ring-1 ring-slate-200 p-16 text-center max-w-lg mx-auto">
+      <p class="text-5xl mb-4">📁</p>
+      <h3 class="font-extrabold text-slate-800 text-xl mb-2">No Subcategories Found</h3>
+      <p class="text-slate-500 text-sm mb-6">There are currently no subcategories listed under {{ category.name }}.</p>
+      <a href="{% url 'collections' %}" class="inline-flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-brand-dark transition shadow-md">
+        Browse All Categories
+      </a>
+    </div>
     {% endif %}
+  </div>
 
 </div>
-
 {% endblock content %}

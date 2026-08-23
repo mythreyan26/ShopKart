@@ -1,28 +1,44 @@
-# ShopKart — Modern E-Commerce Website (Django)
+# ShopKart — Modern E-Commerce Platform & Multi-Device App
 
-A full redesign of the original ShopKart project into a modern, Amazon/Flipkart-style
-online store, built with **Django 5 + Tailwind CSS + Alpine.js**.
+A modern, Amazon/Flipkart-style online store built with **Django 5 + Tailwind CSS + Alpine.js**, now featuring full **Universal Multi-Device App Support** (Progressive Web App + Mobile App + REST API).
 
-## What's new in this rebuild
+## Latest Features & Architecture
 
-**Design**
-- Complete visual overhaul: sticky navbar with live search, category strip, cart/wishlist
-  badges, mobile drawer menu
-- Auto-rotating hero banner, category quick-links, trending/featured/bestseller rails
-- Premium studio-style gradient product & category artwork (generated in-house — no
-  external stock photos needed to get a polished look)
-- Fully responsive (mobile, tablet, desktop)
+🛍️ **Coupons & Promo Codes Engine**
+- Dynamic promo code engine with percentage discounts (e.g. `WELCOME10`, `SAVE20`) and fixed cash discounts (e.g. `FLAT100`, `FESTIVE500`).
+- Minimum order subtotal conditions, maximum discount caps, active validity toggles.
+- Integrated into Cart, Checkout, Order records, and REST API.
 
-**New features (previously missing)**
-- A fully working **cart**: add / increase / decrease / remove, live subtotal & free
-  delivery threshold
-- **Checkout flow**: multiple saved addresses, payment method selection (COD / UPI / Card
-  — demo only, no real payment processing), order placement
-- **Order history** and order detail pages
-- **Wishlist**: toggle from any product card or the product page
-- **Product reviews & ratings** (1–5 stars, average rating shown on cards)
-- **Search** across product name, brand, description and category
-- **Category filters**: price range + sort (price low/high, newest)
+🔍 **Instant Search Autocomplete**
+- Debounced live search suggestions in the desktop navbar and mobile search drawer.
+- Displays instant product thumbnails, price, discount badges, ratings, and one-click navigation.
+
+📦 **Order Status Tracking Stepper & Printable Tax Invoice**
+- Visual 4-step delivery progress bar: `Placed` → `Packed` → `Shipped` → `Delivered`.
+- Printable receipt `/orders/<id>/invoice` with itemized prices, coupon discounts, customer address, and tax invoice metadata.
+
+👤 **User Profile & Address Book Hub**
+- Dedicated `/profile` hub displaying customer lifetime spend, total orders, wishlist counters, and editable account details.
+- Comprehensive Address Book Manager: Add new addresses, set default shipping address, delete outdated addresses.
+
+⭐ **Customer Rating Breakdown & Reviews**
+- Visual 5-star rating distribution breakdown on product details pages.
+- Verified buyer review submission form with star ratings and headlines.
+
+🔔 **Floating Toast Notification System**
+- Modern floating animated toast alerts for instant feedback (item added, coupon applied, profile updated).
+
+📱 **Universal Multi-Device App Experience**
+- **Installable PWA**: 1-click installation on Android, iOS Safari, Windows, macOS, and Linux.
+- **Mobile Bottom Navigation Bar**: Quick thumb access to Home, Explore, Wishlist, Cart, and Account.
+- **Sticky Purchase Bar**: Quick mobile Add-to-Cart and Buy Now buttons.
+- **Offline Fallback Screen**: Service worker precaching with offline screen (`/offline/`).
+
+⚡ **Full RESTful JSON API Engine (`/api/`)**
+- Complete JSON endpoints covering Auth, Catalog, Live Search Autocomplete, Cart, Coupons, Wishlist, Addresses, Orders, and Reviews.
+
+📲 **React Native + Expo Cross-Platform Mobile Client (`mobile_app/`)**
+- Dedicated mobile application codebase in `mobile_app/` ready to run on physical Android and iOS phones via Expo Go.
 
 ## Getting started
 
