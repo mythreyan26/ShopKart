@@ -1,7 +1,7 @@
 {% extends 'shop/layouts/main.html' %}
 {% block title %}{{ product.name }} | ShopKart{% endblock title %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="productDetailState()">
+<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32 md:pb-8" x-data="productDetailState()">
 
   <!-- Breadcrumbs -->
   <nav class="text-sm text-slate-500 mb-6 flex items-center flex-wrap gap-1.5 font-medium">
@@ -258,8 +258,8 @@
             {% endif %}
           </div>
 
-          <!-- Mobile Sticky Quick Action Bar (Floating above Bottom Navigation on Phones) -->
-          <div class="md:hidden fixed bottom-[57px] left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
+          <!-- Mobile Sticky Quick Action Bar (Floating cleanly above Bottom Navigation on All Devices) -->
+          <div class="md:hidden fixed bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
             <div class="min-w-0">
               <span class="text-[11px] text-slate-400 font-medium block leading-tight">Total Price</span>
               <span class="text-lg font-black text-navy leading-none">₹<span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span></span>

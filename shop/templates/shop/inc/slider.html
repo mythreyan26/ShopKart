@@ -1,7 +1,26 @@
-{% load static %}
-<div x-data="{ slide: 0, slides: 3, timer: null }"
+<div x-data="{
+       slide: 0,
+       slides: 3,
+       timer: null,
+       touchStartX: 0,
+       touchEndX: 0,
+       handleTouchStart(e) {
+         this.touchStartX = e.changedTouches[0].screenX;
+       },
+       handleTouchEnd(e) {
+         this.touchEndX = e.changedTouches[0].screenX;
+         const diff = this.touchStartX - this.touchEndX;
+         if (diff > 45) {
+           this.slide = (this.slide + 1) % this.slides;
+         } else if (diff < -45) {
+           this.slide = (this.slide - 1 + this.slides) % this.slides;
+         }
+       }
+     }"
      x-init="timer = setInterval(() => slide = (slide + 1) % slides, 5000)"
-     class="relative overflow-hidden">
+     @touchstart.passive="handleTouchStart($event)"
+     @touchend.passive="handleTouchEnd($event)"
+     class="relative overflow-hidden select-none">
 
   <div class="flex transition-transform duration-700 ease-out" :style="`transform: translateX(-${slide * 100}%)`">
     <!-- Slide 1: Electronics -->
