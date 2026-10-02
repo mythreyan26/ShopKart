@@ -1,0 +1,240 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}{{ page_title|default:"Admin Panel" }} | ShopKart Admin{% endblock title %}</title>
+
+  <!-- Inter Font & Tailwind CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            adminPrimary: {
+              DEFAULT: '#2563EB', // Vibrant SaaS Blue matching screenshot
+              dark: '#1D4ED8',
+              light: '#EFF6FF',
+            },
+            brand: { DEFAULT: '#FF6A00', dark: '#E85D00', light: '#FFF1E6' },
+            navy: { DEFAULT: '#131A2B', light: '#1E2A45' },
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  </style>
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col" x-data="{ sidebarOpen: false, productsOpen: {% if active_menu == 'products' %}true{% else %}false{% endif %} }">
+
+  <div class="flex min-h-screen">
+
+    <!-- ========================================================================= -->
+    <!-- LEFT SIDEBAR (Matching Reference Design) -->
+    <!-- ========================================================================= -->
+    <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-40 fixed inset-y-0 left-0 lg:static lg:translate-x-0"
+           :class="sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'">
+
+      <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+        <!-- Brand Header with Logo & Collapse button -->
+        <div class="h-20 px-6 flex items-center justify-between border-b border-slate-100">
+          <a href="{% url 'admin_orders' %}" class="flex items-center gap-2 text-slate-900 font-black tracking-widest text-lg uppercase">
+            <span>SHOPKART</span>
+          </a>
+          <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-1 text-sm font-medium text-slate-600 flex-1">
+          <!-- Dashboard -->
+          <a href="{% url 'admin_orders' %}" class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'dashboard' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span>Dashboard</span>
+          </a>
+
+          <!-- Products (Expandable) -->
+          <div>
+            <button @click="productsOpen = !productsOpen" type="button" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'products' %}text-blue-600 font-semibold{% endif %}">
+              <div class="flex items-center gap-3.5">
+                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                <span>Products</span>
+              </div>
+              <svg class="w-4 h-4 transition-transform duration-200" :class="productsOpen ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <div x-show="productsOpen" x-cloak class="mt-1 pl-10 pr-2 space-y-1">
+              <a href="{% url 'admin_products' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'products' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'products' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
+                <span>Products</span>
+              </a>
+              <a href="{% url 'admin_product_create' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'create_product' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'create_product' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
+                <span>Create Product</span>
+              </a>
+              <a href="{% url 'admin_categories' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'categories' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'categories' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
+                <span>Categories</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Books / Collections -->
+          <a href="{% url 'collections' %}" target="_blank" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50">
+            <div class="flex items-center gap-3.5">
+              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              <span>Books & Catalog</span>
+            </div>
+            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+
+          <!-- Payments -->
+          <a href="{% url 'admin_orders' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'payments' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+            <div class="flex items-center gap-3.5">
+              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+              <span>Payments</span>
+            </div>
+            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Orders (Active in Image 1!) -->
+          <a href="{% url 'admin_orders' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {% if active_menu == 'orders' %}bg-blue-50 text-blue-600 font-semibold shadow-2xs ring-1 ring-blue-100{% else %}hover:text-blue-600 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3.5">
+              <svg class="w-5 h-5 {% if active_menu == 'orders' %}text-blue-600{% else %}opacity-80{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              <span>Orders</span>
+            </div>
+            <span class="w-2 h-2 rounded-full {% if active_menu == 'orders' %}bg-blue-600{% else %}bg-transparent{% endif %}"></span>
+          </a>
+
+          <!-- Users -->
+          <a href="{% url 'admin_users' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'users' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+            <div class="flex items-center gap-3.5">
+              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>Users</span>
+            </div>
+            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Customer Support -->
+          <a href="{% url 'admin_support' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'customer_support' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+            <div class="flex items-center gap-3.5">
+              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>Customer Support</span>
+            </div>
+            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Settings -->
+          <a href="{% url 'admin_categories' %}" class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50">
+            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <!-- Bottom Storefront Switcher & Logout -->
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col gap-2">
+          <a href="{% url 'home' %}" target="_blank" class="flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition shadow-2xs">
+            <span>🛍️</span>
+            <span>View Storefront</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <a href="{% url 'logout' %}" class="flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition">
+            <span>Log Out</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Overlay backdrop for mobile -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" x-cloak class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-xs lg:hidden"></div>
+
+    <!-- ========================================================================= -->
+    <!-- MAIN CONTENT STAGE -->
+    <!-- ========================================================================= -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- TOPBAR (Matching Image 1 & 2) -->
+      <header class="h-20 bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <!-- Mobile Menu Hamburger -->
+          <button @click="sidebarOpen = true" class="lg:hidden p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+
+          <!-- Back / Collapse toggle icon (blue square in screenshot) -->
+          <div class="hidden sm:flex w-7 h-7 rounded-lg bg-blue-600 text-white items-center justify-center text-xs font-bold shadow-xs">
+            &lt;
+          </div>
+
+          <!-- Breadcrumb -->
+          <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+            <span>🏷️</span>
+            <span>&gt;</span>
+            <span class="text-slate-800 font-semibold">{% block breadcrumb %}Order{% endblock breadcrumb %}</span>
+          </div>
+        </div>
+
+        <!-- Right User Actions & Profile Chip -->
+        <div class="flex items-center gap-4">
+          <!-- Notification Bell with Dot -->
+          <div class="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl cursor-pointer transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white"></span>
+          </div>
+
+          <!-- User Profile Chip (Avatar + Name + Role + Dropdown) -->
+          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-100">
+            <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="hidden md:flex flex-col text-left">
+              <span class="text-xs font-bold text-slate-900 leading-tight">{{ request.user.username|capfirst }}</span>
+              <span class="text-[10px] text-slate-400 font-medium">{% if request.user.is_superuser %}Admin{% else %}Staff{% endif %}</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+      </header>
+
+      <!-- Toast Messages -->
+      {% if messages %}
+      <div class="px-4 sm:px-8 pt-4">
+        {% for message in messages %}
+        <div class="rounded-2xl p-4 text-xs font-semibold flex items-center justify-between gap-3 shadow-xs mb-3
+          {% if message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-200
+          {% elif message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200
+          {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+          <div class="flex items-center gap-2">
+            <span>{% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✓{% else %}ℹ️{% endif %}</span>
+            <span>{{ message }}</span>
+          </div>
+          <button type="button" onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100">&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- PAGE CONTENT INJECTION -->
+      <main class="flex-1 p-4 sm:p-8">
+        {% block admin_content %}{% endblock admin_content %}
+      </main>
+
+    </div>
+  </div>
+
+  {% block admin_scripts %}{% endblock admin_scripts %}
+</body>
+</html>

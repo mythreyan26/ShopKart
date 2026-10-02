@@ -1,15 +1,21 @@
 import json
+import datetime
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Avg
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
+from django.utils import timezone
 
-from .models import Category, Product, ProductColor, ProductColorImage, Cart, Wishlist, Review, Address, Order, OrderItem, Coupon
-from .form import CustomUserForm, AddressForm, ReviewForm
+from .models import (
+    Category, Product, ProductColor, ProductColorImage,
+    Cart, Wishlist, Review, Address, Order, OrderItem, Coupon, ContactMessage
+)
+from .form import CustomUserForm, AddressForm, ReviewForm, PasswordChangeCustomForm, ContactForm
 
 FREE_DELIVERY_THRESHOLD = 499
 DELIVERY_FEE = 40
@@ -36,9 +42,49 @@ def search(request):
     if query:
         results = results.filter(
             Q(name__icontains=query) | Q(description__icontains=query) |
-            Q(brand__icontains=query) | Q(category__name__icontains=query)
-        )
-    return render(request, "shop/search.html", {"products": results, "query": query})
+            Q(brand__icontains=query) | Q(category__name__icontains=query) |
+            Q(categories__name__icontains=query)
+        ).distinct()
+
+    brands = sorted(list(set(b for b in results.values_list('brand', flat=True) if b)))
+
+    selected_brand = request.GET.get('brand', '').strip()
+    if selected_brand:
+        results = results.filter(brand=selected_brand)
+
+    in_stock = request.GET.get('in_stock')
+    if in_stock == '1':
+        results = results.filter(quantity__gt=0)
+
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if min_price:
+        results = results.filter(selling_price__gte=min_price)
+    if max_price:
+        results = results.filter(selling_price__lte=max_price)
+
+    sort = request.GET.get('sort', '')
+    if sort == 'price_low':
+        results = results.order_by('selling_price')
+    elif sort == 'price_high':
+        results = results.order_by('-selling_price')
+    elif sort == 'newest':
+        results = results.order_by('-created_at')
+
+    paginator = Paginator(results, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "shop/search.html", {
+        "products": page_obj,
+        "page_obj": page_obj,
+        "total_count": paginator.count,
+        "query": query,
+        "brands": brands,
+        "selected_brand": selected_brand,
+        "in_stock": in_stock,
+        "sort": sort,
+    })
 
 
 def search_autocomplete(request):
@@ -47,9 +93,10 @@ def search_autocomplete(request):
         return JsonResponse({'results': []})
 
     products = Product.objects.filter(
-        Q(name__icontains=query) | Q(brand__icontains=query) | Q(category__name__icontains=query),
+        Q(name__icontains=query) | Q(brand__icontains=query) |
+        Q(category__name__icontains=query) | Q(categories__name__icontains=query),
         status=0
-    )[:6]
+    ).distinct()[:6]
 
     results = []
     for p in products:
@@ -116,10 +163,22 @@ def collectionsview(request, name):
     subcat_ids = list(subcategories.values_list('id', flat=True))
     all_cat_ids = [category.id] + subcat_ids
 
-    products = Product.objects.filter(
+    base_products = Product.objects.filter(
         Q(category_id__in=all_cat_ids) | Q(categories__id__in=all_cat_ids),
         status=0
     ).distinct()
+
+    brands = sorted(list(set(b for b in base_products.values_list('brand', flat=True) if b)))
+
+    products = base_products
+
+    selected_brand = request.GET.get('brand', '').strip()
+    if selected_brand:
+        products = products.filter(brand=selected_brand)
+
+    in_stock = request.GET.get('in_stock')
+    if in_stock == '1':
+        products = products.filter(quantity__gt=0)
 
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
@@ -136,31 +195,39 @@ def collectionsview(request, name):
     elif sort == 'newest':
         products = products.order_by('-created_at')
 
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # Sibling subcategories if this is a subcategory
     sibling_subcategories = []
     if category.parent:
         sibling_subcategories = category.parent.subcategories.filter(status=0)
 
     return render(request, "shop/products/index.html", {
-        "products": products,
+        "products": page_obj,
+        "page_obj": page_obj,
+        "total_count": paginator.count,
         "category": category,
         "category_name": category.name,
         "subcategories": subcategories,
         "sibling_subcategories": sibling_subcategories,
+        "brands": brands,
+        "selected_brand": selected_brand,
+        "in_stock": in_stock,
         "sort": sort,
     })
 
 
 def product_details(request, cname, pname):
-    # Check if the URL is actually a subcategory like /collections/electronics/mobiles
-    subcat_check = Category.objects.filter(Q(slug=pname) | Q(name=pname), status=0).first()
-    if subcat_check:
-        return collectionsview(request, pname)
-
     category = Category.objects.filter(slug=cname, status=0).first() or Category.objects.filter(name=cname, status=0).first()
     
     product = Product.objects.filter(slug=pname, status=0).first() or Product.objects.filter(name=pname, status=0).first()
     if not product:
+        # Check if the URL is actually a subcategory like /collections/electronics/mobiles
+        subcat_check = Category.objects.filter(Q(slug=pname) | Q(name=pname), status=0).first()
+        if subcat_check:
+            return collectionsview(request, pname)
         messages.error(request, "No such product found")
         return redirect('collections')
 
@@ -229,11 +296,25 @@ def product_details(request, cname, pname):
     if colors_data and not default_color:
         default_color = colors_data[0]
 
+    reviews_all = product.reviews.all()
+    total_reviews = reviews_all.count()
+    rating_breakdown = []
+    for star in [5, 4, 3, 2, 1]:
+        cnt = reviews_all.filter(rating=star).count()
+        pct = round((cnt / total_reviews * 100) if total_reviews > 0 else 0)
+        rating_breakdown.append({'star': star, 'count': cnt, 'pct': pct})
+
+    positive_count = reviews_all.filter(rating__gte=4).count()
+    recommend_pct = round((positive_count / total_reviews * 100) if total_reviews > 0 else 100)
+
     return render(request, "shop/products/product_details.html", {
         "products": product,
         "product": product,
         "related": related,
         "reviews": reviews,
+        "total_reviews": total_reviews,
+        "rating_breakdown": rating_breakdown,
+        "recommend_pct": recommend_pct,
         "in_wishlist": in_wishlist,
         "already_reviewed": already_reviewed,
         "review_form": form,
@@ -256,6 +337,26 @@ def logout_page(request):
 def login_page(request):
     if request.user.is_authenticated:
         return redirect("/")
+
+    # Check if current visitor is an admin (via admin session cookie or admin flag)
+    is_admin = False
+    admin_cookie = request.COOKIES.get('admin_sessionid')
+    if admin_cookie:
+        from django.contrib.sessions.models import Session
+        from django.contrib.auth import SESSION_KEY
+        from django.contrib.auth.models import User
+        try:
+            s = Session.objects.filter(session_key=admin_cookie).first()
+            if s:
+                data = s.get_decoded()
+                uid = data.get(SESSION_KEY)
+                if uid and User.objects.filter(pk=uid, is_staff=True).exists():
+                    is_admin = True
+        except Exception:
+            pass
+    if not is_admin and request.GET.get('admin'):
+        is_admin = True
+
     if request.method == 'POST':
         name = request.POST.get('username')
         pwd = request.POST.get('password')
@@ -266,7 +367,7 @@ def login_page(request):
             return redirect(request.GET.get('next') or "/")
         messages.error(request, "Invalid username or password")
         return redirect("/login")
-    return render(request, "shop/login.html")
+    return render(request, "shop/login.html", {'is_admin': is_admin})
 
 
 def register(request):
@@ -282,8 +383,10 @@ def register(request):
 
 # ---------- Cart & Coupons ----------
 
-def _calculate_cart_totals(user, session):
+def _calculate_cart_totals(user, session, item_id=None):
     items = Cart.objects.filter(user=user).select_related('product', 'color')
+    if item_id:
+        items = items.filter(pk=item_id)
     subtotal = sum(item.total_price for item in items)
 
     coupon_code = session.get('coupon_code')
@@ -295,7 +398,7 @@ def _calculate_cart_totals(user, session):
         if coupon and subtotal >= coupon.min_order_amount:
             discount_amount = coupon.calculate_discount(subtotal)
         else:
-            if 'coupon_code' in session:
+            if not item_id and 'coupon_code' in session:
                 del session['coupon_code']
                 session.modified = True
             coupon = None
@@ -392,6 +495,8 @@ def add_to_cart(request, product_id):
 
     color_str = f" ({color.name})" if color else ""
     messages.success(request, f"Added '{product.name}{color_str}' to your cart")
+    if request.POST.get('action') == 'buy_now' or 'buy_now' in request.POST:
+        return redirect('checkout')
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
@@ -419,6 +524,28 @@ def remove_from_cart(request, item_id):
     return redirect('cart')
 
 
+@login_required
+@require_POST
+def move_to_wishlist(request, item_id):
+    item = get_object_or_404(Cart, pk=item_id, user=request.user)
+    product = item.product
+    Wishlist.objects.get_or_create(user=request.user, product=product)
+    item.delete()
+    messages.success(request, f"Moved '{product.name}' to your wishlist")
+    return redirect('cart')
+
+
+@login_required
+@require_POST
+def clear_cart(request):
+    Cart.objects.filter(user=request.user).delete()
+    if 'coupon_code' in request.session:
+        del request.session['coupon_code']
+        request.session.modified = True
+    messages.info(request, "Your cart has been cleared.")
+    return redirect('cart')
+
+
 # ---------- Wishlist ----------
 
 @login_required
@@ -440,15 +567,35 @@ def toggle_wishlist(request, product_id):
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
+@login_required
+@require_POST
+def move_to_cart(request, product_id):
+    product = get_object_or_404(Product, pk=product_id, status=0)
+    color = product.colors.filter(is_default=True).first() or product.colors.first()
+    cart_item, created = Cart.objects.get_or_create(
+        user=request.user,
+        product=product,
+        color=color,
+        defaults={'product_qty': 1}
+    )
+    if not created:
+        cart_item.product_qty += 1
+        cart_item.save()
+    Wishlist.objects.filter(user=request.user, product=product).delete()
+    messages.success(request, f"Moved '{product.name}' to your cart")
+    return redirect('wishlist')
+
+
 # ---------- Checkout & Orders ----------
 
 @login_required
 def checkout(request):
-    cart_data = _calculate_cart_totals(request.user, request.session)
+    item_id = request.GET.get('item_id') or request.POST.get('item_id')
+    cart_data = _calculate_cart_totals(request.user, request.session, item_id=item_id)
     items = cart_data['items']
 
     if not items.exists():
-        messages.warning(request, "Your cart is empty. Please add items to place an order.")
+        messages.warning(request, "Your cart is empty or the selected item is no longer in your cart.")
         return redirect('cart')
 
     addresses = Address.objects.filter(user=request.user)
@@ -496,7 +643,10 @@ def checkout(request):
 
         if not address:
             messages.error(request, "Please enter your delivery address to place your order.")
-            return redirect('checkout')
+            url = reverse('checkout')
+            if item_id:
+                url += f"?item_id={item_id}"
+            return redirect(url)
 
         order = Order.objects.create(
             user=request.user,
@@ -520,9 +670,9 @@ def checkout(request):
                 price=item.unit_price,
             )
         
-        # Clear cart and session coupon
+        # Clear only the checked-out items (single item or all items)
         items.delete()
-        if 'coupon_code' in request.session:
+        if not item_id and 'coupon_code' in request.session:
             del request.session['coupon_code']
             request.session.modified = True
 
@@ -538,6 +688,8 @@ def checkout(request):
         "delivery_fee": delivery_fee,
         "total": total,
         "address_form": AddressForm(),
+        "single_item_id": item_id,
+        "single_item": items.first() if item_id else None,
     })
 
 
@@ -565,6 +717,22 @@ def delete_address(request, address_id):
 
 
 @login_required
+def edit_address(request, address_id):
+    addr = get_object_or_404(Address, pk=address_id, user=request.user)
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=addr)
+        if form.is_valid():
+            updated = form.save(commit=False)
+            if updated.is_default:
+                Address.objects.filter(user=request.user).exclude(pk=addr.pk).update(is_default=False)
+            updated.save()
+            messages.success(request, "Address updated successfully!")
+            return redirect(request.GET.get('next') or 'profile')
+        messages.error(request, "Please check the address form for errors.")
+    return render(request, "shop/address_edit.html", {"address": addr, "form": AddressForm(instance=addr)})
+
+
+@login_required
 def set_default_address(request, address_id):
     Address.objects.filter(user=request.user).update(is_default=False)
     Address.objects.filter(pk=address_id, user=request.user).update(is_default=True)
@@ -580,20 +748,152 @@ def order_success(request, order_id):
 
 @login_required
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items')
-    return render(request, "shop/orders.html", {"orders": orders})
+    show_cancelled = request.GET.get('show_cancelled') == '1'
+    base_orders = Order.objects.filter(user=request.user).prefetch_related('items')
+    cancelled_count = base_orders.filter(status='cancelled').count()
+    active_count = base_orders.exclude(status='cancelled').count()
+
+    if show_cancelled:
+        orders = base_orders.filter(status='cancelled')
+    else:
+        orders = base_orders.exclude(status='cancelled')
+
+    return render(request, "shop/orders.html", {
+        "orders": orders,
+        "show_cancelled": show_cancelled,
+        "cancelled_count": cancelled_count,
+        "active_count": active_count,
+    })
 
 
 @login_required
 def order_detail(request, order_id):
-    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if request.user.is_staff:
+        order = get_object_or_404(Order, pk=order_id)
+    else:
+        order = get_object_or_404(Order, pk=order_id, user=request.user)
     return render(request, "shop/order_detail.html", {"order": order})
 
 
 @login_required
 def invoice_view(request, order_id):
-    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if request.user.is_staff:
+        order = get_object_or_404(Order, pk=order_id)
+    else:
+        order = get_object_or_404(Order, pk=order_id, user=request.user)
     return render(request, "shop/invoice.html", {"order": order})
+
+
+@login_required
+@require_POST
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if order.status not in ['placed', 'confirmed']:
+        messages.error(request, f"This order cannot be cancelled as it is already {order.get_status_display().lower()}.")
+        next_url = request.POST.get('next') or reverse('my_orders')
+        return redirect(next_url)
+
+    reason = (request.POST.get('cancellation_reason') or request.POST.get('reason') or 'Cancelled by customer').strip()
+    order.status = 'cancelled'
+    order.cancellation_reason = reason
+    order.cancelled_at = timezone.now()
+    order.save()
+
+    # Restore inventory quantities
+    for item in order.items.all():
+        if item.product:
+            item.product.quantity = item.product.quantity + item.quantity
+            item.product.save(update_fields=['quantity'])
+            if item.color_name:
+                c_var = item.product.colors.filter(name=item.color_name).first()
+                if c_var:
+                    c_var.quantity = c_var.quantity + item.quantity
+                    c_var.save(update_fields=['quantity'])
+
+    messages.success(request, "Order cancelled successfully and removed from your active orders.")
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
+    return redirect('my_orders')
+
+
+@login_required
+@require_POST
+def cancel_order_item(request, item_id):
+    item = get_object_or_404(OrderItem, pk=item_id, order__user=request.user)
+    order = item.order
+
+    if order.status not in ['placed', 'confirmed']:
+        messages.error(request, f"This item cannot be cancelled as the order is already {order.get_status_display().lower()}.")
+        next_url = request.POST.get('next') or reverse('my_orders')
+        return redirect(next_url)
+
+    product_name = item.product_name
+
+    # Restore inventory for this specific item
+    if item.product:
+        item.product.quantity = item.product.quantity + item.quantity
+        item.product.save(update_fields=['quantity'])
+        if item.color_name:
+            c_var = item.product.colors.filter(name=item.color_name).first()
+            if c_var:
+                c_var.quantity = c_var.quantity + item.quantity
+                c_var.save(update_fields=['quantity'])
+
+    # Check remaining items in this order
+    remaining_items = order.items.exclude(pk=item.pk)
+    if not remaining_items.exists():
+        order.status = 'cancelled'
+        order.cancellation_reason = f"Cancelled product: {product_name}"
+        order.cancelled_at = timezone.now()
+        order.save()
+        messages.success(request, f"'{product_name}' was cancelled and removed from your orders.")
+    else:
+        item_total = item.total_price
+        order.subtotal = max(0.0, round(order.subtotal - item_total, 2))
+        if order.coupon_code:
+            try:
+                coupon = Coupon.objects.get(code=order.coupon_code)
+                order.discount_amount = coupon.calculate_discount(order.subtotal)
+            except Coupon.DoesNotExist:
+                pass
+        order.total_amount = max(0.0, round(order.subtotal - order.discount_amount + order.delivery_fee, 2))
+        order.save()
+        item.delete()
+        messages.success(request, f"'{product_name}' was cancelled and removed from your order.")
+
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
+    return redirect('my_orders')
+
+
+@login_required
+@require_POST
+def reorder(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    items_added = 0
+    for oi in order.items.all():
+        if oi.product and oi.product.status == 0:
+            color = None
+            if oi.color_name:
+                color = oi.product.colors.filter(name=oi.color_name).first()
+            cart_item, created = Cart.objects.get_or_create(
+                user=request.user,
+                product=oi.product,
+                color=color,
+                defaults={'product_qty': oi.quantity}
+            )
+            if not created:
+                cart_item.product_qty += oi.quantity
+                cart_item.save()
+            items_added += 1
+
+    if items_added > 0:
+        messages.success(request, f"Added items from Order #{order.id} to your cart.")
+    else:
+        messages.warning(request, "Items from this order are currently unavailable.")
+    return redirect('cart')
 
 
 # ---------- User Profile Hub ----------
@@ -611,6 +911,7 @@ def profile_view(request):
         "wishlist_count": wishlist_count,
         "total_spent": total_spent,
         "address_form": AddressForm(),
+        "password_form": PasswordChangeCustomForm(request.user),
     })
 
 
@@ -629,4 +930,67 @@ def update_profile(request):
     user.save()
     messages.success(request, "Profile updated successfully!")
     return redirect('profile')
+
+
+@login_required
+@require_POST
+def change_password(request):
+    form = PasswordChangeCustomForm(request.user, request.POST)
+    if form.is_valid():
+        new_pwd = form.cleaned_data['new_password']
+        request.user.set_password(new_pwd)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+        messages.success(request, "Password updated successfully!")
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, error)
+    return redirect('profile')
+
+
+# ---------- Info & Policy Pages ----------
+
+def about_us(request):
+    return render(request, "shop/about.html")
+
+
+def contact_us(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact_msg = form.save(commit=False)
+            if request.user.is_authenticated:
+                contact_msg.user = request.user
+            contact_msg.save()
+            messages.success(request, "Thank you! Your message has been received. Our support team will get back to you shortly.")
+            return redirect('contact')
+        else:
+            messages.error(request, "Please correct the errors in the form.")
+    else:
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data = {
+                'name': request.user.get_full_name() or request.user.username,
+                'email': request.user.email,
+            }
+        form = ContactForm(initial=initial_data)
+
+    return render(request, "shop/contact.html", {'form': form})
+
+
+def faq(request):
+    return render(request, "shop/faq.html")
+
+
+def returns_policy(request):
+    return render(request, "shop/returns_policy.html")
+
+
+def terms_of_service(request):
+    return render(request, "shop/terms.html")
+
+
+def privacy_policy(request):
+    return render(request, "shop/privacy.html")
 

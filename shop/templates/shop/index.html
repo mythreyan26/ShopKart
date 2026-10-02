@@ -8,34 +8,32 @@
 
   <!-- Orders Quick Access Strip for Logged in Users -->
   {% if request.user.is_authenticated %}
-  <div class="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 rounded-2xl p-4 sm:p-5 border border-orange-200/80 my-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
-    <div class="flex items-center gap-3.5 text-center sm:text-left">
-      <div class="w-11 h-11 rounded-xl bg-brand text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+  <div class="bg-gradient-to-r from-orange-50/90 via-amber-50/90 to-orange-50/90 rounded-xl px-3.5 py-2.5 border border-orange-200/70 my-3 flex items-center justify-between gap-3 shadow-xs">
+    <div class="flex items-center gap-2.5 text-left">
+      <div class="w-8 h-8 rounded-lg bg-brand text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
         📦
       </div>
       <div>
-        <h3 class="text-sm sm:text-base font-extrabold text-slate-900">Manage Your Orders & Track Deliveries</h3>
-        <p class="text-xs text-slate-600">View recent orders, print tax invoices, and track live delivery status in real-time.</p>
+        <h3 class="text-xs sm:text-sm font-bold text-slate-900">Manage Orders & Track Deliveries</h3>
+        <p class="text-[11px] text-slate-500 hidden sm:block">View recent orders, print tax invoices, and track live delivery status.</p>
       </div>
     </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <a href="{% url 'my_orders' %}" class="px-4 py-2.5 bg-slate-900 hover:bg-brand text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-1.5">
-        <span>View My Orders</span>
-        <span>→</span>
-      </a>
-    </div>
+    <a href="{% url 'my_orders' %}" class="px-3 py-1.5 bg-slate-900 hover:bg-brand text-white font-bold text-xs rounded-lg transition shadow-xs flex items-center gap-1 shrink-0">
+      <span>My Orders</span>
+      <span>&rarr;</span>
+    </a>
   </div>
   {% endif %}
 
   <!-- Category quick links -->
-  <section class="py-6">
-    <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4">
+  <section class="py-3 sm:py-4">
+    <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-2.5 sm:gap-3">
       {% for cat in categories %}
-      <a href="{% url 'collections_view' cat.slug %}" class="group flex flex-col items-center gap-2 text-center">
-        <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden ring-1 ring-slate-200 bg-white group-hover:ring-brand group-hover:shadow-md transition">
+      <a href="{% url 'collections_view' cat.slug %}" class="group flex flex-col items-center gap-1.5 text-center">
+        <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-full overflow-hidden ring-1 ring-slate-200 bg-white group-hover:ring-brand group-hover:shadow-sm transition">
           {% if cat.image %}<img src="{{ cat.image.url }}" class="h-full w-full object-cover" alt="{{ cat.name }}">{% endif %}
         </div>
-        <span class="text-xs sm:text-sm font-medium text-slate-700 group-hover:text-brand transition">{{ cat.name }}</span>
+        <span class="text-[11px] sm:text-xs font-medium text-slate-700 group-hover:text-brand transition line-clamp-2 max-w-[85px] sm:max-w-[105px] h-7 sm:h-8 flex items-center justify-center leading-tight">{{ cat.name }}</span>
       </a>
       {% endfor %}
     </div>
@@ -43,12 +41,12 @@
 
   <!-- Trending -->
   {% if products %}
-  <section class="py-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl sm:text-2xl font-bold text-slate-900">🔥 Trending Now</h2>
-      <a href="{% url 'collections' %}" class="text-sm font-semibold text-brand hover:underline">View All</a>
+  <section class="py-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900">🔥 Trending Now</h2>
+      <a href="{% url 'collections' %}" class="text-xs sm:text-sm font-semibold text-brand hover:underline">View All</a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
       {% for item in products %}
         {% include 'shop/inc/product_card.html' %}
       {% endfor %}
@@ -57,24 +55,24 @@
   {% endif %}
 
   <!-- Promo banner -->
-  <section class="py-6">
-    <div class="rounded-2xl bg-gradient-to-r from-navy to-navy-light text-white px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <section class="py-4">
+    <div class="rounded-2xl bg-gradient-to-r from-navy to-navy-light text-white px-5 sm:px-8 py-5 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
-        <h3 class="text-xl sm:text-2xl font-bold">Free delivery on orders above ₹499</h3>
-        <p class="text-white/70 text-sm mt-1">Shop more, save more — no code needed.</p>
+        <h3 class="text-lg sm:text-xl font-bold">Free delivery on orders above ₹499</h3>
+        <p class="text-white/70 text-xs sm:text-sm mt-0.5">Shop more, save more — no code needed.</p>
       </div>
-      <a href="{% url 'collections' %}" class="bg-brand hover:bg-brand-dark px-6 py-3 rounded-lg font-semibold transition whitespace-nowrap">Start Shopping</a>
+      <a href="{% url 'collections' %}" class="bg-brand hover:bg-brand-dark px-5 py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition whitespace-nowrap">Start Shopping</a>
     </div>
   </section>
 
   <!-- Featured -->
   {% if featured %}
-  <section class="py-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl sm:text-2xl font-bold text-slate-900">✨ Featured Picks</h2>
-      <a href="{% url 'collections' %}" class="text-sm font-semibold text-brand hover:underline">View All</a>
+  <section class="py-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900">✨ Featured Picks</h2>
+      <a href="{% url 'collections' %}" class="text-xs sm:text-sm font-semibold text-brand hover:underline">View All</a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
       {% for item in featured %}
         {% include 'shop/inc/product_card.html' %}
       {% endfor %}
@@ -84,12 +82,12 @@
 
   <!-- Bestsellers -->
   {% if bestsellers %}
-  <section class="py-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl sm:text-2xl font-bold text-slate-900">🏆 Bestsellers</h2>
-      <a href="{% url 'collections' %}" class="text-sm font-semibold text-brand hover:underline">View All</a>
+  <section class="py-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900">🏆 Bestsellers</h2>
+      <a href="{% url 'collections' %}" class="text-xs sm:text-sm font-semibold text-brand hover:underline">View All</a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
       {% for item in bestsellers %}
         {% include 'shop/inc/product_card.html' %}
       {% endfor %}
@@ -98,27 +96,27 @@
   {% endif %}
 
   <!-- Trust badges -->
-  <section class="py-10">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div class="flex flex-col items-center gap-2">
-        <span class="text-3xl">🚚</span>
-        <p class="text-sm font-semibold text-slate-800">Free Delivery</p>
-        <p class="text-xs text-slate-500">On orders above ₹499</p>
+  <section class="py-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <div class="flex flex-col items-center gap-1.5">
+        <span class="text-2xl">🚚</span>
+        <p class="text-xs sm:text-sm font-semibold text-slate-800">Free Delivery</p>
+        <p class="text-[11px] text-slate-500">On orders above ₹499</p>
       </div>
-      <div class="flex flex-col items-center gap-2">
-        <span class="text-3xl">↩️</span>
-        <p class="text-sm font-semibold text-slate-800">Easy Returns</p>
-        <p class="text-xs text-slate-500">7-day return policy</p>
+      <div class="flex flex-col items-center gap-1.5">
+        <span class="text-2xl">↩️</span>
+        <p class="text-xs sm:text-sm font-semibold text-slate-800">Easy Returns</p>
+        <p class="text-[11px] text-slate-500">7-day return policy</p>
       </div>
-      <div class="flex flex-col items-center gap-2">
-        <span class="text-3xl">🔒</span>
-        <p class="text-sm font-semibold text-slate-800">Secure Payments</p>
-        <p class="text-xs text-slate-500">100% protected checkout</p>
+      <div class="flex flex-col items-center gap-1.5">
+        <span class="text-2xl">🔒</span>
+        <p class="text-xs sm:text-sm font-semibold text-slate-800">Secure Payments</p>
+        <p class="text-[11px] text-slate-500">100% protected checkout</p>
       </div>
-      <div class="flex flex-col items-center gap-2">
-        <span class="text-3xl">🎧</span>
-        <p class="text-sm font-semibold text-slate-800">24/7 Support</p>
-        <p class="text-xs text-slate-500">We're here to help</p>
+      <div class="flex flex-col items-center gap-1.5">
+        <span class="text-2xl">🎧</span>
+        <p class="text-xs sm:text-sm font-semibold text-slate-800">24/7 Support</p>
+        <p class="text-[11px] text-slate-500">Dedicated assistance</p>
       </div>
     </div>
   </section>

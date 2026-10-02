@@ -1,0 +1,518 @@
+{% extends 'shop/admin/layout.html' %}
+{% block title %}{% if is_edit %}Edit {{ product.name }}{% else %}Create Product{% endif %} | ShopKart Admin{% endblock title %}
+{% block breadcrumb %}Products{% endblock breadcrumb %}
+
+{% block admin_content %}
+<div x-data="productStudio()" class="max-w-7xl mx-auto space-y-6">
+
+  <!-- ========================================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ========================================================================= -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        {% if is_edit %}Edit Product{% else %}Create Product{% endif %}
+      </h1>
+      <p class="text-xs text-slate-500 mt-0.5">Configure catalog metadata, pricing, inventory variations, and media assets.</p>
+    </div>
+    <a href="{% url 'admin_products' %}" class="text-xs font-bold text-slate-600 hover:text-blue-600 transition flex items-center gap-1">
+      &larr; Back to Products
+    </a>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN 2-COLUMN FORM STUDIO (Image 2 Replica) -->
+  <!-- ========================================================================= -->
+  <form method="post" enctype="multipart/form-data" @submit="prepareFormSubmission($event)">
+    {% csrf_token %}
+    <input type="hidden" name="variants_data" :value="JSON.stringify(variants)">
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- ===================================================================== -->
+      <!-- LEFT COLUMN (~65% width: 8 Cols on Large screens) -->
+      <!-- ===================================================================== -->
+      <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+        
+        <!-- General Information Card -->
+        <div class="bg-white rounded-2xl p-6 sm:p-7 ring-1 ring-slate-200/80 shadow-xs space-y-5">
+          
+          <!-- Product Title * -->
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Product Title <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" name="name" required value="{{ product.name|default:'' }}"
+                   placeholder="Enter product title here"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+          </div>
+
+          <!-- Description * with Rich Text Toolbar (Image 2 Replica) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Description <span class="text-rose-500">*</span>
+            </label>
+            
+            <!-- Toolbar -->
+            <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition">
+              <div class="flex items-center gap-1 p-2 border-b border-slate-200 bg-slate-100/60 flex-wrap text-slate-600 text-xs">
+                <button type="button" @click="insertFormat('**', '**')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs font-bold flex items-center justify-center transition" title="Bold">B</button>
+                <button type="button" @click="insertFormat('*', '*')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs italic font-serif flex items-center justify-center transition" title="Italic">I</button>
+                <button type="button" @click="insertFormat('<u>', '</u>')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs underline flex items-center justify-center transition" title="Underline">U</button>
+                <button type="button" @click="insertFormat('~~', '~~')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs line-through flex items-center justify-center transition" title="Strikethrough">S</button>
+                <span class="w-px h-4 bg-slate-300 mx-1"></span>
+                <button type="button" @click="insertPrefix('• ')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs flex items-center justify-center transition" title="Bullet List">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <button type="button" @click="insertPrefix('1. ')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs flex items-center justify-center text-[10px] font-bold transition" title="Numbered List">1.</button>
+                <button type="button" @click="insertFormat('[', '](https://)')" class="w-7 h-7 rounded hover:bg-white hover:shadow-xs flex items-center justify-center transition" title="Link">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                </button>
+                <span class="w-px h-4 bg-slate-300 mx-1"></span>
+                <button type="button" @click="insertPrefix('### ')" class="px-2 h-7 rounded hover:bg-white hover:shadow-xs flex items-center justify-center font-bold text-xs transition" title="Heading">Aa</button>
+              </div>
+
+              <!-- Textarea -->
+              <textarea id="productDescriptionInput" name="description" rows="5" required placeholder="Enter product features, specifications, and details here..."
+                        class="w-full p-4 bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none resize-y">{{ product.description|default:'' }}</textarea>
+            </div>
+          </div>
+
+          <!-- Category & Sub-Category (2-Grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Product Category <span class="text-rose-500">*</span>
+              </label>
+              <select name="category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                {% for cat in parent_categories %}
+                <option value="{{ cat.id }}" {% if product and product.category and product.category.parent_id == cat.id or product.category_id == cat.id %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Product Sub-Category
+              </label>
+              <select name="sub_category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option value="">None / Primary Category</option>
+                {% for sub in sub_categories %}
+                <option value="{{ sub.id }}" {% if product and product.category_id == sub.id %}selected{% endif %}>
+                  {{ sub.name }} ({{ sub.parent.name }})
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Gender/Brand & Price (2-Grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Gender / Brand
+              </label>
+              <input type="text" name="brand" value="{{ product.brand|default:'ShopKart' }}"
+                     placeholder="e.g. Apple, Nike, Unisex"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Price <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-bold">
+                  ₹
+                </div>
+                <input type="number" step="0.01" name="selling_price" required value="{{ product.selling_price|default:'' }}"
+                       placeholder="Enter price here"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- INVENTORY & VARIANTS SECTION (Image 2 Replica) -->
+        <!-- =================================================================== -->
+        <div class="bg-white rounded-2xl p-6 sm:p-7 ring-1 ring-slate-200/80 shadow-xs space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Inventory</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Manage stock keeping units and color/size variants.</p>
+            </div>
+            
+            <!-- + Add Variant Button (Solid Blue) -->
+            <button type="button" @click="openVariantModal()"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
+              <span>+</span>
+              <span>Add Variant</span>
+            </button>
+          </div>
+
+          <!-- SKU & Base Stock -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                SKU
+              </label>
+              <input type="text" name="sku" value="{{ product.tag|default:'' }}"
+                     placeholder="Enter Product SKU (e.g. SK-IPH15-01)"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Base Quantity / Stock <span class="text-rose-500">*</span>
+              </label>
+              <input type="number" name="quantity" required value="{{ product.quantity|default:'10' }}"
+                     placeholder="Available Stock Units"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+          </div>
+
+          <!-- Existing / Configured Variants Grid (Image 2 Replica) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+              Configured Variations (<span x-text="variants.length"></span>)
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              <template x-for="(variant, index) in variants" :key="index">
+                <div class="bg-slate-50/80 rounded-xl border border-slate-200 p-3.5 flex items-center justify-between gap-3 relative group hover:border-blue-400 hover:bg-blue-50/30 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <!-- Color Swatch Dot -->
+                    <span class="w-5 h-5 rounded-full border border-black/10 shrink-0 shadow-2xs" :style="'background-color: ' + variant.color_code"></span>
+                    <div class="min-w-0">
+                      <p class="text-xs font-bold text-slate-900 truncate" x-text="variant.name || 'Standard'"></p>
+                      <p class="text-[11px] text-slate-500">
+                        Qty: <strong class="text-slate-800" x-text="variant.quantity"></strong> &bull; ₹<span x-text="variant.price"></span>
+                      </p>
+                    </div>
+                  </div>
+                  <button type="button" @click="removeVariant(index)" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition" title="Remove variation">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </button>
+                </div>
+              </template>
+            </div>
+
+            <div x-show="variants.length === 0" class="py-6 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+              <p class="text-xs">No variations added yet. Click <strong class="text-blue-600 font-bold">+ Add Variant</strong> above to add color or size options.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- RIGHT COLUMN (~35% width: 4-5 Cols on Large screens) -->
+      <!-- ===================================================================== -->
+      <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+        
+        <!-- Product Images Card (Image 2 Replica) -->
+        <div class="bg-white rounded-2xl p-6 ring-1 ring-slate-200/80 shadow-xs space-y-6">
+          <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Product Images</h2>
+
+          <!-- Upload Thumbnail (Image 2 Dropzone) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Upload Thumbnail <span class="text-rose-500">*</span>
+            </label>
+            
+            <div class="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50/50 hover:bg-blue-50/20 relative"
+                 @click="$refs.thumbnailInput.click()">
+              <input type="file" x-ref="thumbnailInput" name="product_image" accept="image/*" class="hidden"
+                     @change="handleThumbnailChange($event)">
+              
+              <div class="flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <p class="text-xs font-bold text-blue-600">Click to Upload</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">or Drag &amp; Drop the Image</p>
+              </div>
+            </div>
+
+            <!-- Thumbnail Preview Card -->
+            <div x-show="thumbnailPreview" class="mt-3.5 flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <img :src="thumbnailPreview" class="w-14 h-14 rounded-lg object-contain bg-white border border-slate-200 p-1">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-slate-800 truncate" x-text="thumbnailName || 'Primary Thumbnail'"></p>
+                <p class="text-[10px] text-emerald-600 font-semibold">Ready for upload</p>
+              </div>
+            </div>
+
+            {% if product and product.product_image %}
+            <div x-show="!thumbnailPreview" class="mt-3.5 flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <img src="{{ product.product_image.url }}" class="w-14 h-14 rounded-lg object-contain bg-white border border-slate-200 p-1">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-slate-800 truncate">Current Thumbnail</p>
+                <p class="text-[10px] text-slate-400">Click above to replace</p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Upload Product Gallery Images (Image 2 Dropzone) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Upload Product Images
+            </label>
+
+            <div class="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50/50 hover:bg-blue-50/20 relative"
+                 @click="$refs.galleryInput.click()">
+              <input type="file" x-ref="galleryInput" name="gallery_images" multiple accept="image/*" class="hidden"
+                     @change="handleGalleryChange($event)">
+              
+              <div class="flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </div>
+                <p class="text-xs font-bold text-blue-600">Click to Upload</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">or Drag &amp; Drop the Image</p>
+              </div>
+            </div>
+
+            <!-- Existing Gallery Images (if editing) -->
+            {% if product and product.gallery.all %}
+            <div class="mt-3">
+              <p class="text-[11px] font-bold text-slate-500 mb-2">Existing Gallery Photos:</p>
+              <div class="grid grid-cols-3 gap-2">
+                {% for gi in product.gallery.all %}
+                <div class="h-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 p-1 flex items-center justify-center">
+                  <img src="{{ gi.image.url }}" class="w-full h-full object-contain">
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- BOTTOM ACTIONS BAR (Image 2 Replica) -->
+    <!-- ======================================================================= -->
+    <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
+      <a href="{% url 'admin_products' %}" class="px-6 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
+        Cancel
+      </a>
+      <button type="submit" class="px-7 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md transition">
+        {% if is_edit %}Save Changes{% else %}Create{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+  <!-- ========================================================================= -->
+  <!-- CREATE VARIATION MODAL POPUP (Image 3 Replica) -->
+  <!-- ========================================================================= -->
+  <div x-show="variantModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div @click.away="variantModalOpen = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl ring-1 ring-slate-200 transition">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
+            ✏️
+          </div>
+          <h3 class="text-base font-bold text-slate-900">Create Variation</h3>
+        </div>
+        <button type="button" @click="variantModalOpen = false" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg text-lg leading-none">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Form Fields (Image 3 Replica) -->
+      <div class="space-y-4">
+        
+        <!-- 2-Grid: Size/Name & Quantity -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              Choose Size / Variant Name <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" x-model="tempVariant.name" placeholder="e.g. 128GB, Medium, Red"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              Add Quantity <span class="text-rose-500">*</span>
+            </label>
+            <input type="number" x-model="tempVariant.quantity" placeholder="Stock Units"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          </div>
+        </div>
+
+        <!-- Choose Color (Swatches + Palette Picker) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+            Choose Color
+          </label>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Preset Color Dots (Image 3 Replica: Green, Yellow, etc.) -->
+            <button type="button" @click="tempVariant.color_code = '#10b981'" class="w-8 h-8 rounded-full bg-[#10b981] border-2 transition" :class="tempVariant.color_code === '#10b981' ? 'ring-2 ring-blue-500 border-white' : 'border-transparent'"></button>
+            <button type="button" @click="tempVariant.color_code = '#eab308'" class="w-8 h-8 rounded-full bg-[#eab308] border-2 transition" :class="tempVariant.color_code === '#eab308' ? 'ring-2 ring-blue-500 border-white' : 'border-transparent'"></button>
+            <button type="button" @click="tempVariant.color_code = '#2563eb'" class="w-8 h-8 rounded-full bg-[#2563eb] border-2 transition" :class="tempVariant.color_code === '#2563eb' ? 'ring-2 ring-blue-500 border-white' : 'border-transparent'"></button>
+            <button type="button" @click="tempVariant.color_code = '#0f172a'" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 transition" :class="tempVariant.color_code === '#0f172a' ? 'ring-2 ring-blue-500 border-white' : 'border-transparent'"></button>
+            <button type="button" @click="tempVariant.color_code = '#ef4444'" class="w-8 h-8 rounded-full bg-[#ef4444] border-2 transition" :class="tempVariant.color_code === '#ef4444' ? 'ring-2 ring-blue-500 border-white' : 'border-transparent'"></button>
+            
+            <!-- Custom HTML5 Color Picker -->
+            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <input type="color" x-model="tempVariant.color_code" class="w-8 h-8 p-0 rounded-lg border-0 cursor-pointer">
+              <span class="text-xs font-mono text-slate-500 uppercase" x-text="tempVariant.color_code"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Price Override -->
+        <div>
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+            Price for this Variant (₹)
+          </label>
+          <input type="number" step="0.01" x-model="tempVariant.price" placeholder="Leave blank to use base product price"
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        </div>
+
+        <!-- Add Another Variation Outline Button (Image 3 Replica) -->
+        <div class="pt-2">
+          <button type="button" @click="saveVariant(true)"
+                  class="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+            + Add Another Variation
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-3 pt-5 border-t border-slate-100 mt-5">
+        <button type="button" @click="variantModalOpen = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition">
+          Cancel
+        </button>
+        <button type="button" @click="saveVariant(false)" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition">
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function productStudio() {
+  return {
+    variantModalOpen: false,
+    thumbnailPreview: null,
+    thumbnailName: '',
+    variants: [
+      {% if product %}
+        {% for col in product.colors.all %}
+        {
+          id: {{ col.id }},
+          name: "{{ col.name|escapejs }}",
+          color_code: "{{ col.color_code|default:'#2563eb' }}",
+          quantity: {{ col.quantity|default:10 }},
+          price: {{ col.price|default:product.selling_price }}
+        },
+        {% endfor %}
+      {% endif %}
+    ],
+    tempVariant: {
+      name: '',
+      color_code: '#10b981',
+      quantity: 10,
+      price: ''
+    },
+
+    openVariantModal() {
+      this.tempVariant = {
+        name: '',
+        color_code: '#10b981',
+        quantity: 10,
+        price: ''
+      };
+      this.variantModalOpen = true;
+    },
+
+    saveVariant(addAnother) {
+      if (!this.tempVariant.name) {
+        alert('Please specify a variation title or size.');
+        return;
+      }
+      this.variants.push({
+        name: this.tempVariant.name,
+        color_code: this.tempVariant.color_code,
+        quantity: parseInt(this.tempVariant.quantity) || 10,
+        price: parseFloat(this.tempVariant.price) || null
+      });
+
+      if (addAnother) {
+        this.tempVariant = {
+          name: '',
+          color_code: '#eab308',
+          quantity: 10,
+          price: ''
+        };
+      } else {
+        this.variantModalOpen = false;
+      }
+    },
+
+    removeVariant(index) {
+      this.variants.splice(index, 1);
+    },
+
+    handleThumbnailChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.thumbnailName = file.name;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.thumbnailPreview = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+
+    handleGalleryChange(event) {
+      // Multi-file handler
+    },
+
+    insertFormat(prefix, suffix) {
+      const el = document.getElementById('productDescriptionInput');
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const text = el.value;
+      const selected = text.substring(start, end) || 'text';
+      el.value = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+      el.focus();
+    },
+
+    insertPrefix(prefix) {
+      const el = document.getElementById('productDescriptionInput');
+      const start = el.selectionStart;
+      const text = el.value;
+      el.value = text.substring(0, start) + prefix + text.substring(start);
+      el.focus();
+    },
+
+    prepareFormSubmission(event) {
+      // Handled via x-bind
+    }
+  }
+}
+</script>
+{% endblock admin_content %}

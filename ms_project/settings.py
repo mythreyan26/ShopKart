@@ -10,22 +10,45 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# Load environment variables from .env if present
+load_dotenv(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*@u*b=nl8e3u%kjw=%v+3!l)((hm@o=+k^+-yxguxqy=!owu8+'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-*@u*b=nl8e3u%kjw=%v+3!l)((hm@o=+k^+-yxguxqy=!owu8+')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').strip().lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',') if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+extra_csrf = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if extra_csrf:
+    CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in extra_csrf.split(',') if origin.strip()])
+
+# Production Reverse Proxy & SSL Configuration (Render / Railway / Cloudflare)
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1', 'yes')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # Application definition
@@ -43,7 +66,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'shop.middleware.DualSessionMiddleware',
     'shop.middleware.APICORSMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -91,14 +115,34 @@ JAZZMIN_SETTINGS = {
     "site_icon": None,
     "welcome_sign": "Welcome to ShopKart Pro Executive Suite",
     "copyright": "ShopKart Pro Inc.",
-    "search_model": ["shop.Product", "shop.Order", "shop.Category"],
+    "search_model": None,
     "user_avatar": None,
 
     "topmenu_links": [
-        {"name": "Home Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Live Store", "url": "/", "new_window": True},
-        {"model": "auth.User"},
+        {"name": "Command Center", "url": "admin:index", "permissions": ["auth.view_user"], "icon": "fas fa-tachometer-alt"},
+        {"name": "Analytics & Reports", "url": "/admin/analytics/", "permissions": ["auth.view_user"], "icon": "fas fa-chart-line"},
+        {"name": "Warehouse Inventory", "url": "/admin/inventory/", "permissions": ["shop.view_product"], "icon": "fas fa-warehouse"},
+        {"name": "Orders Pipeline", "url": "/admin/shop/order/", "permissions": ["shop.view_order"], "icon": "fas fa-shopping-bag"},
+        {"name": "Customers CRM", "url": "/admin/auth/user/", "permissions": ["auth.view_user"], "icon": "fas fa-users"},
+        {"name": "Live Storefront", "url": "/", "new_window": True, "icon": "fas fa-external-link-alt"},
     ],
+
+    "custom_links": {
+        "shop": [
+            {
+                "name": "Executive Analytics",
+                "url": "/admin/analytics/",
+                "icon": "fas fa-chart-line",
+                "permissions": ["auth.view_user"],
+            },
+            {
+                "name": "Warehouse Stock Control",
+                "url": "/admin/inventory/",
+                "icon": "fas fa-warehouse",
+                "permissions": ["shop.view_product"],
+            },
+        ]
+    },
 
     "usermenu_links": [
         {"name": "Live Storefront", "url": "/", "new_window": True, "icon": "fas fa-external-link-alt"},
@@ -111,38 +155,43 @@ JAZZMIN_SETTINGS = {
 
     "order_with_respect_to": [
         "shop.Product",
-        "shop.ProductColor",
         "shop.Category",
+        "shop.ProductColor",
+        "shop.ProductImage",
         "shop.Order",
         "shop.OrderItem",
+        "shop.Coupon",
         "shop.Review",
+        "auth.User",
+        "shop.Address",
+        "shop.ContactMessage",
         "shop.Cart",
         "shop.Wishlist",
-        "shop.Address",
-        "auth.User",
         "auth.Group",
     ],
 
     "icons": {
         "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
+        "auth.user": "fas fa-user-circle",
+        "auth.Group": "fas fa-shield-alt",
         "shop.Category": "fas fa-layer-group",
         "shop.Product": "fas fa-box-open",
         "shop.ProductColor": "fas fa-palette",
         "shop.ProductImage": "fas fa-images",
         "shop.Order": "fas fa-shopping-bag",
         "shop.OrderItem": "fas fa-receipt",
+        "shop.Coupon": "fas fa-tags",
         "shop.Review": "fas fa-star",
+        "shop.ContactMessage": "fas fa-headset",
         "shop.Cart": "fas fa-shopping-cart",
         "shop.Wishlist": "fas fa-heart",
         "shop.Address": "fas fa-map-marker-alt",
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
-    "related_modal_active": False,
+    "related_modal_active": True,
     "custom_css": "css/admin_custom.css",
-    "custom_js": None,
+    "custom_js": "js/admin_custom.js",
     "show_ui_builder": False,
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
@@ -156,10 +205,10 @@ JAZZMIN_UI_TWEAKS = {
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-    "brand_colour": "navbar-dark",
+    "brand_colour": "navbar-white",
     "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": True,
+    "navbar": "navbar-white",
+    "no_navbar_border": False,
     "navbar_fixed": True,
     "layout_boxed": False,
     "footer_fixed": False,
@@ -228,14 +277,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
- 
-MEDIA_URL='/images/'
-MEDIA_ROOT=BASE_DIR/'static'
- 
-STATICFILES_DIRS=[
-	BASE_DIR/'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+
+MEDIA_URL = '/images/'
+MEDIA_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

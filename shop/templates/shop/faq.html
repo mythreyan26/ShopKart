@@ -1,0 +1,95 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}Frequently Asked Questions | ShopKart{% endblock title %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ activeAccordion: 1 }">
+  
+  <div class="text-center max-w-xl mx-auto mb-10">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-brand mb-3">
+      ❓ Help & Guidance
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Frequently Asked Questions</h1>
+    <p class="text-sm text-slate-500 mt-2">Find quick answers to common questions about orders, shipping, returns, and account security.</p>
+  </div>
+
+  <div class="space-y-4">
+    
+    <!-- FAQ 1 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 1 ? 0 : 1)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">How do I track my order delivery status?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 1 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 1" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        You can track your order at any time by heading to your <a href="{% url 'my_orders' %}" class="text-brand font-bold underline">My Orders</a> page and clicking "Track Order & Details". Every order includes an interactive 4-step progress stepper (Placed &rarr; Packed &rarr; Shipped &rarr; Delivered) along with live courier tracking numbers and estimated arrival dates.
+      </div>
+    </div>
+
+    <!-- FAQ 2 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 2 ? 0 : 2)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">Can I cancel an order after placing it?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 2 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 2" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        Yes! You can cancel any order directly from the order details page as long as its status is still <strong>Order Placed</strong> or <strong>Confirmed & Packed</strong>. Once cancelled, reserved product inventory is instantly restored to the catalog. If an item has already been dispatched/shipped, you can initiate a return upon delivery.
+      </div>
+    </div>
+
+    <!-- FAQ 3 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 3 ? 0 : 3)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">How do promo codes & coupons work?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 3 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 3" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        ShopKart features a dynamic coupon engine. In your Cart or Checkout screen, enter any active coupon code (such as <code class="bg-slate-100 text-brand px-1.5 py-0.5 rounded font-bold">WELCOME10</code> or <code class="bg-slate-100 text-brand px-1.5 py-0.5 rounded font-bold">SAVE20</code>) and click "Apply". Discounts are calculated either as a percentage off with a maximum cap, or a flat rupee amount off.
+      </div>
+    </div>
+
+    <!-- FAQ 4 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 4 ? 0 : 4)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">What are the delivery fees and threshold for Free Delivery?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 4 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 4" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        Orders with a subtotal of <strong>₹499 or higher qualify for FREE standard delivery</strong> anywhere in India! For orders below ₹499, a nominal delivery fee of ₹40 applies. Your cart automatically shows a live progress bar tracking how much more you need to add for free shipping.
+      </div>
+    </div>
+
+    <!-- FAQ 5 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 5 ? 0 : 5)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">What payment methods are supported?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 5 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 5" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        We support <strong>Cash on Delivery (COD)</strong>, <strong>Instant UPI</strong> (Google Pay, PhonePe, Paytm, BHIM), and <strong>Credit / Debit Cards</strong> (Visa, Mastercard, RuPay). All transactions are encrypted with industry-standard protocol safeguards.
+      </div>
+    </div>
+
+    <!-- FAQ 6 -->
+    <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 overflow-hidden shadow-xs">
+      <button @click="activeAccordion = (activeAccordion === 6 ? 0 : 6)" class="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none">
+        <span class="font-extrabold text-sm sm:text-base text-slate-900">Can I install ShopKart as an app on my phone?</span>
+        <span class="text-brand font-bold text-lg" x-text="activeAccordion === 6 ? '−' : '+'"></span>
+      </button>
+      <div x-show="activeAccordion === 6" x-cloak class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+        Yes! ShopKart is a certified <strong>Progressive Web App (PWA)</strong>. When visiting on Chrome or Safari mobile, tap the "Install App" banner or browser options to add ShopKart to your home screen. It operates in full-screen standalone mode with offline page caching. Additionally, a dedicated Expo / React Native mobile app codebase is located in <code class="bg-slate-100 px-1 rounded">mobile_app/</code>.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="mt-12 text-center bg-slate-100/70 rounded-3xl p-8 border border-slate-200">
+    <h3 class="font-bold text-slate-900 text-base">Still have questions?</h3>
+    <p class="text-xs text-slate-500 mt-1 mb-4">Our customer support specialists are available 24/7 to assist you.</p>
+    <a href="{% url 'contact' %}" class="inline-flex items-center gap-2 px-6 py-2.5 bg-navy hover:bg-navy-light text-white font-bold text-xs rounded-xl transition shadow-xs">
+      <span>Contact Customer Support &rarr;</span>
+    </a>
+  </div>
+
+</div>
+{% endblock content %}

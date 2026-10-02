@@ -1,0 +1,235 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+
+{% block content %}
+
+{% if not original %}
+  {{ block.super }}
+{% else %}
+
+<div class="shopkart-coupon-studio" style="margin-bottom: 24px;">
+
+  <!-- ========================================================================= -->
+  <!-- 1. Executive Voucher Studio Command Header -->
+  <!-- ========================================================================= -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 22px 26px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+        <a href="{% url 'admin:shop_coupon_changelist' %}" style="color: #94a3b8; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+          <i class="fas fa-arrow-left"></i> All Coupons
+        </a>
+        <span style="font-family: monospace; font-size: 14px; font-weight: 800; color: #fb923c; background: rgba(234,88,12,0.15); border: 1px solid rgba(234,88,12,0.3); padding: 3px 12px; border-radius: 6px; letter-spacing: 0.05em;">
+          #VCHR-{{ original.code }}
+        </span>
+        {% if original.active %}
+          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+            Active Campaign
+          </span>
+        {% else %}
+          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
+            Disabled / Inactive
+          </span>
+        {% endif %}
+      </div>
+
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;">
+        {{ original.code }} &middot;
+        <span style="color: #fb923c; font-size: 18px;">
+          {{ original.discount_value|floatformat:0 }}{% if original.discount_type == 'percentage' %}% OFF{% else %}₹ OFF{% endif %}
+        </span>
+      </h1>
+      <p style="font-size: 12.5px; color: #94a3b8; margin: 0;">
+        {{ original.description|default:"Promotional voucher campaign." }} &middot; Created on {{ original.created_at|date:"F d, Y" }}
+      </p>
+    </div>
+
+    <!-- Direct Voucher Actions -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="/admin/shop/order/?coupon_code__exact={{ original.code }}"
+         style="background: #ffffff; color: #0f172a; padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.15s;">
+        <i class="fas fa-shopping-bag" style="color: #ea580c;"></i> Influenced Orders ({{ coupon_studio_data.redemptions_count|default:0 }})
+      </a>
+
+      <form method="POST" action="{% url 'admin:shop_coupon_toggle_active' original.id %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          {% if original.active %}
+            <i class="fas fa-ban" style="color: #f87171;"></i> Disable Campaign
+          {% else %}
+            <i class="fas fa-check-circle" style="color: #4ade80;"></i> Activate Campaign
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. Voucher 4-Tile Campaign Analytics Cards -->
+  <!-- ========================================================================= -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+
+    <!-- Tile 1: Total Redemptions -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Redemptions</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-receipt"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        {{ coupon_studio_data.redemptions_count|default:0 }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">times</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: #16a34a; font-weight: 600;">
+        Completed checkouts applied
+      </div>
+    </div>
+
+    <!-- Tile 2: Customer Savings Generated -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Savings Generated</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #15803d; letter-spacing: -0.02em;">
+        ₹{{ coupon_studio_data.total_savings|floatformat:0 }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+        Total discount granted to buyers
+      </div>
+    </div>
+
+    <!-- Tile 3: Influenced Order Volume -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Influenced Sales</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #ea580c; letter-spacing: -0.02em;">
+        ₹{{ coupon_studio_data.total_sales_volume|floatformat:0 }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+        Gross checkout revenue influenced
+      </div>
+    </div>
+
+    <!-- Tile 4: Rule Snapshot -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Campaign Criteria</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #faf5ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-sliders-h"></i>
+        </div>
+      </div>
+      <div style="font-size: 14px; font-weight: 800; color: #0f172a;">
+        Min Spend: ₹{{ original.min_order_amount|floatformat:0 }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11.5px; color: #64748b;">
+        {% if original.max_discount %}Cap: ₹{{ original.max_discount|floatformat:0 }}{% else %}No discount cap{% endif %} &middot; {{ original.get_discount_type_display }}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. Influenced Orders Breakdown Table -->
+  <!-- ========================================================================= -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 24px;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background: #fafafa;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-receipt" style="color: #ea580c;"></i>
+        <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">Orders Influenced by this Voucher</h3>
+      </div>
+      <a href="/admin/shop/order/?coupon_code__exact={{ original.code }}" style="font-size: 11.5px; font-weight: 700; color: #0284c7; text-decoration: none;">
+        View in Orders Pipeline &rarr;
+      </a>
+    </div>
+
+    {% if coupon_studio_data.orders %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 11px; text-transform: uppercase; background: #f8fafc;">
+            <th style="padding: 10px 16px;">Order ID</th>
+            <th style="padding: 10px 16px;">Customer</th>
+            <th style="padding: 10px 16px;">Date</th>
+            <th style="padding: 10px 16px;">Subtotal</th>
+            <th style="padding: 10px 16px;">Promo Discount</th>
+            <th style="padding: 10px 16px;">Paid Total</th>
+            <th style="padding: 10px 16px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ord in coupon_studio_data.orders %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px 16px; font-family: monospace; font-weight: 700;">
+              <a href="/admin/shop/order/{{ ord.id }}/change/" style="color: #0284c7; text-decoration: none;">
+                #SK-ORD-{{ ord.id|stringformat:"06d" }}
+              </a>
+            </td>
+            <td style="padding: 12px 16px; font-weight: 600; color: #0f172a;">
+              <a href="/admin/auth/user/{{ ord.user.id }}/change/" style="color: #0f172a; text-decoration: none;">
+                {{ ord.user.username }}
+              </a>
+            </td>
+            <td style="padding: 12px 16px; color: #64748b;">
+              {{ ord.created_at|date:"M d, Y" }}
+            </td>
+            <td style="padding: 12px 16px; color: #475569;">
+              ₹{{ ord.subtotal|floatformat:0 }}
+            </td>
+            <td style="padding: 12px 16px; font-weight: 700; color: #16a34a;">
+              -₹{{ ord.discount_amount|floatformat:0 }}
+            </td>
+            <td style="padding: 12px 16px; font-weight: 800; color: #0f172a;">
+              ₹{{ ord.total_amount|floatformat:0 }}
+            </td>
+            <td style="padding: 12px 16px; text-align: right;">
+              <a href="/admin/shop/order/{{ ord.id }}/change/" class="btn-studio-action" style="padding: 4px 8px; border-radius: 6px; background: #0f172a; color: #ffffff; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fas fa-sliders-h"></i> Order Studio
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding: 36px 20px; text-align: center; color: #94a3b8;">
+      <i class="fas fa-tags" style="font-size: 32px; margin-bottom: 10px; color: #cbd5e1;"></i>
+      <p style="font-size: 13px; font-weight: 600; margin: 0 0 4px 0; color: #475569;">No Redemptions Yet</p>
+      <p style="font-size: 11.5px; margin: 0;">This coupon code has not been redeemed in any checkouts yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4. Native Django Coupon Configuration Form -->
+<!-- ========================================================================= -->
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 24px;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+    <div>
+      <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-sliders-h" style="color: #ea580c;"></i> Voucher Rule &amp; Discount Configuration
+      </h3>
+      <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0;">
+        Adjust promo code values, minimum spend thresholds, and maximum discount caps.
+      </p>
+    </div>
+    <span style="font-size: 11.5px; font-weight: 700; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; padding: 3px 10px; border-radius: 6px;">
+      <i class="fas fa-bolt"></i> Real-Time Applied
+    </span>
+  </div>
+
+  {{ block.super }}
+</div>
+
+{% endif %}
+{% endblock %}

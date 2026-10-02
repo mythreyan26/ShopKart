@@ -1,0 +1,72 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}Edit Address | ShopKart{% endblock title %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <nav class="text-xs text-slate-400 mb-6 flex items-center gap-1.5 font-medium">
+    <a href="{% url 'profile' %}" class="hover:text-brand transition">Account Hub</a>
+    <span>&rsaquo;</span>
+    <span class="text-slate-700 font-semibold">Edit Address</span>
+  </nav>
+
+  <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 sm:p-8 shadow-xs">
+    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+      <div class="w-10 h-10 rounded-2xl bg-orange-50 text-brand flex items-center justify-center text-lg font-bold">
+        📍
+      </div>
+      <div>
+        <h1 class="text-xl font-extrabold text-slate-900">Edit Delivery Address</h1>
+        <p class="text-xs text-slate-500">Update your contact information and shipping destination</p>
+      </div>
+    </div>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
+          {{ form.full_name }}
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone Number</label>
+          {{ form.phone }}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Street Address</label>
+        {{ form.address_line }}
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">City</label>
+          {{ form.city }}
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State</label>
+          {{ form.state }}
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pincode</label>
+          {{ form.pincode }}
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 pt-2 cursor-pointer select-none">
+        {{ form.is_default }}
+        <span>Set as default shipping address</span>
+      </label>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        <a href="{% url 'profile' %}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
+          Cancel
+        </a>
+        <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white font-bold text-xs rounded-xl shadow-xs transition">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopkart-v1.0.0';
+const CACHE_NAME = 'shopkart-v1.0.4';
 const OFFLINE_URL = '/offline/';
 
 const PRECACHE_ASSETS = [
@@ -23,7 +23,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and purge any cached admin paths
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
@@ -34,6 +34,17 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => caches.open(CACHE_NAME)).then((cache) => {
+      return cache.keys().then((requests) => {
+        return Promise.all(
+          requests.map((req) => {
+            const u = new URL(req.url);
+            if (u.pathname.startsWith('/admin') || u.pathname.startsWith('/api/')) {
+              return cache.delete(req);
+            }
+          })
+        );
+      });
     }).then(() => self.clients.claim())
   );
 });
@@ -45,6 +56,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET and chrome-extension requests
   if (request.method !== 'GET' || url.protocol.startsWith('chrome-extension')) {
+    return;
+  }
+
+  // Never intercept Django Admin routes, admin assets, or API endpoints - let browser handle directly
+  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/') || url.pathname.includes('admin_custom') || url.pathname.includes('/admin/')) {
     return;
   }
 
@@ -61,6 +77,19 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(async () => {
+          // Quick retry after 500ms in case local server was auto-reloading code changes
+          try {
+            await new Promise((r) => setTimeout(r, 500));
+            const retryRes = await fetch(request);
+            if (retryRes && retryRes.ok) {
+              const copy = retryRes.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+              return retryRes;
+            }
+          } catch (retryErr) {
+            // Server really offline
+          }
+
           // Try to get from cache
           const cachedResponse = await caches.match(request);
           if (cachedResponse) {

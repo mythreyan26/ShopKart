@@ -1,13 +1,17 @@
+import time
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, password_validation, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, F
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
-from .models import Category, Product, ProductColor, ProductImage, ProductColorImage, Cart, Wishlist, Address, Order, OrderItem, Review, Coupon
+from .live_sync import get_current_version, get_latest_event, get_events_since
+
+from .models import Category, Product, ProductColor, ProductImage, ProductColorImage, Cart, Wishlist, Address, Order, OrderItem, Review, Coupon, ContactMessage
 from .views import FREE_DELIVERY_THRESHOLD, DELIVERY_FEE
 
 
@@ -317,7 +321,8 @@ def api_search(request):
 
     results = Product.objects.filter(
         Q(name__icontains=query) | Q(description__icontains=query) |
-        Q(brand__icontains=query) | Q(category__name__icontains=query),
+        Q(brand__icontains=query) | Q(category__name__icontains=query) |
+        Q(categories__name__icontains=query),
         status=0
     ).distinct()
 
@@ -333,7 +338,7 @@ def api_search(request):
 # Cart APIs
 # ==============================================================================
 
-def _get_cart_payload(user):
+def _get_cart_payload(user, session=None):
     items = Cart.objects.filter(user=user).select_related('product', 'color')
     items_data = []
     subtotal = 0
@@ -360,13 +365,31 @@ def _get_cart_payload(user):
             'stock': item.color.quantity if item.color else item.product.quantity,
         })
 
+    coupon_code = session.get('coupon_code') if session else None
+    coupon_obj = None
+    discount_amount = 0
+
+    if coupon_code and subtotal > 0:
+        coupon_obj = Coupon.objects.filter(code__iexact=coupon_code, active=True).first()
+        if coupon_obj and subtotal >= coupon_obj.min_order_amount:
+            discount_amount = coupon_obj.calculate_discount(subtotal)
+        else:
+            if session and 'coupon_code' in session:
+                del session['coupon_code']
+                session.modified = True
+            coupon_obj = None
+
+    subtotal_after_discount = max(0, subtotal - discount_amount)
     delivery_fee = 0 if subtotal >= FREE_DELIVERY_THRESHOLD or subtotal == 0 else DELIVERY_FEE
-    grand_total = subtotal + delivery_fee
+    grand_total = subtotal_after_discount + delivery_fee
 
     return {
         'items': items_data,
         'total_items_count': sum(i['quantity'] for i in items_data),
         'subtotal': round(subtotal, 2),
+        'coupon_code': coupon_obj.code if coupon_obj else None,
+        'discount_amount': round(discount_amount, 2),
+        'subtotal_after_discount': round(subtotal_after_discount, 2),
         'delivery_fee': delivery_fee,
         'free_delivery_threshold': FREE_DELIVERY_THRESHOLD,
         'amount_needed_for_free_delivery': max(0, FREE_DELIVERY_THRESHOLD - subtotal) if subtotal > 0 else FREE_DELIVERY_THRESHOLD,
@@ -380,7 +403,7 @@ def api_cart_list(request):
 
     return JsonResponse({
         'success': True,
-        'cart': _get_cart_payload(request.user)
+        'cart': _get_cart_payload(request.user, request.session)
     })
 
 
@@ -422,7 +445,7 @@ def api_cart_add(request):
     return JsonResponse({
         'success': True,
         'message': f"Added '{product.name}' to cart.",
-        'cart': _get_cart_payload(request.user)
+        'cart': _get_cart_payload(request.user, request.session)
     })
 
 
@@ -461,7 +484,7 @@ def api_cart_update(request, item_id):
     return JsonResponse({
         'success': True,
         'message': 'Cart updated.',
-        'cart': _get_cart_payload(request.user)
+        'cart': _get_cart_payload(request.user, request.session)
     })
 
 
@@ -475,7 +498,40 @@ def api_cart_remove(request, item_id):
     return JsonResponse({
         'success': True,
         'message': 'Item removed from cart.',
-        'cart': _get_cart_payload(request.user)
+        'cart': _get_cart_payload(request.user, request.session)
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_cart_clear(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    Cart.objects.filter(user=request.user).delete()
+    return JsonResponse({
+        'success': True,
+        'message': 'Cart cleared successfully.',
+        'cart': _get_cart_payload(request.user, request.session)
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_cart_move_to_wishlist(request, item_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    cart_item = get_object_or_404(Cart, pk=item_id, user=request.user)
+    Wishlist.objects.get_or_create(user=request.user, product=cart_item.product)
+    p_name = cart_item.product.name
+    cart_item.delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': f"Moved '{p_name}' to your wishlist.",
+        'cart': _get_cart_payload(request.user, request.session),
+        'wishlist_count': Wishlist.objects.filter(user=request.user).count()
     })
 
 
@@ -526,6 +582,32 @@ def api_wishlist_toggle(request, product_id):
         'in_wishlist': in_wishlist,
         'wishlist_count': count,
         'message': message
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_wishlist_move_to_cart(request, product_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    item = get_object_or_404(Wishlist, user=request.user, product_id=product_id)
+    cart_item, created = Cart.objects.get_or_create(
+        user=request.user,
+        product=item.product,
+        defaults={'product_qty': 1}
+    )
+    if not created:
+        cart_item.product_qty += 1
+        cart_item.save()
+    p_name = item.product.name
+    item.delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': f"Moved '{p_name}' to your cart.",
+        'cart': _get_cart_payload(request.user, request.session),
+        'wishlist_count': Wishlist.objects.filter(user=request.user).count()
     })
 
 
@@ -608,6 +690,97 @@ def api_address_create(request):
     })
 
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_address_update(request, address_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    address = get_object_or_404(Address, pk=address_id, user=request.user)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    full_name = data.get('full_name', '').strip()
+    phone = data.get('phone', '').strip()
+    address_line = data.get('address_line', '').strip()
+    city = data.get('city', '').strip()
+    state = data.get('state', '').strip()
+    pincode = data.get('pincode', '').strip()
+    is_default = bool(data.get('is_default', False))
+
+    if not all([full_name, phone, address_line, city, state, pincode]):
+        return JsonResponse({'success': False, 'error': 'All address fields are required.'}, status=400)
+
+    if is_default:
+        Address.objects.filter(user=request.user).exclude(pk=address.pk).update(is_default=False)
+
+    address.full_name = full_name
+    address.phone = phone
+    address.address_line = address_line
+    address.city = city
+    address.state = state
+    address.pincode = pincode
+    address.is_default = is_default or address.is_default
+    address.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Address updated successfully!',
+        'address': {
+            'id': address.id,
+            'full_name': address.full_name,
+            'phone': address.phone,
+            'address_line': address.address_line,
+            'city': address.city,
+            'state': address.state,
+            'pincode': address.pincode,
+            'is_default': address.is_default,
+        }
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST", "DELETE"])
+def api_address_delete(request, address_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    address = get_object_or_404(Address, pk=address_id, user=request.user)
+    was_default = address.is_default
+    address.delete()
+
+    if was_default:
+        fallback = Address.objects.filter(user=request.user).first()
+        if fallback:
+            fallback.is_default = True
+            fallback.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Address deleted successfully!'
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_address_set_default(request, address_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    address = get_object_or_404(Address, pk=address_id, user=request.user)
+    Address.objects.filter(user=request.user).update(is_default=False)
+    address.is_default = True
+    address.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Default address updated successfully!'
+    })
+
+
 # ==============================================================================
 # Orders & Checkout APIs
 # ==============================================================================
@@ -638,16 +811,32 @@ def api_order_create(request):
             return JsonResponse({'success': False, 'error': 'Please select or add a delivery address.'}, status=400)
 
     subtotal = sum(item.total_price for item in items)
+    
+    # Calculate coupon discount if present
+    coupon_code = (data.get('coupon_code') or request.session.get('coupon_code') or '').strip().upper()
+    discount_amount = 0
+    applied_coupon = None
+
+    if coupon_code and subtotal > 0:
+        coupon = Coupon.objects.filter(code__iexact=coupon_code, active=True).first()
+        if coupon and subtotal >= coupon.min_order_amount:
+            discount_amount = coupon.calculate_discount(subtotal)
+            applied_coupon = coupon
+
+    subtotal_after_discount = max(0, subtotal - discount_amount)
     delivery_fee = 0 if subtotal >= FREE_DELIVERY_THRESHOLD else DELIVERY_FEE
-    total = subtotal + delivery_fee
+    total = subtotal_after_discount + delivery_fee
 
     order = Order.objects.create(
         user=request.user,
         address=address,
         payment_method=payment_method,
         subtotal=subtotal,
+        coupon_code=applied_coupon.code if applied_coupon else '',
+        discount_amount=discount_amount,
         delivery_fee=delivery_fee,
         total_amount=total,
+        status='placed'
     )
 
     for item in items:
@@ -661,8 +850,11 @@ def api_order_create(request):
             price=item.unit_price,
         )
 
-    # Empty cart
+    # Empty cart and clear session coupon
     items.delete()
+    if 'coupon_code' in request.session:
+        del request.session['coupon_code']
+        request.session.modified = True
 
     return JsonResponse({
         'success': True,
@@ -694,6 +886,11 @@ def api_orders_list(request):
             'subtotal': o.subtotal,
             'delivery_fee': o.delivery_fee,
             'total_amount': o.total_amount,
+            'tracking_number': o.tracking_number,
+            'estimated_delivery': o.estimated_delivery.strftime("%b %d, %Y") if o.estimated_delivery else None,
+            'cancellation_reason': o.cancellation_reason,
+            'cancelled_at': o.cancelled_at.strftime("%b %d, %Y, %I:%M %p") if o.cancelled_at else None,
+            'can_cancel': o.status in ['placed', 'shipped'],
             'created_at': o.created_at.strftime("%b %d, %Y, %I:%M %p"),
             'items_count': o.items.count(),
             'items': [
@@ -733,6 +930,11 @@ def api_order_detail(request, order_id):
             'subtotal': order.subtotal,
             'delivery_fee': order.delivery_fee,
             'total_amount': order.total_amount,
+            'tracking_number': order.tracking_number,
+            'estimated_delivery': order.estimated_delivery.strftime("%b %d, %Y") if order.estimated_delivery else None,
+            'cancellation_reason': order.cancellation_reason,
+            'cancelled_at': order.cancelled_at.strftime("%b %d, %Y, %I:%M %p") if order.cancelled_at else None,
+            'can_cancel': order.status in ['placed', 'shipped'],
             'created_at': order.created_at.strftime("%b %d, %Y, %I:%M %p"),
             'address': {
                 'full_name': order.address.full_name if order.address else 'N/A',
@@ -755,6 +957,79 @@ def api_order_detail(request, order_id):
                 for it in order.items.all()
             ]
         }
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_order_cancel(request, order_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+
+    if order.status not in ['placed', 'shipped']:
+        return JsonResponse({'success': False, 'error': f"Order cannot be cancelled because it is already {order.get_status_display().lower()}."}, status=400)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    reason = data.get('reason', '').strip() or 'Cancelled by customer'
+
+    order.status = 'cancelled'
+    order.cancellation_reason = reason
+    order.cancelled_at = timezone.now()
+    order.save()
+
+    # Restore inventory
+    for item in order.items.all():
+        if item.product:
+            Product.objects.filter(pk=item.product.id).update(quantity=F('quantity') + item.quantity)
+            if item.color_name:
+                ProductColor.objects.filter(product=item.product, name=item.color_name).update(quantity=F('quantity') + item.quantity)
+
+    return JsonResponse({
+        'success': True,
+        'message': f'Order #{order.id} has been cancelled successfully.',
+        'status': order.status,
+        'cancellation_reason': order.cancellation_reason,
+        'cancelled_at': order.cancelled_at.strftime("%b %d, %Y, %I:%M %p")
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_order_reorder(request, order_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    items_added = 0
+
+    for item in order.items.all():
+        if item.product and item.product.status == 0:
+            color = ProductColor.objects.filter(product=item.product, name=item.color_name).first() if item.color_name else None
+            cart_item, created = Cart.objects.get_or_create(
+                user=request.user,
+                product=item.product,
+                color=color,
+                defaults={'product_qty': item.quantity}
+            )
+            if not created:
+                cart_item.product_qty += item.quantity
+                cart_item.save()
+            items_added += 1
+
+    if items_added == 0:
+        return JsonResponse({'success': False, 'error': 'None of the items from this order are currently available.'}, status=400)
+
+    cart_total_count = sum(Cart.objects.filter(user=request.user).values_list('product_qty', flat=True)) or 0
+    return JsonResponse({
+        'success': True,
+        'message': f'{items_added} item(s) from Order #{order.id} added to your cart!',
+        'cart_count': cart_total_count
     })
 
 
@@ -821,7 +1096,7 @@ def api_coupon_apply(request):
             'discount_amount': discount,
             'description': coupon.description
         },
-        'cart': _get_cart_payload(request.user)
+        'cart': _get_cart_payload(request.user, request.session)
     })
 
 
@@ -835,7 +1110,7 @@ def api_coupon_remove(request):
     return JsonResponse({
         'success': True,
         'message': 'Coupon removed.',
-        'cart': _get_cart_payload(request.user) if request.user.is_authenticated else None
+        'cart': _get_cart_payload(request.user, request.session) if request.user.is_authenticated else None
     })
 
 
@@ -845,9 +1120,10 @@ def api_search_autocomplete(request):
         return JsonResponse({'results': []})
 
     products = Product.objects.filter(
-        Q(name__icontains=query) | Q(brand__icontains=query) | Q(category__name__icontains=query),
+        Q(name__icontains=query) | Q(brand__icontains=query) |
+        Q(category__name__icontains=query) | Q(categories__name__icontains=query),
         status=0
-    )[:6]
+    ).distinct()[:6]
 
     results = []
     for p in products:
@@ -902,6 +1178,46 @@ def api_profile_update(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+def api_password_change(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    old_password = data.get('old_password', '')
+    new_password1 = data.get('new_password1', '')
+    new_password2 = data.get('new_password2', '')
+
+    if not old_password or not new_password1 or not new_password2:
+        return JsonResponse({'success': False, 'error': 'All password fields are required.'}, status=400)
+
+    if not request.user.check_password(old_password):
+        return JsonResponse({'success': False, 'error': 'Your current password was entered incorrectly.'}, status=400)
+
+    if new_password1 != new_password2:
+        return JsonResponse({'success': False, 'error': "The two new password fields didn't match."}, status=400)
+
+    try:
+        password_validation.validate_password(new_password1, request.user)
+    except Exception as e:
+        messages = e.messages if hasattr(e, 'messages') else [str(e)]
+        return JsonResponse({'success': False, 'error': ' '.join(messages)}, status=400)
+
+    request.user.set_password(new_password1)
+    request.user.save()
+    update_session_auth_hash(request, request.user)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Your password has been changed successfully!'
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def api_review_create(request, product_id):
     if not request.user.is_authenticated:
         return JsonResponse({'success': False, 'error': 'Login required.'}, status=401)
@@ -939,4 +1255,102 @@ def api_review_create(request, product_id):
             'created_at': review.created_at.strftime("%b %d, %Y")
         }
     })
+
+
+# ==============================================================================
+# Support & Contact APIs
+# ==============================================================================
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_contact_submit(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip()
+    subject = data.get('subject', '').strip()
+    message = data.get('message', '').strip()
+
+    if not all([name, email, subject, message]):
+        return JsonResponse({'success': False, 'error': 'All fields (name, email, subject, message) are required.'}, status=400)
+
+    contact_msg = ContactMessage.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        name=name,
+        email=email,
+        subject=subject,
+        message=message
+    )
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Thank you! Your message has been received. Our support team will get back to you shortly.',
+        'id': contact_msg.id
+    })
+
+
+# ==============================================================================
+# Real-Time Live Sync APIs (SSE Stream & Fast Polling)
+# ==============================================================================
+
+def api_live_sync_version(request):
+    """
+    Lightweight heartbeat endpoint returning current store revision
+    and the latest modification event from Django Admin.
+    """
+    return JsonResponse({
+        'success': True,
+        'version': get_current_version(),
+        'latest_event': get_latest_event()
+    })
+
+
+def api_live_sync_events(request):
+    """
+    Returns events that occurred since a given version timestamp.
+    """
+    since = request.GET.get('since', 0)
+    events = get_events_since(since)
+    return JsonResponse({
+        'success': True,
+        'version': get_current_version(),
+        'events': events
+    })
+
+
+def api_live_sync_stream(request):
+    """
+    Server-Sent Events (SSE) stream.
+    Pushes store modification events in real-time as admins make edits in /admin/.
+    """
+    def event_stream():
+        last_seen = get_current_version()
+        # Initial greeting event
+        yield f"event: connected\ndata: {json.dumps({'version': last_seen})}\n\n"
+        
+        heartbeat_counter = 0
+        while True:
+            time.sleep(0.5)
+            heartbeat_counter += 1
+
+            current_ver = get_current_version()
+            if current_ver > last_seen:
+                events = get_events_since(last_seen)
+                for ev in events:
+                    yield f"event: store_update\ndata: {json.dumps(ev)}\n\n"
+                last_seen = current_ver
+
+            # Send keep-alive ping every ~15 seconds
+            if heartbeat_counter >= 30:
+                yield f": ping\n\n"
+                heartbeat_counter = 0
+
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache, no-transform'
+    response['X-Accel-Buffering'] = 'no'
+    response['Access-Control-Allow-Origin'] = '*'
+    return response
 

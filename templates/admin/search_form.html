@@ -1,0 +1,52 @@
+{% load i18n static admin_list jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+<div class="col-12 pb-3" id="change-list-filters">
+    <form id="changelist-search" class="d-flex flex-wrap gap-3 align-items-center" method="GET">
+        {% block filters %}
+            {% if cl.has_filters %}
+                {% for spec in cl.filter_specs %}{% jazzmin_list_filter cl spec %}{% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {% if cl.search_fields %}
+            <div class="changelist-search-pill-container">
+                <span class="changelist-search-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                <input 
+                    class="changelist-search-pill-input" 
+                    type="search" 
+                    name="{{ search_var }}" 
+                    value="{{ cl.query }}" 
+                    id="searchbar" 
+                    placeholder="Search products, orders, users..."
+                    autocomplete="off"
+                    aria-label="Search"
+                />
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3" style="display: none;">{% trans 'Search' %}</button>
+        {% endif %}
+
+        {% if show_result_count %}
+            <span class="small text-muted ms-1 fw-semibold">
+                {% blocktrans count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %}
+                (<a href="?{% if cl.is_popup %}_popup=1{% endif %}" class="text-primary text-decoration-none">
+                    {% if cl.show_full_result_count %}
+                        {% blocktrans with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktrans %}
+                    {% else %}
+                        {% trans "Show all" %}
+                    {% endif %}
+                </a>)
+            </span>
+        {% endif %}
+
+        {% admin_extra_filters cl as extra_filters %}
+        {% for pair in extra_filters.items %}
+            {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+        {% endfor %}
+    </form>
+</div>

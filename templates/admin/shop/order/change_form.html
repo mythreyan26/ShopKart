@@ -1,0 +1,499 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+
+{% block content %}
+
+{% if not original %}
+  <!-- Fallback to standard Django Admin form when creating a brand new order -->
+  {{ block.super }}
+{% else %}
+
+<div class="shopkart-fulfillment-studio" style="margin-bottom: 30px;">
+
+  <!-- ========================================================================= -->
+  <!-- 1. Fulfillment Studio Executive Command Header -->
+  <!-- ========================================================================= -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 22px 26px; margin-bottom: 22px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+        <a href="{% url 'admin:shop_order_changelist' %}" style="color: #94a3b8; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+          <i class="fas fa-arrow-left"></i> All Orders
+        </a>
+        <span style="font-family: monospace; font-size: 13px; font-weight: 800; color: #ff6000; background: rgba(255,96,0,0.15); border: 1px solid rgba(255,96,0,0.3); padding: 3px 10px; border-radius: 6px;">
+          #SK-ORD-{{ original.id|stringformat:"05d" }}
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background-color: {{ studio_data.payment.bg|default:'#f1f5f9' }}; color: {{ studio_data.payment.text|default:'#334155' }}; border: 1px solid {{ studio_data.payment.border|default:'#cbd5e1' }};">
+          <i class="{{ studio_data.payment.icon|default:'fas fa-tag' }}"></i>
+          {{ studio_data.payment.status_label|default:original.get_payment_method_display }}
+        </span>
+      </div>
+
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;">
+        Order Fulfillment Studio &middot; #{{ original.id }}
+      </h1>
+      <p style="font-size: 12.5px; color: #94a3b8; margin: 0;">
+        <i class="far fa-calendar-alt" style="margin-right: 4px;"></i> Placed on {{ original.created_at|date:"F d, Y, h:i A" }} by <strong style="color: #f1f5f9;">@{{ original.user.username }}</strong>
+      </p>
+    </div>
+
+    <!-- Quick External Action Buttons -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="{% url 'invoice' original.id %}" target="_blank"
+         style="background: #ffffff; color: #0f172a; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.15s;">
+        <i class="fas fa-print" style="color: #ff6000;"></i> Print Tax Invoice
+      </a>
+      <a href="/orders/{{ original.id }}" target="_blank"
+         style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.15); transition: all 0.15s;">
+        <i class="fas fa-external-link-alt"></i> Storefront View
+      </a>
+      {% if original.tracking_number %}
+      <button type="button" onclick="navigator.clipboard.writeText('{{ original.tracking_number }}'); alert('Tracking number {{ original.tracking_number }} copied to clipboard!');"
+              style="background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fas fa-copy"></i> Copy Tracking
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. Visual Order Progression Stepper / Timeline -->
+  <!-- ========================================================================= -->
+  {% if studio_data.is_cancelled %}
+  <!-- Cancellation Alert Banner -->
+  <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 1px 3px rgba(225,29,72,0.06);">
+    <div style="width: 44px; height: 44px; border-radius: 12px; background: #fee2e2; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+      <i class="fas fa-ban"></i>
+    </div>
+    <div style="flex-grow: 1;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: gap-2;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #9f1239; margin: 0 0 3px 0;">
+          This Order Has Been Cancelled
+        </h3>
+        <span style="font-size: 11px; font-weight: 700; background: #fee2e2; color: #be123c; padding: 3px 10px; border-radius: 9999px;">
+          Cancelled at: {{ original.cancelled_at|date:"M d, Y, h:i A"|default:"Recorded" }}
+        </span>
+      </div>
+      <p style="font-size: 12.5px; color: #881337; margin: 0 0 8px 0;">
+        <strong>Reason:</strong> {{ original.cancellation_reason|default:"Cancelled by customer or administrator" }}
+      </p>
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 6px;">
+        <i class="fas fa-check-circle" style="color: #16a34a;"></i> Inventory quantities safely restored to warehouse stock
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Active 5-Step Fulfillment Stepper -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 26px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+      <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-route" style="color: #ff6000;"></i> Live Fulfillment Pipeline
+      </div>
+      <div style="font-size: 11.5px; color: #64748b;">
+        Current Status: <strong style="color: #ff6000;">{{ original.get_status_display }}</strong>
+      </div>
+    </div>
+
+    <div class="fulfillment-stepper" style="display: flex; align-items: center; justify-content: space-between; position: relative; gap: 10px;">
+      {% for step in studio_data.stepper %}
+      <div class="stepper-step" style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; position: relative; z-index: 2;">
+        
+        <!-- Step Circle Icon -->
+        <div style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s;
+                    {% if step.is_done %}
+                      background: #16a34a; color: #ffffff; box-shadow: 0 4px 10px rgba(22,163,74,0.3);
+                    {% elif step.is_active %}
+                      background: #ff6000; color: #ffffff; box-shadow: 0 0 0 5px rgba(255,96,0,0.2), 0 4px 12px rgba(255,96,0,0.35);
+                    {% else %}
+                      background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0;
+                    {% endif %}">
+          {% if step.is_done %}
+            <i class="fas fa-check"></i>
+          {% else %}
+            <i class="{{ step.icon }}"></i>
+          {% endif %}
+        </div>
+
+        <!-- Step Label -->
+        <div style="margin-top: 10px;">
+          <div style="font-size: 12px; font-weight: {% if step.is_active or step.is_done %}800{% else %}600{% endif %}; color: {% if step.is_active %}#ff6000{% elif step.is_done %}#0f172a{% else %}#94a3b8{% endif %};">
+            {{ step.label }}
+          </div>
+          <div style="font-size: 10.5px; color: #64748b; margin-top: 2px; max-width: 130px;">
+            {{ step.desc }}
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ========================================================================= -->
+  <!-- 3. Fulfillment Studio Two-Column Grid -->
+  <!-- ========================================================================= -->
+  <div class="row" style="row-gap: 24px;">
+
+    <!-- ===================================================================== -->
+    <!-- LEFT COLUMN: Items Breakdown, Workflow Buttons, Native Django Form -->
+    <!-- ===================================================================== -->
+    <div class="col-12 col-xl-8">
+
+      <!-- Card A: Ordered Items & Inventory Stock Table -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div style="padding: 18px 22px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #fafbfc;">
+          <div style="font-size: 14px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-boxes" style="color: #ff6000;"></i>
+            Ordered Items &amp; Warehouse Inventory Breakdown
+          </div>
+          <span style="font-size: 11.5px; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 9999px;">
+            {{ studio_data.items_count }} item{{ studio_data.items_count|pluralize }}
+          </span>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">
+                <th style="padding: 12px 18px; text-align: left;">Product</th>
+                <th style="padding: 12px 14px; text-align: left;">Variant</th>
+                <th style="padding: 12px 14px; text-align: center;">Price</th>
+                <th style="padding: 12px 14px; text-align: center;">Qty</th>
+                <th style="padding: 12px 14px; text-align: right;">Line Total</th>
+                <th style="padding: 12px 18px; text-align: center;">Warehouse Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in studio_data.items %}
+              <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 14px 18px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    {% if it.image_url %}
+                    <img src="{{ it.image_url }}" alt="{{ it.item.product_name }}"
+                         style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; padding: 2px;" />
+                    {% else %}
+                    <div style="width: 48px; height: 48px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 18px;">
+                      <i class="fas fa-box"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                      {% if it.product %}
+                      <a href="/admin/shop/product/{{ it.product.id }}/change/" target="_blank"
+                         style="font-weight: 700; color: #0f172a; text-decoration: none; font-size: 13px;">
+                        {{ it.item.product_name }}
+                      </a>
+                      <div style="font-size: 11px; color: #64748b;">SKU: PROD-{{ it.product.id }}</div>
+                      {% else %}
+                      <span style="font-weight: 700; color: #0f172a;">{{ it.item.product_name }}</span>
+                      <div style="font-size: 11px; color: #94a3b8;">(Product unlinked)</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+
+                <td style="padding: 14px 14px;">
+                  {% if it.color_name %}
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b;">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background-color: {{ it.color_code|default:'#cbd5e1' }}; border: 1px solid rgba(0,0,0,0.15);"></span>
+                    {{ it.color_name }}
+                  </span>
+                  {% else %}
+                  <span style="color: #94a3b8; font-size: 12px;">Standard</span>
+                  {% endif %}
+                </td>
+
+                <td style="padding: 14px 14px; text-align: center; font-weight: 600; color: #334155;">
+                  ₹{{ it.unit_price|floatformat:0 }}
+                </td>
+
+                <td style="padding: 14px 14px; text-align: center;">
+                  <span style="font-weight: 700; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 12px;">
+                    x{{ it.quantity }}
+                  </span>
+                </td>
+
+                <td style="padding: 14px 14px; text-align: right; font-weight: 800; color: #0f172a;">
+                  ₹{{ it.total_price|floatformat:0 }}
+                </td>
+
+                <td style="padding: 14px 18px; text-align: center;">
+                  {% if it.stock_qty > 5 %}
+                  <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">
+                    <i class="fas fa-check"></i> {{ it.stock_qty }} in stock
+                  </span>
+                  {% elif it.stock_qty > 0 %}
+                  <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #fffbeb; color: #b45309; border: 1px solid #fde68a;">
+                    <i class="fas fa-exclamation-triangle"></i> Low ({{ it.stock_qty }})
+                  </span>
+                  {% else %}
+                  <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+                    Out of stock
+                  </span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card B: Fast 1-Click Status Workflow Actions -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-bolt" style="color: #ff6000;"></i> Fast Fulfillment Actions &amp; State Transitions
+        </div>
+        <p style="font-size: 12px; color: #64748b; margin: 0 0 16px 0;">
+          Execute 1-click status transitions with automatic inventory safety and tracking sync.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+          {% if studio_data.can_confirm %}
+          <form method="POST" action="{% url 'admin:shop_order_quick_status' original.id 'confirmed' %}">
+            {% csrf_token %}
+            <button type="submit" style="background: #4338ca; color: #ffffff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(67,56,202,0.3);">
+              <i class="fas fa-box-open"></i> Confirm &amp; Pack Order
+            </button>
+          </form>
+          {% endif %}
+
+          {% if studio_data.can_ship %}
+          <form method="POST" action="{% url 'admin:shop_order_quick_status' original.id 'shipped' %}">
+            {% csrf_token %}
+            <button type="submit" style="background: #6d28d9; color: #ffffff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(109,40,217,0.3);">
+              <i class="fas fa-truck-moving"></i> Dispatch &amp; Mark Shipped
+            </button>
+          </form>
+          {% endif %}
+
+          {% if studio_data.can_out_delivery %}
+          <form method="POST" action="{% url 'admin:shop_order_quick_status' original.id 'out_for_delivery' %}">
+            {% csrf_token %}
+            <button type="submit" style="background: #d97706; color: #ffffff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(217,119,6,0.3);">
+              <i class="fas fa-shipping-fast"></i> Mark Out for Delivery
+            </button>
+          </form>
+          {% endif %}
+
+          {% if studio_data.can_deliver %}
+          <form method="POST" action="{% url 'admin:shop_order_quick_status' original.id 'delivered' %}">
+            {% csrf_token %}
+            <button type="submit" style="background: #15803d; color: #ffffff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(21,128,61,0.3);">
+              <i class="fas fa-check-circle"></i> Mark as Delivered
+            </button>
+          </form>
+          {% endif %}
+
+          {% if studio_data.can_cancel %}
+          <form method="POST" action="{% url 'admin:shop_order_quick_status' original.id 'cancelled' %}"
+                onsubmit="return confirm('Are you sure you want to cancel Order #{{ original.id }}? All purchased items will be automatically returned to inventory stock.');">
+            {% csrf_token %}
+            <input type="hidden" name="cancellation_reason" value="Cancelled by Administrator in Fulfillment Studio">
+            <button type="submit" style="background: #ffffff; color: #dc2626; border: 1px solid #fecaca; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;">
+              <i class="fas fa-ban"></i> Cancel Order &amp; Restock
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Card C: Native Django ModelAdmin Form Fields (Allowing granular field editing) -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div style="padding: 16px 22px; border-bottom: 1px solid #e2e8f0; background: #fafbfc; font-size: 14px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-cog" style="color: #64748b;"></i> Order Data &amp; Record Editor
+        </div>
+        <div style="padding: 22px;">
+          <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
+            {% csrf_token %}
+            {% if errors %}
+              <div class="alert alert-danger mb-4">
+                {% trans "Please correct the errors below." %}
+              </div>
+            {% endif %}
+
+            {% block field_sets %}
+              {% for fieldset in adminform %}
+                {% include "admin/includes/fieldset.html" %}
+              {% endfor %}
+            {% endblock %}
+
+            <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0;">
+              {% submit_row %}
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- RIGHT COLUMN: Customer Contact, Shipping Address, Financial Summary -->
+    <!-- ===================================================================== -->
+    <div class="col-12 col-xl-4">
+
+      <!-- Card D: Customer & Shipping Logistics -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-map-marker-alt" style="color: #ff6000;"></i> Customer &amp; Delivery
+          </span>
+          <span style="font-size: 11px; font-weight: 700; color: #475569; background: #f1f5f9; padding: 2px 8px; border-radius: 6px;">
+            Courier Ready
+          </span>
+        </div>
+
+        <!-- Customer Identity -->
+        <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #0f172a, #334155); color: #ffffff; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            {{ original.user.username|slice:":1"|upper }}
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">
+              {{ original.address.full_name|default:original.user.get_full_name|default:original.user.username }}
+            </div>
+            <div style="font-size: 12px; color: #64748b;">
+              <i class="far fa-user" style="font-size: 10px;"></i> @{{ original.user.username }}
+            </div>
+            {% if original.user.email %}
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+              <a href="mailto:{{ original.user.email }}" style="color: #2563eb; text-decoration: none;">
+                <i class="far fa-envelope"></i> {{ original.user.email }}
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Delivery Address Details -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+            Shipping Address
+          </div>
+          {% if original.address %}
+          <div style="font-size: 12.5px; color: #1e293b; line-height: 1.5; background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <strong>{{ original.address.full_name }}</strong><br>
+            {{ original.address.address_line }}<br>
+            {{ original.address.city }}, {{ original.address.state }} &mdash; <strong>{{ original.address.pincode }}</strong>
+          </div>
+          {% else %}
+          <div style="font-size: 12px; color: #94a3b8; font-style: italic;">
+            No delivery address record attached.
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Contact Phone & Quick WhatsApp -->
+        {% if original.address.phone %}
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+            Customer Contact
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="tel:{{ original.address.phone }}"
+               style="flex: 1; text-decoration: none; font-size: 12px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e2e8f0;">
+              <i class="fas fa-phone-alt" style="color: #16a34a;"></i> {{ original.address.phone }}
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=91{{ original.address.phone }}&text=Hello%20{{ original.address.full_name|urlencode }},%20regarding%20your%20ShopKart%20order%20%23{{ original.id }}"
+               target="_blank" title="Chat on WhatsApp"
+               style="background: #25d366; color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Tracking & ETA Metadata -->
+        <div style="padding-top: 14px; border-top: 1px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 12px; color: #64748b;">Tracking Number:</span>
+            <span style="font-family: monospace; font-size: 12px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 2px 7px; border-radius: 6px;">
+              {{ original.tracking_number|default:"Pending Dispatch" }}
+            </span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; color: #64748b;">Estimated Delivery:</span>
+            <span style="font-size: 12px; font-weight: 700; color: #0f172a;">
+              {{ original.estimated_delivery|date:"M d, Y"|default:"Calculated on dispatch" }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Card E: Financial Breakdown & Settlement Audit -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-file-invoice-dollar" style="color: #16a34a;"></i> Financial Audit &amp; Settlement
+          </span>
+          <span style="font-size: 11px; font-weight: 700; color: #16a34a; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 6px;">
+            INR (₹)
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; color: #64748b;">
+            <span>Items Subtotal</span>
+            <span style="font-weight: 600; color: #1e293b;">₹{{ original.subtotal|floatformat:2 }}</span>
+          </div>
+
+          {% if original.discount_amount > 0 %}
+          <div style="display: flex; align-items: center; justify-content: space-between; color: #16a34a;">
+            <span>
+              Coupon Discount
+              {% if original.coupon_code %}
+              <span style="font-family: monospace; font-size: 10.5px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">{{ original.coupon_code }}</span>
+              {% endif %}
+            </span>
+            <span style="font-weight: 700;">-₹{{ original.discount_amount|floatformat:2 }}</span>
+          </div>
+          {% endif %}
+
+          <div style="display: flex; align-items: center; justify-content: space-between; color: #64748b;">
+            <span>Delivery / Shipping Fee</span>
+            <span style="font-weight: 600; color: #1e293b;">
+              {% if original.delivery_fee == 0 %}
+                <span style="color: #16a34a; font-weight: 700;">FREE</span>
+              {% else %}
+                ₹{{ original.delivery_fee|floatformat:2 }}
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Grand Total Highlight -->
+        <div style="padding-top: 14px; border-top: 2px dashed #e2e8f0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+          <div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Settlement</div>
+            <div style="font-size: 11px; color: #94a3b8;">Taxes included</div>
+          </div>
+          <div style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+            ₹{{ original.total_amount|floatformat:2 }}
+          </div>
+        </div>
+
+        <!-- Payment Settlement Badge -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 11.5px; color: #64748b;">Payment Method:</span>
+            <strong style="font-size: 12px; color: #0f172a;">{{ original.get_payment_method_display }}</strong>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11.5px; color: #64748b;">Settlement State:</span>
+            <span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; background: {{ studio_data.payment.bg }}; color: {{ studio_data.payment.text }}; border: 1px solid {{ studio_data.payment.border }};">
+              {{ studio_data.payment.status_label }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

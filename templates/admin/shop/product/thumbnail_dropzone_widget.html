@@ -1,0 +1,113 @@
+{% load i18n static %}
+<div class="shopkart-thumbnail-uploader" id="uploader_{{ widget.attrs.id }}">
+  <div class="thumbnail-uploader-wrapper">
+    
+    <!-- Section Header -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <div>
+        <div class="uploader-title-text" style="font-size: 14px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ff6000;"></span>
+          Upload Thumbnail
+        </div>
+        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+          Main catalog cover photo. Click to upload or drag &amp; drop your image below.
+        </div>
+      </div>
+      {% if widget.is_initial and widget.value %}
+      <span class="badge badge-current-status" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
+        <i class="fas fa-check-circle" style="color: #22c55e; margin-right: 4px;"></i> Thumbnail Active
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Cards Row (Dropzone + Live Preview) -->
+    <div class="thumbnail-cards-container" style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch;">
+
+      <!-- 1. Dashed Dropzone Card -->
+      <div class="shopkart-dropzone-card thumbnail-dropzone" id="dropzone_{{ widget.attrs.id }}">
+        <!-- Real Hidden File Input -->
+        <input type="{{ widget.type }}" name="{{ widget.name }}" id="{{ widget.attrs.id }}"
+               accept="image/*" class="dropzone-file-input thumbnail-file-input"
+               {% for name, value in widget.attrs.items %}{% if value is not False and name != 'id' %} {{ name }}{% if value is not True %}="{{ value }}"{% endif %}{% endif %}{% endfor %}>
+
+        <div class="dropzone-icon-box">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+        </div>
+
+        <div class="dropzone-text-headline">
+          <span class="text-upload-blue">Click to<br>Upload</span> or<br>Drag &amp; Drop<br>the Image
+        </div>
+
+        <div class="dropzone-text-sub">
+          SVG, PNG, JPG, WEBP
+        </div>
+      </div>
+
+      <!-- 2. Preview Card (Side by Side matching user reference) -->
+      <div class="shopkart-preview-card thumbnail-preview-card" id="preview_card_{{ widget.attrs.id }}">
+        
+        <!-- Image display area -->
+        <div class="card-image-wrapper">
+          <img id="img_preview_{{ widget.attrs.id }}"
+               src="{% if widget.is_initial and widget.value %}{{ widget.value.url }}{% endif %}"
+               alt="Thumbnail preview"
+               class="preview-img"
+               style="{% if not widget.is_initial or not widget.value %}display: none;{% endif %}" />
+
+          <!-- Placeholder when no image exists -->
+          <div id="empty_placeholder_{{ widget.attrs.id }}" class="card-empty-placeholder"
+               style="{% if widget.is_initial and widget.value %}display: none;{% else %}display: flex;{% endif %}">
+            <i class="far fa-image placeholder-icon"></i>
+            <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">No thumbnail yet</span>
+          </div>
+
+          <!-- Live New Selection Badge -->
+          <span id="badge_new_{{ widget.attrs.id }}" class="badge-new-photo" style="display: none;">
+            <i class="fas fa-sparkles"></i> New Image
+          </span>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer-info">
+          <div class="card-filename" id="label_filename_{{ widget.attrs.id }}"
+               title="{% if widget.is_initial and widget.value %}{{ widget.value.name }}{% endif %}">
+            {% if widget.is_initial and widget.value %}
+              {{ widget.value.name|truncatechars:18 }}
+            {% else %}
+              Awaiting upload
+            {% endif %}
+          </div>
+
+          {% if not widget.required and widget.is_initial %}
+          <!-- Clear/Delete trigger -->
+          <label for="{{ widget.checkbox_id }}" class="btn-clear-label" title="Remove thumbnail on save">
+            <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}" class="thumbnail-clear-checkbox" style="display: none;">
+            <span class="btn-trash-icon">
+              <i class="fas fa-trash-alt"></i>
+            </span>
+          </label>
+          {% endif %}
+        </div>
+
+        <!-- Deletion / Clear Overlay -->
+        <div id="clear_overlay_{{ widget.attrs.id }}" class="card-deleted-overlay" style="display: none;">
+          <div class="overlay-icon-box">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <div style="font-size: 11.5px; font-weight: 700; color: #991b1b;">Marked for Removal</div>
+          <div style="font-size: 10px; color: #b91c1c; margin-top: 1px;">Will clear on save</div>
+          <button type="button" class="btn-undo-action btn-undo-thumbnail-clear" data-input-id="{{ widget.attrs.id }}" data-checkbox-id="{{ widget.checkbox_id }}">
+            <i class="fas fa-undo"></i> Undo
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

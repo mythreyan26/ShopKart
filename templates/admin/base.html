@@ -1,0 +1,667 @@
+{% load i18n static jazzmin admin_urls %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!--  Prevent admin panel being crawled by search engines -->
+    <meta name="robots" content="none, noarchive">
+    <script>
+        (function() {
+            var mode = localStorage.getItem('jazzmin-theme-mode') || '{{ jazzmin_ui.default_theme_mode|default:"light" }}';
+            if (mode === 'auto') {
+                mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-bs-theme', mode);
+        })();
+    </script>
+
+    <title>{% block title %}{{ title }} | {{ jazzmin_settings.site_title }}{% endblock %}</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{% static "vendor/fontawesome-free/css/all.min.css" %}">
+
+    <!-- Bootstrap and adminLTE -->
+    <link rel="stylesheet" href="{% static "vendor/adminlte/css/adminlte.min.css" %}" id="adminlte-css">
+
+    <!-- Bootswatch theme -->
+    <link rel="stylesheet" {% if jazzmin_ui.theme.name != 'default' %}href="{{ jazzmin_ui.theme.src }}"{% endif %} id="jazzmin-theme" data-theme-base="{% static 'vendor/bootswatch' %}" />
+    {% if jazzmin_settings.show_theme_chooser %}
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('jazzmin-theme');
+            if (savedTheme && savedTheme !== 'default') {
+                var link = document.getElementById('jazzmin-theme');
+                link.setAttribute('href', link.getAttribute('data-theme-base') + '/' + savedTheme + '/bootstrap.min.css');
+            }
+        })();
+    </script>
+    {% endif %}
+
+    <!-- Custom fixes for django -->
+    <link rel="stylesheet" href="{% static "jazzmin/css/main.css" %}">
+
+    {% if jazzmin_settings.custom_css %}
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}">
+    {% endif %}
+
+    <!-- favicons -->
+    <link rel="shortcut icon" href="{% static jazzmin_settings.site_icon %}" type="image/png">
+    <link rel="icon" href="{% static jazzmin_settings.site_icon %}" sizes="32x32" type="image/png">
+
+    {% if jazzmin_settings.use_google_fonts_cdn %}
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    {% endif %}
+
+    <!-- Fixed Sidebar & Independent Main Content Scrolling -->
+    <style id="admin-fixed-sidebar-style">
+        html, body {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Sidebar permanently fixed on left */
+        aside.app-sidebar,
+        .app-sidebar,
+        #jazzy-sidebar,
+        .main-sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            width: 250px !important;
+            max-width: 250px !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            z-index: 1040 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .app-sidebar .sidebar-brand,
+        #jazzy-sidebar .sidebar-brand {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 10 !important;
+            flex-shrink: 0 !important;
+        }
+
+        .app-sidebar .sidebar-wrapper,
+        #jazzy-sidebar .sidebar-wrapper {
+            flex: 1 1 auto !important;
+            height: calc(100vh - 56px) !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+
+        .sidebar-wrapper::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        .sidebar-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* Main Content Area */
+        .app-wrapper {
+            margin-left: 250px !important;
+            width: calc(100vw - 250px) !important;
+            max-width: calc(100vw - 250px) !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+        }
+
+        .app-wrapper > .app-header {
+            width: 100% !important;
+            margin-left: 0 !important;
+            position: static !important;
+            flex-shrink: 0 !important;
+        }
+
+        .app-wrapper > .app-main {
+            width: 100% !important;
+            margin-left: 0 !important;
+            flex: 1 0 auto !important;
+            overflow: visible !important;
+        }
+
+        .app-wrapper > .app-footer {
+            width: 100% !important;
+            margin-left: 0 !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Popup & No-Sidebar Support */
+        body.popup .app-wrapper,
+        body.no-sidebar .app-wrapper,
+        body.login-page .app-wrapper {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+
+        /* Sidebar Collapsed Support */
+        body.sidebar-collapse aside.app-sidebar,
+        body.sidebar-closed aside.app-sidebar {
+            transform: translateX(-250px) !important;
+        }
+
+        body.sidebar-collapse .app-wrapper,
+        body.sidebar-closed .app-wrapper {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+
+        @media (max-width: 991.98px) {
+            aside.app-sidebar,
+            .app-sidebar,
+            #jazzy-sidebar {
+                transform: translateX(-250px) !important;
+                transition: transform 0.3s ease-in-out !important;
+            }
+            
+            body.sidebar-open aside.app-sidebar {
+                transform: translateX(0) !important;
+            }
+            
+            .app-wrapper {
+                margin-left: 0 !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+            }
+        }
+    </style>
+
+    {% block extrastyle %} {% endblock %}
+    {% block extrahead %} {% endblock %}
+</head>
+<body class="layout-fixed{% if jazzmin_settings.show_sidebar %} sidebar-expand-lg sidebar-open{% else %} no-sidebar{% endif %} bg-body-tertiary {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }}" data-admin-utc-offset="{% now "Z" %}">
+
+    <div class="app-wrapper">
+
+    {% if not is_popup %}
+        <nav class="app-header navbar navbar-expand bg-body {{ jazzmin_ui.navbar_classes }}" id="jazzy-navbar">
+        <div class="container-fluid align-items-center">
+            <ul class="navbar-nav align-items-center">
+
+                {% if jazzmin_settings.show_sidebar %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Toggle navigation"><i class="fas fa-bars"></i></a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'admin:index' %}" class="brand-link">
+                            <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image" style="opacity: .8; margin: 0 0 0 5px;">
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% get_top_menu user request.current_app|default:"admin" as top_menu %}
+                {% for link in top_menu %}
+                    <li class="nav-item d-none d-xxl-inline-block{% if link.children %} dropdown{% endif %}">
+                        {% if link.children %}
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ link.name }}
+                            </a>
+                            <div class="dropdown-menu">
+                                {% for child in link.children %}
+                                    <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank"{% endif %}>{{ child.name }}</a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <a href="{{ link.url }}" class="nav-link" {% if link.new_window %}target="_blank"{% endif %}>{{ link.name }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Top Right Unified Controls (Reference Screenshot: Search pill + Bell + Settings + Avatar) -->
+            <ul class="navbar-nav ms-auto align-items-center top-nav-actions-group">
+
+                <!-- 1. Unified Search Pill Box (Exact Match to Reference Screenshot) -->
+                <li class="nav-item me-3">
+                    <form id="top-unified-search-form" action="{% url 'admin:shop_product_changelist' %}" method="GET" class="d-flex align-items-center m-0" onsubmit="return handleTopUnifiedSearch(event, this);">
+                        <div class="top-nav-search-container">
+                            <span class="top-nav-search-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </span>
+                            <input 
+                                id="top-unified-search-input" 
+                                class="top-nav-search-input" 
+                                name="q" 
+                                type="search" 
+                                placeholder="Search products, orders, users..." 
+                                autocomplete="off" 
+                                aria-label="Search products, orders, users..."
+                            />
+                        </div>
+                    </form>
+                </li>
+
+                <!-- 2. Notification Bell with Unread Badge Indicator -->
+                <li class="nav-item d-flex align-items-center me-1">
+                    <a class="nav-link top-nav-action-icon" href="{% url 'admin:shop_contactmessage_changelist' %}?is_resolved__exact=0" title="{% trans 'Notifications & Inquiries' %}" aria-label="Notifications">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="top-nav-badge-dot"></span>
+                    </a>
+                </li>
+
+                <!-- 3. Settings Cog -->
+                <li class="nav-item d-flex align-items-center me-2">
+                    <a class="nav-link top-nav-action-icon" href="{% url 'admin:auth_group_changelist' %}" title="{% trans 'System Settings & Roles' %}" aria-label="Settings">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </a>
+                </li>
+
+                {% if jazzmin_settings.show_ui_builder %}
+                <li class="nav-item">
+                    <a class="nav-link top-nav-action-icon" data-widget="control-sidebar" data-slide="true" href="#" role="button" aria-label="UI Builder">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if 'django.contrib.admindocs'|app_is_installed %}
+                <li class="nav-item">
+                    <a class="nav-link top-nav-action-icon" href="{% url 'django-admindocs-docroot' %}" role="button" aria-label="Documentation">
+                        <i class="fas fa-book"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if jazzmin_settings.show_theme_chooser %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link btn top-nav-action-icon" data-bs-toggle="dropdown" href="#" title="{% trans 'Theme' %}">
+                        <i class="fas fa-palette"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end shadow-sm" id="jazzy-theme-chooser">
+                        <span class="dropdown-header">{% trans 'Theme' %}</span>
+                        <div class="dropdown-divider"></div>
+                        <div class="px-3 pb-2">
+                            <select class="form-select form-select-sm" id="jazzmin-theme-select">
+                                {% for theme_name in jazzmin_ui.theme_list %}
+                                    <option value="{{ theme_name }}" {% if theme_name == jazzmin_ui.theme.name %}selected{% endif %}>
+                                        {{ theme_name|title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-header">{% trans 'Color Scheme' %}</span>
+                        <div class="dropdown-divider"></div>
+                        <div class="px-3 pb-2">
+                            <select class="form-select form-select-sm" id="jazzmin-mode-select">
+                                <option value="light">{% trans 'Light' %}</option>
+                                <option value="dark">{% trans 'Dark' %}</option>
+                                <option value="auto">{% trans 'Auto' %}</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+
+                {% if jazzmin_settings.language_chooser %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link btn top-nav-action-icon" data-bs-toggle="dropdown" href="#" title="Choose language">
+                            <i class="fas fa-globe" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow-sm" id="jazzy-languagemenu">
+                            <form action="{% url 'set_language' %}" method="post">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.get_full_path|remove_lang:LANGUAGE_CODE }}" />
+                                {% for language in languages %}
+                                    <button
+                                        type="submit"
+                                        name="language"
+                                        value="{{ language.code }}"
+                                        class="dropdown-item {% if language.code == LANGUAGE_CODE %}active{% endif %}"
+                                        lang="{{ language.code }}"
+                                    >
+                                        {{ language.name_local|title }}
+                                    </button>
+                                {% endfor %}
+                            </form>
+                        </div>
+                    </li>
+                {% endif %}
+
+                <!-- 4. User Profile Dropdown with Blue Circular Avatar -->
+                <li class="nav-item dropdown d-flex align-items-center ms-1">
+                    <a class="nav-link p-0 d-flex align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="{{ request.user }}">
+                        <div class="top-nav-user-avatar" id="top-nav-user-avatar">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow-lg" id="jazzy-usermenu" style="border-radius: 14px; min-width: 250px; border: 1px solid rgba(0,0,0,0.08); padding: 8px 0;">
+                        <div class="dropdown-header d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background: #f8fafc; border-radius: 14px 14px 0 0; margin-top: -8px;">
+                            <div class="top-nav-user-avatar-sm">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <strong class="d-block text-truncate text-dark fw-bold" style="font-size: 13px;">{{ request.user.username }}</strong>
+                                <small class="text-muted text-truncate d-block" style="font-size: 11px;">{{ request.user.email|default:"Store Administrator" }}</small>
+                            </div>
+                        </div>
+                        <div class="px-2 pt-2">
+                            <a href="{% url 'admin:password_change' %}" class="dropdown-item rounded py-2 d-flex align-items-center gap-2" style="font-size: 13px;">
+                                <i class="fas fa-key text-muted" style="width: 16px;"></i> {% trans 'Change password' %}
+                            </a>
+                            {% if perms|can_view_self %}
+                                <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="dropdown-item rounded py-2 d-flex align-items-center gap-2" style="font-size: 13px;">
+                                    <i class="fas fa-id-badge text-muted" style="width: 16px;"></i> {% trans 'Account Profile' %}
+                                </a>
+                            {% endif %}
+                            <a href="/" target="_blank" class="dropdown-item rounded py-2 d-flex align-items-center gap-2" style="font-size: 13px;">
+                                <i class="fas fa-external-link-alt text-muted" style="width: 16px;"></i> {% trans 'Live Storefront' %}
+                            </a>
+                            {% get_user_menu user request.current_app|default:"admin" as user_menu %}
+                            {% for link in user_menu %}
+                                <a href="{{ link.url }}" class="dropdown-item rounded py-2 d-flex align-items-center gap-2" style="font-size: 13px;" {% if link.new_window %}target="_blank"{% endif %}>
+                                    <i class="{{ link.icon }} text-muted" style="width: 16px;"></i> {% trans link.name %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                        <div class="dropdown-divider my-2"></div>
+                        <div class="px-2">
+                            <form id="logout-form" method="post" action="{% url 'admin:logout' %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item rounded py-2 d-flex align-items-center gap-2 text-danger fw-semibold" style="font-size: 13px;">
+                                    <i class="fas fa-sign-out-alt" style="width: 16px;"></i> {% translate 'Log out' %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        </nav>
+
+        {% block sidebar %}
+        {% if jazzmin_settings.show_sidebar %}
+            {% get_side_menu as side_menu_list %}
+
+            <aside class="app-sidebar bg-body-secondary shadow {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar" data-bs-theme="dark">
+                <div class="sidebar-brand">
+                    <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
+                        <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image opacity-75 shadow">
+                        <span class="brand-text fw-light">{{ jazzmin_settings.site_brand }}</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-wrapper">
+                    <div class="user-panel d-flex">
+                        <div class="image">
+                            {% if jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
+                                <img src="{% get_user_avatar request.user %}" width="160px" class="img-circle elevation-2" alt="User Image">
+                            {% else %}
+                                <i class="fas fa-inverse user-profile fa-user-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="info">
+                            {% if perms|can_view_self %}
+                                <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="d-block">{{ request.user }}</a>
+                            {% else %}
+                                <span class="d-block opacity-75">{{ request.user }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <nav class="mt-2">
+                        <ul class="nav sidebar-menu flex-column {{ jazzmin_ui.sidebar_list_classes }}" data-lte-toggle="treeview" role="navigation" aria-label="Main navigation" data-accordion="false" id="jazzy-navigation">
+
+                            <li class="nav-item">
+                                <a href="{% url 'admin:index' %}" class="nav-link">
+                                    <i class="nav-icon fas fa-th-large"></i>
+                                    <p>{% trans 'Dashboard' %}</p>
+                                </a>
+                            </li>
+
+                            {% if jazzmin_settings.navigation_expanded %}
+                                {% for app in side_menu_list %}
+                                    <li class="nav-header">{{ app.name }}</li>
+                                    {% for model in app.models %}
+                                        <li class="nav-item">
+                                            {% if model.url %}
+                                            <a href="{{ model.url }}" class="nav-link">
+                                                <i class="nav-icon {{ model.icon }}"></i> <p>{{ model.name }}</p>
+                                            </a>
+                                        {% else %}
+                                            <span class="nav-link disabled">
+                                                <i class="nav-icon {{ model.icon }}"></i> <p>{{ model.name }}</p>
+                                            </span>
+                                        {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% else %}
+                                {% for app in side_menu_list %}
+                                    <li class="nav-item has-treeview">
+                                        <a href="#" class="nav-link">
+                                            <i class="nav-icon {{ app.icon }}"></i>
+                                            <p>{{ app.name|truncatechars:21 }} <i class="nav-arrow fas fa-chevron-right" aria-hidden="true"></i></p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            {% for model in app.models %}
+                                                <li class="nav-item">
+                                                    <a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link">
+                                                        <i class="nav-icon {{ model.icon }}"></i>
+                                                        <p>{{ model.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+        {% endif %}
+        {% endblock %}
+    {% endif %}
+
+    <main class="app-main" {% if is_popup %}style="margin-left:0; padding-top: 20px;"{% endif %}>
+        {% block page_content %}
+            {% if not is_popup %}
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="mb-0">{% block content_title %}{% endblock %}</h3>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="float-sm-end">{% block breadcrumbs %}{% endblock %}</div>
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="app-content">
+                <div class="container-fluid">
+                    {% block messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-check"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'error' %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-ban"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'warning' %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-exclamation-triangle"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'info' %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    <i class="icon fa fa-info"></i> {{ message|capfirst }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endblock messages %}
+                    <div class="row">
+                        {% block content %} {% endblock %}
+                    </div>
+                </div>
+            </div>
+
+
+        {% endblock %}
+    </main>
+
+{% block footer %}
+    {% if not is_popup %}
+        <footer class="app-footer {{ jazzmin_ui.footer_classes }}">
+            <div class="float-end d-none d-sm-inline">
+                <b>{% trans 'ShopKart Pro' %}</b> v2.0
+            </div>
+            {% autoescape off %}
+                <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans 'All rights reserved.' %}
+            {% endautoescape %}
+        </footer>
+        {% if jazzmin_settings.show_ui_builder %}
+            {% include 'jazzmin/includes/ui_builder_panel.html' %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+    </div>
+
+{% if jazzmin_settings.show_ui_builder %}
+<div id="codeBox" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans 'UI Configuration' %}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans 'Copy this info your settings file to persist these UI changes' %}</p>
+                <pre><code></code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn {{ jazzmin_ui.button_classes.danger }}" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- jQuery -->
+<script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+<!-- Bootstrap 5 -->
+<script src="{% static "vendor/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
+<!-- Django customisations -->
+<script src="{% static "jazzmin/js/main.js" %}"></script>
+
+<!-- Top Unified Search Routing Script -->
+<script>
+function handleTopUnifiedSearch(event, form) {
+    var input = form.querySelector('#top-unified-search-input');
+    var rawQ = input ? input.value : '';
+    var q = rawQ.trim();
+    if (!q) {
+        if (event) event.preventDefault();
+        if (input) input.focus();
+        return false;
+    }
+    
+    // Order search: starts with '#' or starts with 'ord'
+    if (q.startsWith('#') || /^ord/i.test(q)) {
+        var cleanQ = q.replace(/^(#|order[:\s]*|ord[:\s]*)/i, '').trim();
+        window.location.href = '/admin/shop/order/?q=' + encodeURIComponent(cleanQ || q);
+        if (event) event.preventDefault();
+        return false;
+    }
+    
+    // User / customer search: starts with '@' or starts with 'user' or 'cust'
+    if (q.startsWith('@') || /^(user|customer)[:\s]*/i.test(q)) {
+        var cleanQ = q.replace(/^(@|user[:\s]*|customer[:\s]*)/i, '').trim();
+        window.location.href = '/admin/auth/user/?q=' + encodeURIComponent(cleanQ || q);
+        if (event) event.preventDefault();
+        return false;
+    }
+    
+    // Coupon search: starts with 'coupon' or 'promo' or 'code'
+    if (/^(coupon|promo|voucher)[:\s]*/i.test(q)) {
+        var cleanQ = q.replace(/^(coupon|promo|voucher)[:\s]*/i, '').trim();
+        window.location.href = '/admin/shop/coupon/?q=' + encodeURIComponent(cleanQ || q);
+        if (event) event.preventDefault();
+        return false;
+    }
+    
+    // Category search: starts with 'cat:'
+    if (/^cat[:\s]+/i.test(q)) {
+        var cleanQ = q.replace(/^cat[:\s]+/i, '').trim();
+        window.location.href = '/admin/shop/category/?q=' + encodeURIComponent(cleanQ || q);
+        if (event) event.preventDefault();
+        return false;
+    }
+
+    // Default: search products
+    window.location.href = '/admin/shop/product/?q=' + encodeURIComponent(q);
+    if (event) event.preventDefault();
+    return false;
+}
+</script>
+
+{% if jazzmin_settings.custom_js %}
+<script src="{% static jazzmin_settings.custom_js %}"></script>
+{% endif %}
+
+{% if jazzmin_settings.show_ui_builder %}
+<script>
+    window.ui_changes = {{ jazzmin_ui.raw|as_json|safe }};
+</script>
+<script src="{% static "jazzmin/js/ui-builder.js" %}"></script>
+{% endif %}
+
+{% block extrajs %}{% endblock %}
+
+</body>
+</html>

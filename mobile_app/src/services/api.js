@@ -87,11 +87,23 @@ export const api = {
   // Address
   getAddresses: () => apiRequest('/addresses/'),
   createAddress: (addressData) => apiRequest('/addresses/create/', { method: 'POST', body: JSON.stringify(addressData) }),
+  updateAddress: (addressId, addressData) => apiRequest(`/addresses/${addressId}/update/`, { method: 'POST', body: JSON.stringify(addressData) }),
+  deleteAddress: (addressId) => apiRequest(`/addresses/${addressId}/delete/`, { method: 'POST' }),
+  setDefaultAddress: (addressId) => apiRequest(`/addresses/${addressId}/default/`, { method: 'POST' }),
 
   // Orders
   getOrders: () => apiRequest('/orders/'),
   getOrderDetail: (orderId) => apiRequest(`/orders/${orderId}/`),
-  createOrder: (addressId, paymentMethod = 'cod') => apiRequest('/orders/create/', { method: 'POST', body: JSON.stringify({ address_id: addressId, payment_method: paymentMethod }) }),
+  createOrder: (addressId, paymentMethod = 'cod', couponCode = '') => apiRequest('/orders/create/', { method: 'POST', body: JSON.stringify({ address_id: addressId, payment_method: paymentMethod, coupon_code: couponCode }) }),
+  cancelOrder: (orderId, reason = '') => apiRequest(`/orders/${orderId}/cancel/`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  reorder: (orderId) => apiRequest(`/orders/${orderId}/reorder/`, { method: 'POST' }),
+
+  // Support & Contact
+  submitContact: (contactData) => apiRequest('/contact/', { method: 'POST', body: JSON.stringify(contactData) }),
+  changePassword: (old_password, new_password1, new_password2) => apiRequest('/auth/password/change/', { method: 'POST', body: JSON.stringify({ old_password, new_password1, new_password2 }) }),
+  clearCart: () => apiRequest('/cart/clear/', { method: 'POST' }),
+  moveCartToWishlist: (itemId) => apiRequest(`/cart/move-to-wishlist/${itemId}/`, { method: 'POST' }),
+  moveWishlistToCart: (productId) => apiRequest(`/wishlist/move-to-cart/${productId}/`, { method: 'POST' }),
 };
 
 export default api;

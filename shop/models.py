@@ -229,6 +229,10 @@ class Address(models.Model):
     is_default = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
+
     def __str__(self):
         return f"{self.full_name}, {self.city} - {self.pincode}"
 
@@ -289,10 +293,27 @@ class Order(models.Model):
     discount_amount = models.FloatField(default=0)
     delivery_fee = models.FloatField(default=0)
     total_amount = models.FloatField(default=0)
+    cancellation_reason = models.TextField(blank=True, default='')
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    tracking_number = models.CharField(max_length=60, blank=True, default='')
+    estimated_delivery = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        updates = []
+        if not self.tracking_number:
+            self.tracking_number = f"SK-TRK-{self.id:06d}"
+            updates.append('tracking_number')
+        if not self.estimated_delivery:
+            self.estimated_delivery = datetime.date.today() + datetime.timedelta(days=4)
+            updates.append('estimated_delivery')
+        if updates:
+            super().save(update_fields=updates)
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.username}"
@@ -316,3 +337,17 @@ class OrderItem(models.Model):
         return f"{self.product_name}{color_str} x{self.quantity}"
 
 
+class ContactMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='contact_messages')
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    is_resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Message from {self.name} - {self.subject}"

@@ -1,0 +1,90 @@
+{% extends 'shop/layouts/main.html' %}
+{% block title %}Returns & Refunds Policy | ShopKart{% endblock title %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="text-center max-w-xl mx-auto mb-10">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 mb-3">
+      🔄 7-Day Protection
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Returns & Refunds Policy</h1>
+    <p class="text-sm text-slate-500 mt-2">Clear, fair, and transparent return guidelines for a risk-free shopping experience.</p>
+  </div>
+
+  <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 sm:p-10 shadow-xs space-y-8">
+    
+    <section>
+      <h2 class="text-lg font-extrabold text-slate-900 mb-3 flex items-center gap-2">
+        <span>1.</span> 7-Day Hassle-Free Returns Window
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        Most items purchased on ShopKart are eligible for return or replacement within <strong>7 days</strong> of verified delivery. To qualify, products must be unused, in original condition, and include all original tags, accessories, manuals, and packaging materials.
+      </p>
+    </section>
+
+    <hr class="border-slate-100">
+
+    <section>
+      <h2 class="text-lg font-extrabold text-slate-900 mb-3 flex items-center gap-2">
+        <span>2.</span> Eligible Return Reasons
+      </h2>
+      <ul class="space-y-2 text-xs sm:text-sm text-slate-600 list-disc list-inside leading-relaxed">
+        <li>Product arrived damaged, defective, or physically compromised during transit.</li>
+        <li>Item received differs in color, specifications, or model from what was ordered.</li>
+        <li>Missing accessories, parts, or promotional bundles included in the listing.</li>
+        <li>Size or fit issue on eligible apparel and footwear items.</li>
+      </ul>
+    </section>
+
+    <hr class="border-slate-100">
+
+    <section>
+      <h2 class="text-lg font-extrabold text-slate-900 mb-3 flex items-center gap-2">
+        <span>3.</span> Order Cancellation
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        Customers may cancel their order directly online while the order is in <em>Placed</em> or <em>Confirmed & Packed</em> status before warehouse dispatch. Once cancelled, any payments made are automatically queued for refund, and reserved inventory is immediately returned to stock.
+      </p>
+    </section>
+
+    <hr class="border-slate-100">
+
+    <section>
+      <h2 class="text-lg font-extrabold text-slate-900 mb-3 flex items-center gap-2">
+        <span>4.</span> Refund Timelines & Method
+      </h2>
+      <div class="grid sm:grid-cols-3 gap-4 mt-4">
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <p class="text-xs font-bold text-slate-400 uppercase">UPI Transactions</p>
+          <p class="text-base font-extrabold text-slate-900 mt-1">2 - 4 Hours</p>
+          <p class="text-[11px] text-slate-500 mt-1">Credited directly to source VPA/Bank</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <p class="text-xs font-bold text-slate-400 uppercase">Card Payments</p>
+          <p class="text-base font-extrabold text-slate-900 mt-1">3 - 5 Business Days</p>
+          <p class="text-[11px] text-slate-500 mt-1">Reflected on card statement</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <p class="text-xs font-bold text-slate-400 uppercase">Cash on Delivery</p>
+          <p class="text-base font-extrabold text-slate-900 mt-1">Instant Store Credit</p>
+          <p class="text-[11px] text-slate-500 mt-1">Or direct NEFT bank transfer</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="border-slate-100">
+
+    <section>
+      <h2 class="text-lg font-extrabold text-slate-900 mb-3 flex items-center gap-2">
+        <span>5.</span> How to Initiate a Return
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        To initiate a return or exchange, visit your <a href="{% url 'my_orders' %}" class="text-brand font-bold underline">My Orders</a> hub, or contact our support team through the <a href="{% url 'contact' %}" class="text-brand font-bold underline">Contact Us</a> portal with your Order ID and photos of the item.
+      </p>
+    </section>
+
+  </div>
+
+</div>
+{% endblock content %}

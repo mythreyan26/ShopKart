@@ -2,14 +2,28 @@
 {% block title %}My Wishlist | ShopKart{% endblock title %}
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <h1 class="text-2xl font-bold text-slate-900 mb-6">My Wishlist</h1>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">My Wishlist</h1>
+    {% if items %}
+    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ items|length }} item{{ items|length|pluralize }} saved</span>
+    {% endif %}
+  </div>
 
   {% if items %}
   <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
     {% for wi in items %}
-      {% with item=wi.product %}
-        {% include 'shop/inc/product_card.html' %}
-      {% endwith %}
+      <div class="flex flex-col">
+        {% with item=wi.product %}
+          {% include 'shop/inc/product_card.html' %}
+        {% endwith %}
+        <form action="{% url 'move_to_cart' wi.product.id %}" method="post" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="w-full py-2 bg-slate-900 hover:bg-brand text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 shadow-xs">
+            <span>🛒</span>
+            <span>Move to Cart</span>
+          </button>
+        </form>
+      </div>
     {% endfor %}
   </div>
   {% else %}

@@ -6,6 +6,19 @@
 
   <form method="post" novalidate>
     {% csrf_token %}
+    {% if single_item_id %}
+    <input type="hidden" name="item_id" value="{{ single_item_id }}">
+    <div class="mb-5 p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-center justify-between flex-wrap gap-2 text-xs text-amber-900 shadow-2xs">
+      <div class="flex items-center gap-2">
+        <span class="text-base">⚡</span>
+        <span>Ordering single item: <strong class="text-slate-900">{{ single_item.product.name }}</strong> (Qty: {{ single_item.product_qty }}{% if single_item.color %}, {{ single_item.color.name }}{% endif %})</span>
+      </div>
+      <a href="{% url 'checkout' %}" class="text-brand font-bold hover:underline inline-flex items-center gap-1">
+        <span>Order all cart items instead</span>
+        <span>&rarr;</span>
+      </a>
+    </div>
+    {% endif %}
     <div class="flex flex-col lg:flex-row gap-6">
       <div class="flex-1 space-y-6">
 
@@ -60,27 +73,27 @@
         </div>
 
         <!-- Payment -->
-        <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-6 shadow-xs">
+        <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-6 shadow-xs" x-data="{ method: 'cod' }">
           <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
             <span class="w-6 h-6 rounded-full bg-brand text-white text-xs font-extrabold flex items-center justify-center">2</span>
             <span>Payment Method</span>
           </h3>
           <div class="grid sm:grid-cols-3 gap-3">
-            <label class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
+            <label @click="method = 'cod'" class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
               <input type="radio" name="payment_method" value="cod" checked class="accent-brand">
               <div>
                 <p class="text-xs font-bold text-slate-800">Cash on Delivery</p>
                 <p class="text-[10px] text-slate-400">Pay upon receipt</p>
               </div>
             </label>
-            <label class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
+            <label @click="method = 'upi'" class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
               <input type="radio" name="payment_method" value="upi" class="accent-brand">
               <div>
                 <p class="text-xs font-bold text-slate-800">UPI / QR</p>
                 <p class="text-[10px] text-slate-400">GPay, PhonePe, Paytm</p>
               </div>
             </label>
-            <label class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
+            <label @click="method = 'card'" class="flex items-center gap-3 rounded-xl ring-1 ring-slate-200 p-4 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-brand has-[:checked]:bg-brand/5 transition">
               <input type="radio" name="payment_method" value="card" class="accent-brand">
               <div>
                 <p class="text-xs font-bold text-slate-800">Debit / Credit Card</p>
@@ -88,6 +101,29 @@
               </div>
             </label>
           </div>
+
+          <!-- Simulated UPI Input Area -->
+          <div x-show="method === 'upi'" x-cloak class="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <p class="text-xs font-bold text-slate-800">Instant UPI Payment Details</p>
+            <div class="flex gap-2">
+              <input type="text" placeholder="yourname@okaxis / mobile@upi" class="flex-1 px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand">
+              <button type="button" @click="alert('VPA verified! Proceeding with checkout.')" class="px-3.5 py-2 bg-slate-900 text-white font-bold text-xs rounded-lg hover:bg-slate-800">Verify VPA</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Supports all standard UPI applications including PhonePe, Google Pay, and Paytm.</p>
+          </div>
+
+          <!-- Simulated Card Input Area -->
+          <div x-show="method === 'card'" x-cloak class="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <p class="text-xs font-bold text-slate-800">Credit / Debit Card Details</p>
+            <div>
+              <input type="text" maxlength="19" placeholder="Card Number (4532 •••• •••• 8910)" class="w-full px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand font-mono">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <input type="text" maxlength="5" placeholder="MM/YY" class="w-full px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-center font-mono">
+              <input type="password" maxlength="4" placeholder="CVV" class="w-full px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand text-center font-mono">
+            </div>
+          </div>
+
           <p class="text-[11px] text-slate-400 mt-3 flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
             <span>256-bit SSL encrypted checkout</span>

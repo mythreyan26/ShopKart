@@ -16,9 +16,10 @@ Including another URLconf
 """
 import os
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from django.http import FileResponse
 from django.views.generic import TemplateView
 
@@ -38,7 +39,13 @@ def manifest_view(request):
     return response
 
 
+from shop.admin_views import admin_analytics_view, admin_inventory_view
+
+
 urlpatterns = [
+    path('admin/analytics/', admin_analytics_view, name='admin_analytics'),
+    path('admin/reports/', admin_analytics_view, name='admin_reports'),
+    path('admin/inventory/', admin_inventory_view, name='admin_inventory'),
     path('admin/', admin.site.urls),
     path('api/', include('shop.api_urls')),
     path('sw.js', service_worker_view, name='pwa_sw'),
@@ -47,5 +54,9 @@ urlpatterns = [
     path('', include('shop.urls')),
 ]
 
+# Serve media files (images, uploaded product graphics) in production and development
+urlpatterns += [
+    re_path(r'^images/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

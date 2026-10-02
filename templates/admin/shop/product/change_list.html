@@ -1,0 +1,186 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list jazzmin %}
+
+{% block content %}
+<div class="shopkart-product-operations-hub" style="margin-bottom: 24px;">
+
+  <!-- 1. Executive Operations Header & Inventory Command Banner -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 22px 26px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #34d399;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+          LIVE WAREHOUSE INVENTORY SYNCED
+        </span>
+        <span style="font-size: 11.5px; color: #94a3b8; font-weight: 500;">
+          <i class="fas fa-boxes" style="margin-right: 4px;"></i> {{ product_stats.total_units|default:0 }} Total Units in Stock
+        </span>
+      </div>
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em;">
+        Product &amp; Inventory Management Hub
+      </h1>
+      <p style="font-size: 12.5px; color: #94a3b8; margin: 0; max-width: 650px;">
+        Monitor warehouse stock health, configure dynamic color variants, adjust retail pricing, and manage merchandising flags.
+      </p>
+    </div>
+
+    <!-- Quick Navigation Actions -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="/admin/shop/product/add/" style="background: #ff6000; color: #ffffff; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255,96,0,0.3); transition: all 0.2s;">
+        <i class="fas fa-plus-circle"></i> Add Product
+      </a>
+      <a href="/admin/shop/category/" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.12);">
+        <i class="fas fa-folder"></i> Categories ({{ product_stats.categories_count|default:0 }})
+      </a>
+      <a href="/admin/shop/productcolor/" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.12);">
+        <i class="fas fa-palette"></i> Variants ({{ product_stats.variants_count|default:0 }})
+      </a>
+      <a href="/collections" target="_blank" style="background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 8px 12px; border-radius: 10px; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1);">
+        <i class="fas fa-external-link-alt"></i> Storefront Catalog
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. Inventory KPI Metric Cards (5 Live Status Tiles) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px;">
+    
+    <!-- KPI 1: Total Catalog & Stock Volume -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Catalog Size</span>
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+          <i class="fas fa-boxes"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        {{ product_stats.total_products|default:0 }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">SKUs</span>
+      </div>
+      <div style="margin-top: 4px; font-size: 11px; color: #16a34a; font-weight: 600;">
+        {{ product_stats.total_units|default:0 }} units in warehouse
+      </div>
+    </div>
+
+    <!-- KPI 2: Total Inventory Valuation -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Stock Valuation</span>
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        ₹{{ product_stats.total_valuation|floatformat:0 }}
+      </div>
+      <div style="margin-top: 4px; font-size: 11px; color: #64748b; font-weight: 500;">
+        Retail asset value
+      </div>
+    </div>
+
+    <!-- KPI 3: Low Stock Warning -->
+    <div style="background: #ffffff; border: 1px solid {% if product_stats.low_stock_count > 0 %}#fde68a{% else %}#e2e8f0{% endif %}; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.05em;">Low Stock Alert</span>
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #b45309; letter-spacing: -0.02em;">
+        {{ product_stats.low_stock_count|default:0 }}
+      </div>
+      <div style="margin-top: 4px; font-size: 11px; color: #64748b; font-weight: 500;">
+        &le; 10 units remaining
+      </div>
+    </div>
+
+    <!-- KPI 4: Out of Stock Alert -->
+    <div style="background: #ffffff; border: 1px solid {% if product_stats.out_of_stock_count > 0 %}#fecaca{% else %}#e2e8f0{% endif %}; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.05em;">Out of Stock</span>
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+          <i class="fas fa-times-circle"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: {% if product_stats.out_of_stock_count > 0 %}#dc2626{% else %}#16a34a{% endif %}; letter-spacing: -0.02em;">
+        {{ product_stats.out_of_stock_count|default:0 }}
+      </div>
+      <div style="margin-top: 4px; font-size: 11px; color: #64748b; font-weight: 500;">
+        {% if product_stats.out_of_stock_count == 0 %}100% Availability{% else %}Needs immediate restock{% endif %}
+      </div>
+    </div>
+
+    <!-- KPI 5: Merchandising & Visibility -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.05em;">Merchandising</span>
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #f0fdf4; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+          <i class="fas fa-tags"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #15803d; letter-spacing: -0.02em;">
+        {{ product_stats.active_count|default:0 }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">Live</span>
+      </div>
+      <div style="margin-top: 4px; font-size: 11px; color: #64748b; font-weight: 500;">
+        {{ product_stats.bestseller_count }} bestsellers &middot; {{ product_stats.trending_count }} trending
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. Quick Inventory & Merchandising Filter Tabs -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+      <span style="font-size: 12px; font-weight: 700; color: #475569; margin-right: 6px;">Filter Catalog:</span>
+
+      <a href="?" class="status-filter-tab {% if not request.GET %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if not request.GET %}background: #0f172a; color: #ffffff; font-weight: 700;{% else %}background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;{% endif %}">
+        All Products ({{ product_stats.total_products|default:0 }})
+      </a>
+
+      <a href="?stock_status=low_stock" class="status-filter-tab {% if request.GET.stock_status == 'low_stock' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.stock_status == 'low_stock' %}background: #d97706; color: #ffffff; font-weight: 700;{% else %}background: #fffbeb; color: #b45309; border: 1px solid #fde68a;{% endif %}">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #f59e0b;"></span>
+        Low Stock ({{ product_stats.low_stock_count|default:0 }})
+      </a>
+
+      <a href="?stock_status=out_of_stock" class="status-filter-tab {% if request.GET.stock_status == 'out_of_stock' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.stock_status == 'out_of_stock' %}background: #dc2626; color: #ffffff; font-weight: 700;{% else %}background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;{% endif %}">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444;"></span>
+        Out of Stock ({{ product_stats.out_of_stock_count|default:0 }})
+      </a>
+
+      <a href="?status__exact=0" class="status-filter-tab {% if request.GET.status__exact == '0' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.status__exact == '0' %}background: #16a34a; color: #ffffff; font-weight: 700;{% else %}background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;{% endif %}">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e;"></span>
+        Active / Live ({{ product_stats.active_count|default:0 }})
+      </a>
+
+      <a href="?status__exact=1" class="status-filter-tab {% if request.GET.status__exact == '1' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.status__exact == '1' %}background: #64748b; color: #ffffff; font-weight: 700;{% else %}background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;{% endif %}">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;"></span>
+        Hidden / Draft ({{ product_stats.hidden_count|default:0 }})
+      </a>
+
+      <a href="?trending__exact=1" class="status-filter-tab {% if request.GET.trending__exact == '1' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.trending__exact == '1' %}background: #ea580c; color: #ffffff; font-weight: 700;{% else %}background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa;{% endif %}">
+        🔥 Trending ({{ product_stats.trending_count|default:0 }})
+      </a>
+
+      <a href="?is_bestseller__exact=1" class="status-filter-tab {% if request.GET.is_bestseller__exact == '1' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.is_bestseller__exact == '1' %}background: #7c3aed; color: #ffffff; font-weight: 700;{% else %}background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe;{% endif %}">
+        🏆 Bestsellers ({{ product_stats.bestseller_count|default:0 }})
+      </a>
+    </div>
+
+    <div>
+      <span style="font-size: 11px; color: #64748b;">
+        <i class="fas fa-edit" style="color: #2563eb; margin-right: 4px;"></i> In-Table Bulk Stock &amp; Price Editing Enabled
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Render standard Django Admin changelist with search, filters, editable table, bulk actions, and pagination -->
+{{ block.super }}
+
+{% endblock %}

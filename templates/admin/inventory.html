@@ -1,0 +1,264 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="shopkart-inventory-hub" style="margin-bottom: 36px;">
+
+  <!-- 1. Executive Warehouse Header Banner -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 24px 28px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #fbbf24;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 6px #f59e0b;"></span>
+          CENTRALIZED WAREHOUSE LOGISTICS
+        </span>
+        <span style="font-size: 11.5px; color: #94a3b8; font-weight: 500;">
+          <i class="fas fa-boxes" style="margin-right: 4px;"></i> {{ inventory_data.total_units|default:0 }} Total Units in Stock
+        </span>
+      </div>
+      <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em;">
+        Warehouse &amp; Inventory Management Studio
+      </h1>
+      <p style="font-size: 13px; color: #94a3b8; margin: 0; max-width: 680px;">
+        Real-time physical stock audit, unit valuations, automated low-stock warnings, and 1-click warehouse replenishment actions.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="/admin/shop/product/add/" style="background: #ff6000; color: #ffffff; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255,96,0,0.3); transition: all 0.2s;">
+        <i class="fas fa-plus-circle"></i> Add New SKU
+      </a>
+      <button onclick="window.print()" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fas fa-print"></i> Print Stock Audit
+      </button>
+      <a href="/admin/analytics/" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.12);">
+        <i class="fas fa-chart-line"></i> Analytics
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. Inventory Health KPI Cards (4 Tiles) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+
+    <!-- KPI 1: Total Units in Stock -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Warehouse Physical Stock</span>
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          <i class="fas fa-boxes"></i>
+        </div>
+      </div>
+      <div style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        {{ inventory_data.total_units|default:0 }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">units</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 11.5px; color: #16a34a; font-weight: 500;">
+        Across {{ inventory_data.total_products }} active catalog products
+      </div>
+    </div>
+
+    <!-- KPI 2: Total Inventory Valuation -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Stock Valuation (MRP)</span>
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+      </div>
+      <div style="font-size: 24px; font-weight: 800; color: #15803d; letter-spacing: -0.02em;">
+        ₹{{ inventory_data.total_valuation_display }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11.5px; color: #64748b; font-weight: 500;">
+        Estimated inventory liquidation value
+      </div>
+    </div>
+
+    <!-- KPI 3: Low Stock Warnings -->
+    <div style="background: #ffffff; border: 1px solid {% if inventory_data.low_stock_count > 0 %}#fed7aa{% else %}#e2e8f0{% endif %}; border-radius: 16px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase;">Low Stock (&le; 5 units)</span>
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+      </div>
+      <div style="font-size: 24px; font-weight: 800; color: {% if inventory_data.low_stock_count > 0 %}#dc2626{% else %}#16a34a{% endif %}; letter-spacing: -0.02em;">
+        {{ inventory_data.low_stock_count }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">SKUs</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 11.5px; color: #64748b; font-weight: 500;">
+        {% if inventory_data.low_stock_count > 0 %}Urgent restocking recommended{% else %}Zero low-stock bottlenecks{% endif %}
+      </div>
+    </div>
+
+    <!-- KPI 4: Out of Stock SKUs -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Out of Stock</span>
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          <i class="fas fa-ban"></i>
+        </div>
+      </div>
+      <div style="font-size: 24px; font-weight: 800; color: {% if inventory_data.out_of_stock_count > 0 %}#dc2626{% else %}#15803d{% endif %}; letter-spacing: -0.02em;">
+        {{ inventory_data.out_of_stock_count }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">depleted</span>
+      </div>
+      <div style="margin-top: 6px; font-size: 11.5px; color: #64748b; font-weight: 500;">
+        {% if inventory_data.out_of_stock_count > 0 %}Immediate purchase order required{% else %}Catalog 100% available for sale{% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. Stock Level Filter Tabs -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+      <span style="font-size: 12px; font-weight: 700; color: #475569; margin-right: 6px;">Filter Stock:</span>
+
+      <a href="?" class="status-filter-tab {% if not request.GET.filter %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if not request.GET.filter %}background: #0f172a; color: #ffffff; font-weight: 700;{% else %}background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;{% endif %}">
+        All Products ({{ inventory_data.total_products }})
+      </a>
+
+      <a href="?filter=low" class="status-filter-tab {% if request.GET.filter == 'low' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.filter == 'low' %}background: #d97706; color: #ffffff; font-weight: 700;{% else %}background: #fffbeb; color: #b45309; border: 1px solid #fde68a;{% endif %}">
+        <i class="fas fa-exclamation-triangle" style="font-size: 10px;"></i>
+        Low Stock Warnings ({{ inventory_data.low_stock_count }})
+      </a>
+
+      <a href="?filter=healthy" class="status-filter-tab {% if request.GET.filter == 'healthy' %}active-tab{% endif %}"
+         style="font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {% if request.GET.filter == 'healthy' %}background: #16a34a; color: #ffffff; font-weight: 700;{% else %}background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;{% endif %}">
+        <i class="fas fa-check-circle" style="font-size: 10px;"></i>
+        Healthy Stock (&gt; 5 units)
+      </a>
+    </div>
+
+    <div style="font-size: 11.5px; color: #64748b;">
+      <i class="fas fa-bolt" style="color: #ea580c;"></i> 1-click warehouse replenishment triggers immediate DB commit
+    </div>
+  </div>
+
+  <!-- 4. Centralized Inventory Table -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
+        <thead>
+          <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">
+            <th style="padding: 12px 16px;">Product SKU</th>
+            <th style="padding: 12px 14px;">Category</th>
+            <th style="padding: 12px 14px;">Unit Price</th>
+            <th style="padding: 12px 14px; text-align: center;">Stock Status</th>
+            <th style="padding: 12px 14px; text-align: center;">In Stock</th>
+            <th style="padding: 12px 14px; text-align: right;">Inventory Valuation</th>
+            <th style="padding: 12px 16px; text-align: right;">Quick Restock Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in inventory_data.products %}
+          <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.1s ease;">
+            
+            <!-- Product SKU & Thumbnail -->
+            <td style="padding: 12px 16px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                {% if p.product_image %}
+                  <img src="{{ p.product_image.url }}" style="width: 36px; height: 36px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff;" />
+                {% else %}
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #94a3b8;">📦</div>
+                {% endif %}
+                <div>
+                  <a href="/admin/shop/product/{{ p.id }}/change/" style="font-weight: 700; color: #0284c7; text-decoration: none;">
+                    {{ p.name }}
+                  </a>
+                  <div style="font-size: 10.5px; color: #64748b; font-family: monospace;">
+                    #SKU-{{ p.id|stringformat:"05d" }}
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Category -->
+            <td style="padding: 12px 14px; color: #475569;">
+              {% if p.category %}
+                <span style="background: #f1f5f9; color: #334155; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                  {{ p.category.name }}
+                </span>
+              {% else %}
+                <span style="color: #94a3b8; font-size: 11px;">Uncategorized</span>
+              {% endif %}
+            </td>
+
+            <!-- Price -->
+            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">
+              ₹{{ p.selling_price|floatformat:0 }}
+            </td>
+
+            <!-- Stock Status Badge -->
+            <td style="padding: 12px 14px; text-align: center;">
+              {% if p.quantity == 0 %}
+                <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 3px 9px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                  <i class="fas fa-ban" style="margin-right: 3px;"></i> Out of Stock
+                </span>
+              {% elif p.quantity <= 5 %}
+                <span style="background: #fffbeb; color: #d97706; border: 1px solid #fde68a; padding: 3px 9px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                  <i class="fas fa-exclamation-triangle" style="margin-right: 3px;"></i> Low ({{ p.quantity }})
+                </span>
+              {% elif p.quantity <= 20 %}
+                <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 3px 9px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                  <i class="fas fa-box" style="margin-right: 3px;"></i> Normal
+                </span>
+              {% else %}
+                <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 3px 9px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                  <i class="fas fa-check-circle" style="margin-right: 3px;"></i> Optimal
+                </span>
+              {% endif %}
+            </td>
+
+            <!-- Quantity -->
+            <td style="padding: 12px 14px; text-align: center; font-size: 14px; font-weight: 800; color: #0f172a;">
+              {{ p.quantity }}
+            </td>
+
+            <!-- Valuation -->
+            <td style="padding: 12px 14px; text-align: right; font-weight: 800; color: #0f172a;">
+              ₹{{ p.valuation|floatformat:0 }}
+            </td>
+
+            <!-- Fast 1-Click Restock Actions -->
+            <td style="padding: 12px 16px; text-align: right;">
+              <div style="display: inline-flex; align-items: center; gap: 4px;">
+                <form method="POST" action="{% url 'admin:shop_product_quick_stock' p.id 5 %}" style="display: inline; margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Add +5 Units">
+                    +5
+                  </button>
+                </form>
+                <form method="POST" action="{% url 'admin:shop_product_quick_stock' p.id 10 %}" style="display: inline; margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Add +10 Units">
+                    +10
+                  </button>
+                </form>
+                <form method="POST" action="{% url 'admin:shop_product_quick_stock' p.id 25 %}" style="display: inline; margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" style="background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Add +25 Units">
+                    +25
+                  </button>
+                </form>
+                <a href="/admin/shop/product/{{ p.id }}/change/" style="background: #0f172a; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-decoration: none; margin-left: 2px;" title="Open Product Studio">
+                  Studio &rarr;
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" style="padding: 32px; text-align: center; color: #94a3b8;">
+              No products match the selected stock filter.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

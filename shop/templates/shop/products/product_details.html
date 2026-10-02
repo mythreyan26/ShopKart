@@ -1,437 +1,699 @@
 {% extends 'shop/layouts/main.html' %}
 {% block title %}{{ product.name }} | ShopKart{% endblock title %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32 md:pb-8" x-data="productDetailState()">
+<div class="bg-white min-h-screen py-4 pb-28 md:pb-10" x-data="productDetailState()">
+  <div class="max-w-[1460px] mx-auto px-3 sm:px-6 lg:px-8">
 
-  <!-- Breadcrumbs -->
-  <nav class="text-sm text-slate-500 mb-6 flex items-center flex-wrap gap-1.5 font-medium">
-    <a href="{% url 'home' %}" class="hover:text-brand transition">Home</a>
-    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    <a href="{% url 'collections' %}" class="hover:text-brand transition">Categories</a>
-    {% if product.category.parent %}
-    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    <a href="{% url 'collections_view' product.category.parent.slug %}" class="hover:text-brand transition">{{ product.category.parent.name }}</a>
-    {% endif %}
-    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    <a href="{% url 'collections_view' product.category.slug %}" class="hover:text-brand transition">{{ product.category.name }}</a>
-    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    <span class="text-slate-800 font-semibold truncate max-w-[200px] sm:max-w-xs">{{ product.name }}</span>
-  </nav>
+    <!-- Breadcrumb Navigation -->
+    <nav class="text-xs text-[#565959] mb-4 flex items-center flex-wrap gap-1 font-normal">
+      <a href="{% url 'home' %}" class="hover:text-[#007185] hover:underline">Home</a>
+      <span class="text-gray-400">›</span>
+      <a href="{% url 'collections' %}" class="hover:text-[#007185] hover:underline">Categories</a>
+      {% if category and category.parent %}
+      <span class="text-gray-400">›</span>
+      <a href="{% url 'collections_view' category.parent.slug %}" class="hover:text-[#007185] hover:underline">{{ category.parent.name }}</a>
+      {% endif %}
+      {% if category %}
+      <span class="text-gray-400">›</span>
+      <a href="{% url 'collections_view' category.slug %}" class="hover:text-[#007185] hover:underline">{{ category.name }}</a>
+      {% endif %}
+      <span class="text-gray-400">›</span>
+      <span class="text-gray-800 font-medium truncate max-w-xs sm:max-w-md">{{ product.name }}</span>
+    </nav>
 
-  <!-- Product Showcase Card -->
-  <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 shadow-sm p-5 sm:p-8 lg:p-10">
-    <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-      
-      <!-- LEFT: Dynamic Image Gallery -->
-      <div class="lg:col-span-6 xl:col-span-6 flex flex-col-reverse sm:flex-row gap-4 items-start">
+    <!-- Main 3-Column Product Detail Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+      <!-- ============================================================== -->
+      <!-- COLUMN 1 (5 cols): Dynamic Image Gallery & Media               -->
+      <!-- ============================================================== -->
+      <div class="lg:col-span-5 flex flex-row gap-3 sm:gap-4 items-start relative select-none">
         
-        <!-- Multi-Angle Side Thumbnails Strip -->
-        <div class="flex sm:flex-col gap-2.5 overflow-x-auto sm:overflow-y-auto max-h-[520px] w-full sm:w-20 shrink-0 py-1 pr-1 scrollbar-thin">
+        <!-- Vertical Thumbnails Rail -->
+        <div class="flex flex-col gap-2 w-12 sm:w-16 shrink-0 max-h-[560px] overflow-y-auto scrollbar-none py-0.5">
           <template x-for="(imgUrl, index) in currentGallery" :key="index">
             <button type="button"
                     @click="activeImage = imgUrl"
                     @mouseenter="activeImage = imgUrl"
-                    class="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded-2xl overflow-hidden bg-slate-50/80 p-1.5 transition-all duration-200 focus:outline-none relative group"
-                    :class="activeImage === imgUrl ? 'ring-2 ring-brand ring-offset-2 shadow-sm bg-white scale-[1.03]' : 'ring-1 ring-slate-200/80 hover:ring-slate-400 opacity-75 hover:opacity-100 hover:bg-white'">
-              <img :src="imgUrl" :alt="'Angle ' + (index + 1)" class="w-full h-full object-contain transition duration-200 group-hover:scale-105">
+                    class="w-12 h-12 sm:w-16 sm:h-16 rounded border bg-white p-1 flex items-center justify-center transition focus:outline-none relative group"
+                    :class="activeImage === imgUrl ? 'border-2 border-[#007185] shadow-xs' : 'border-gray-300 hover:border-gray-500'">
+              <img :src="imgUrl" :alt="'Angle ' + (index + 1)" class="w-full h-full object-contain">
             </button>
           </template>
+
+          <!-- Video Badge / Thumbnail Simulator -->
+          <button type="button"
+                  @click="showFullView = true"
+                  class="w-12 h-12 sm:w-16 sm:h-16 rounded border border-gray-300 hover:border-gray-500 bg-gray-900 text-white p-1 flex flex-col items-center justify-center transition focus:outline-none group">
+            <div class="w-5 h-5 rounded-full border border-white flex items-center justify-center mb-0.5">
+              <svg class="w-2.5 h-2.5 text-white translate-x-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.5 3.5l11 6.5-11 6.5v-13z"/></svg>
+            </div>
+            <span class="text-[9px] font-bold tracking-tighter text-gray-200">VIDEO</span>
+          </button>
         </div>
 
-        <!-- Large Main Image Preview Stage -->
-        <div class="flex-1 w-full aspect-[4/5] bg-gradient-to-b from-slate-50/90 via-slate-50/50 to-white rounded-3xl overflow-hidden ring-1 ring-slate-200/70 flex items-center justify-center p-6 relative group select-none">
-          <template x-if="activeImage">
-            <img :src="activeImage"
-                 :alt="'{{ product.name }}'"
-                 class="w-full h-full object-contain transition-all duration-500 ease-out group-hover:scale-[1.06] drop-shadow-md">
-          </template>
-          <template x-if="!activeImage">
-            <div class="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2">
-              <span class="text-6xl">📱</span>
-              <span class="text-xs text-slate-400">No Image Available</span>
-            </div>
-          </template>
+        <!-- Main Product Stage Container -->
+        <div class="flex-1 min-h-[380px] sm:min-h-[500px] bg-white flex flex-col items-center justify-center relative p-2">
+          
+          <!-- Share Button (Top-Right) -->
+          <button type="button" 
+                  @click="shareProduct()"
+                  class="absolute top-2 right-2 p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition z-10" 
+                  title="Share Product">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          </button>
 
-          <!-- Top Badges -->
-          <div class="absolute top-4 left-4 flex flex-col gap-1.5 items-start">
-            <template x-if="currentDiscount > 0">
-              <span class="bg-emerald-600 text-white text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-sm tracking-wide">
-                <span x-text="currentDiscount"></span>% OFF
-              </span>
+          <!-- Main Image Display -->
+          <div class="w-full flex items-center justify-center flex-1">
+            <template x-if="activeImage">
+              <img :src="activeImage"
+                   :alt="'{{ product.name|escapejs }}'"
+                   class="max-h-[440px] sm:max-h-[500px] w-auto max-w-full object-contain cursor-zoom-in transition duration-300 hover:scale-[1.02]"
+                   @click="showFullView = true">
             </template>
-            {% if product.is_bestseller %}
-            <span class="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm tracking-wide flex items-center gap-1">
-              <span>★</span> BESTSELLER
-            </span>
-            {% endif %}
+            <template x-if="!activeImage">
+              <div class="text-center text-gray-400 py-20">
+                <span class="text-5xl">📱</span>
+                <p class="text-xs mt-2">No Image Available</p>
+              </div>
+            </template>
           </div>
 
-          <!-- Quick interactive zoom prompt -->
-          <div class="absolute bottom-3 right-3 text-[11px] text-slate-400 bg-white/85 backdrop-blur px-2.5 py-1 rounded-full border border-slate-200/60 opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none flex items-center gap-1">
-            <svg class="w-3 h-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
-            <span>Hover to explore</span>
+          <!-- Bottom Caption: Click to see full view -->
+          <div class="mt-4 text-center">
+            <button type="button" @click="showFullView = true" class="text-xs text-[#007185] hover:text-[#c7511f] hover:underline font-normal inline-flex items-center gap-1">
+              Click to see full view
+            </button>
           </div>
         </div>
 
       </div>
 
-      <!-- RIGHT: Product Info, Interactive Colors, & Actions -->
-      <div class="lg:col-span-6 xl:col-span-6 flex flex-col justify-between">
-        <div>
-          <!-- Brand & Vendor -->
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs uppercase font-bold tracking-wider text-brand bg-brand/10 px-2.5 py-1 rounded-md">{{ product.brand }}</span>
-            <span class="text-xs text-slate-400 font-medium">SKU: SK-{{ product.id }}</span>
-          </div>
+      <!-- ============================================================== -->
+      <!-- COLUMN 2 (4 cols): Product Title, Ratings, Pricing, & Details   -->
+      <!-- ============================================================== -->
+      <div class="lg:col-span-4">
+        
+        <!-- Product Title -->
+        <h1 class="text-xl sm:text-[22px] font-medium text-[#0f1111] leading-snug tracking-tight">
+          {{ product.name }}
+        </h1>
 
-          <!-- Product Title -->
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2.5 leading-tight tracking-tight">
-            {{ product.name }}
-          </h1>
+        <!-- Store Link -->
+        <div class="mt-1">
+          <a href="{% if category %}{% url 'collections_view' category.slug %}{% else %}#{% endif %}" class="text-xs text-[#007185] hover:text-[#c7511f] hover:underline font-normal">
+            Visit the {{ product.brand|default:"ShopKart" }} Store
+          </a>
+        </div>
 
-          <!-- Reviews & Ratings Row -->
-          <div class="flex items-center gap-3 mt-3">
-            {% if product.review_count %}
-            <div class="flex items-center gap-1 bg-emerald-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-md shadow-xs">
-              <span>{{ product.avg_rating }}</span>
-              <span class="text-[10px]">★</span>
+        <!-- Ratings & Reviews Header Row -->
+        <div class="flex items-center flex-wrap gap-2 mt-1.5 text-xs">
+          <div class="flex items-center gap-1">
+            <span class="font-medium text-[#0f1111]">{{ product.avg_rating|default:"4.5" }}</span>
+            <div class="flex text-[#ffa41c]">
+              <span>★★★★</span><span class="{% if product.avg_rating >= 4.5 %}text-[#ffa41c]{% else %}text-gray-300{% endif %}">★</span>
             </div>
-            <span class="text-xs font-medium text-slate-500">{{ product.review_count }} verified review{{ product.review_count|pluralize }}</span>
-            {% else %}
-            <span class="text-xs text-slate-400">No reviews yet</span>
-            {% endif %}
-            <span class="text-slate-300">&bull;</span>
-            <span class="text-xs text-emerald-700 font-semibold flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              Verified Authentic
+            <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <a href="#reviews-section" class="text-[#007185] hover:text-[#c7511f] hover:underline font-normal">
+            ({{ total_reviews|default:"2,606" }})
+          </a>
+        </div>
+
+        <!-- Amazon's / ShopKart's Choice Badge & Social Proof -->
+        <div class="mt-2 flex items-center flex-wrap gap-3">
+          <div class="inline-flex items-center bg-[#0f1111] text-white text-[11px] font-normal px-2.5 py-0.5 rounded shadow-2xs">
+            <span>ShopKart's</span>&nbsp;<span class="text-[#f08804] font-bold">Choice</span>
+          </div>
+          <span class="text-xs text-[#565959] font-medium">3K+ bought in past month</span>
+        </div>
+
+        <!-- Divider -->
+        <hr class="my-3 border-gray-200">
+
+        <!-- Price Section -->
+        <div>
+          <div class="flex items-baseline gap-2.5">
+            <template x-if="currentDiscount > 0">
+              <span class="text-2xl sm:text-3xl font-light text-[#cc0c39]">-<span x-text="currentDiscount"></span>%</span>
+            </template>
+            <span class="text-2xl sm:text-3xl font-medium text-[#0f1111] tracking-tight">
+              <sup class="text-sm font-normal -top-2 relative">₹</sup><span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span>
             </span>
           </div>
 
-          <!-- Price Display -->
-          <div class="mt-5 p-4 rounded-2xl bg-slate-50/80 ring-1 ring-slate-100 flex flex-wrap items-baseline gap-3">
-            <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              ₹<span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span>
-            </span>
+          <div class="text-xs text-[#565959] mt-0.5" x-show="currentDiscount > 0">
+            M.R.P.: <span class="line-through">₹<span x-text="Math.round(currentOriginalPrice).toLocaleString('en-IN')"></span></span>
+          </div>
+          
+          <div class="text-xs text-[#0f1111] font-normal mt-1">
+            Inclusive of all taxes
+          </div>
 
-            <template x-if="currentDiscount > 0">
-              <div class="flex items-baseline gap-2">
-                <span class="text-lg text-slate-400 line-through font-medium">
-                  ₹<span x-text="Math.round(currentOriginalPrice).toLocaleString('en-IN')"></span>
-                </span>
-                <span class="text-emerald-700 font-bold text-sm bg-emerald-100/80 px-2 py-0.5 rounded-md">
-                  Save <span x-text="currentDiscount"></span>%
-                </span>
+          <div class="text-xs text-[#0f1111] mt-1.5">
+            <span class="font-bold">EMI</span> starts at ₹<span x-text="emiMonthly.toLocaleString('en-IN')"></span>. No Cost EMI available 
+            <button type="button" @click="showEmiModal = true" class="text-[#007185] hover:text-[#c7511f] hover:underline inline-flex items-center font-normal">
+              EMI options <svg class="w-2.5 h-2.5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Service Badges Row (Circular Icons) -->
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <div class="grid grid-cols-4 gap-1.5 text-center">
+            <!-- 10 days Replacement -->
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               </div>
+              <span class="text-[11px] text-[#007185] hover:underline font-normal mt-1 leading-tight">10 days Replacement</span>
+            </div>
+
+            <!-- Free Delivery -->
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+              </div>
+              <span class="text-[11px] text-[#007185] hover:underline font-normal mt-1 leading-tight">Free Delivery</span>
+            </div>
+
+            <!-- Warranty Policy -->
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <span class="text-[11px] text-[#007185] hover:underline font-normal mt-1 leading-tight">Warranty Policy</span>
+            </div>
+
+            <!-- Pay on Delivery -->
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              </div>
+              <span class="text-[11px] text-[#007185] hover:underline font-normal mt-1 leading-tight">Pay on Delivery</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color Variant Swatches (if available) -->
+        <div class="mt-4 pt-4 border-t border-gray-200" x-show="colors && colors.length > 0" x-cloak>
+          <div class="text-xs text-[#0f1111] font-normal mb-2">
+            Colour: <span class="font-bold text-[#0f1111]" x-text="activeColor ? activeColor.name : 'Choose'"></span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="c in colors" :key="c.id">
+              <button type="button" 
+                      @click="selectColor(c)"
+                      class="flex items-center gap-2 p-1.5 rounded border text-left transition focus:outline-none"
+                      :class="activeColorId === c.id ? 'border-2 border-[#007185] bg-sky-50/40 shadow-2xs font-semibold' : 'border-gray-300 hover:border-gray-500 bg-white'">
+                <div class="w-8 h-8 rounded overflow-hidden bg-gray-50 shrink-0 border border-gray-200 p-0.5 flex items-center justify-center">
+                  <template x-if="c.image_url">
+                    <img :src="c.image_url" :alt="c.name" class="w-full h-full object-contain">
+                  </template>
+                  <template x-if="!c.image_url">
+                    <span class="w-full h-full rounded" :style="'background-color: ' + (c.color_code || '#cbd5e1')"></span>
+                  </template>
+                </div>
+                <div class="pr-1.5">
+                  <div class="text-[11px] text-[#0f1111] leading-tight" x-text="c.name"></div>
+                  <div class="text-[10px] text-[#565959] mt-0.5">₹<span x-text="Math.round(c.price).toLocaleString('en-IN')"></span></div>
+                </div>
+              </button>
             </template>
           </div>
+        </div>
 
-          <!-- Delivery & Stock Status -->
-          <div class="mt-3.5 flex flex-wrap items-center gap-4 text-xs font-semibold">
-            <template x-if="inStock">
-              <span class="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full ring-1 ring-emerald-200">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span>In Stock (<span x-text="stockQuantity"></span> units ready to ship)</span>
-              </span>
+        <!-- Specifications / Key Highlights -->
+        {% if product.highlight_list or product.description %}
+        <div class="mt-5 pt-4 border-t border-gray-200 text-xs text-[#0f1111]">
+          <h3 class="font-bold text-sm mb-2 text-[#0f1111]">About this item</h3>
+          <ul class="list-disc list-inside space-y-1.5 text-[#0f1111] leading-relaxed">
+            {% for h in product.highlight_list %}
+            <li>{{ h }}</li>
+            {% empty %}
+            {% if product.description %}
+            <li>{{ product.description }}</li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- COLUMN 3 (3 cols): Clean Sticky Buy Box Card                   -->
+      <!-- ============================================================== -->
+      <div class="lg:col-span-3">
+        <div class="border border-gray-300 rounded-lg p-3.5 sm:p-4 bg-white shadow-2xs sticky top-20">
+
+          <!-- Radio Selector: With Exchange vs Without Exchange -->
+          <div class="space-y-1.5 border border-gray-200 rounded-lg p-2 mb-3">
+            <!-- With Exchange -->
+            <label class="flex items-start gap-2 p-1.5 rounded cursor-pointer transition hover:bg-gray-50" :class="selectedPurchaseMode === 'with_exchange' ? 'bg-amber-50/40' : ''">
+              <input type="radio" name="purchase_mode" value="with_exchange" x-model="selectedPurchaseMode" class="mt-0.5 text-brand focus:ring-brand">
+              <div class="text-xs">
+                <div class="font-bold text-[#0f1111]">With Exchange</div>
+                <div class="text-xs font-bold text-[#b12704]">Up to ₹ <span x-text="exchangeSavings.toLocaleString('en-IN')"></span> off</div>
+              </div>
+            </label>
+            <hr class="border-gray-100">
+            <!-- Without Exchange -->
+            <label class="flex items-start gap-2 p-1.5 rounded cursor-pointer transition hover:bg-gray-50" :class="selectedPurchaseMode === 'without_exchange' ? 'bg-amber-50/40' : ''">
+              <input type="radio" name="purchase_mode" value="without_exchange" x-model="selectedPurchaseMode" class="mt-0.5 text-brand focus:ring-brand">
+              <div class="text-xs">
+                <div class="font-bold text-[#0f1111]">Without Exchange</div>
+                <div class="flex items-baseline gap-1.5 mt-0.5">
+                  <span class="font-bold text-[#b12704] text-sm">₹ <span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span></span>
+                  <span class="text-gray-500 line-through text-[11px]">₹ <span x-text="Math.round(currentOriginalPrice).toLocaleString('en-IN')"></span></span>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Delivery Status & Location Pin -->
+          <div class="text-xs">
+            <div class="text-[#007185] font-bold text-sm">FREE delivery</div>
+            <div class="flex items-start gap-1 text-[#007185] mt-1.5 cursor-pointer hover:underline" @click="showLocationModal = true">
+              <svg class="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span class="text-gray-700 text-[11px] leading-tight">Delivering to <span class="font-bold text-[#0f1111]" x-text="deliveryLocationLabel"></span> - <span class="text-[#007185] font-medium">Update location</span></span>
+            </div>
+          </div>
+
+          <!-- Urgency & Stock Status Indicator -->
+          <div class="mt-3">
+            <template x-if="inStock && stockQuantity <= 5">
+              <div class="text-base font-bold text-[#b12704]">
+                Only <span x-text="stockQuantity"></span> left in stock.
+              </div>
+            </template>
+            <template x-if="inStock && stockQuantity > 5">
+              <div class="text-base font-semibold text-emerald-700">
+                In stock
+              </div>
             </template>
             <template x-if="!inStock">
-              <span class="inline-flex items-center gap-1.5 text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full ring-1 ring-rose-200">
-                <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-                <span>Currently Out of Stock</span>
-              </span>
-            </template>
-
-            {% if product.free_delivery %}
-            <span class="inline-flex items-center gap-1 text-slate-600 font-medium">
-              <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-              Free Express Delivery
-            </span>
-            {% endif %}
-          </div>
-
-          <!-- ============================================================== -->
-          <!-- COLOR SELECTION SECTION (Modern High-End Swatches)            -->
-          <!-- ============================================================== -->
-          <div class="mt-6 pt-6 border-t border-slate-100" x-show="colors && colors.length > 0" x-cloak>
-            <div class="flex items-center justify-between mb-3">
-              <label class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <span>Color:</span>
-                <span class="text-brand font-extrabold" x-text="activeColor ? activeColor.name : 'Choose'"></span>
-              </label>
-              <span class="text-xs font-semibold text-slate-400" x-text="colors.length + ' color option' + (colors.length > 1 ? 's' : '')"></span>
-            </div>
-
-            <!-- Color Swatch Cards Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              <template x-for="c in colors" :key="c.id">
-                <button type="button"
-                        @click="selectColor(c)"
-                        class="flex items-center gap-2.5 p-2.5 rounded-xl transition-all duration-200 text-left relative focus:outline-none group border"
-                        :class="activeColorId === c.id 
-                          ? 'border-brand bg-brand/5 shadow-xs ring-1 ring-brand font-semibold text-slate-900' 
-                          : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/80 text-slate-700'">
-                  
-                  <!-- Color Dot or Mini Thumbnail -->
-                  <div class="h-10 w-10 rounded-lg overflow-hidden bg-slate-100 shrink-0 ring-1 ring-black/10 flex items-center justify-center p-0.5 relative">
-                    <template x-if="c.image_url">
-                      <img :src="c.image_url" :alt="c.name" class="w-full h-full object-contain">
-                    </template>
-                    <template x-if="!c.image_url">
-                      <span class="w-full h-full rounded-md" :style="'background-color: ' + (c.color_code || '#e2e8f0')"></span>
-                    </template>
-                    
-                    <!-- Tiny Color Swatch Dot in corner -->
-                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border border-white shadow-xs"
-                          :style="'background-color: ' + (c.color_code || '#cbd5e1')"></span>
-                  </div>
-
-                  <!-- Color Info -->
-                  <div class="min-w-0 flex-1">
-                    <p class="text-xs font-bold truncate leading-snug" x-text="c.name"></p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">₹<span x-text="Math.round(c.price).toLocaleString('en-IN')"></span></p>
-                  </div>
-
-                  <!-- Active Checkmark Indicator -->
-                  <template x-if="activeColorId === c.id">
-                    <span class="text-brand shrink-0">
-                      <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                    </span>
-                  </template>
-                </button>
-              </template>
-            </div>
-          </div>
-
-          <!-- Product Description -->
-          {% if product.description %}
-          <div class="mt-6 pt-6 border-t border-slate-100">
-            <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2">Overview</h3>
-            <p class="text-slate-600 text-sm leading-relaxed">{{ product.description }}</p>
-          </div>
-          {% endif %}
-
-          <!-- Key Highlights -->
-          {% if product.highlight_list %}
-          <div class="mt-5">
-            <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2.5">Key Highlights</h3>
-            <div class="grid sm:grid-cols-2 gap-2">
-              {% for h in product.highlight_list %}
-              <div class="flex items-start gap-2 text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded-lg ring-1 ring-slate-100">
-                <span class="text-emerald-600 font-bold">✓</span>
-                <span>{{ h }}</span>
+              <div class="text-base font-bold text-[#b12704]">
+                Currently unavailable.
               </div>
-              {% endfor %}
-            </div>
+            </template>
           </div>
-          {% endif %}
 
-          <!-- CTA Actions (Desktop & Tablet) -->
-          <div class="mt-8 pt-6 border-t border-slate-100 flex gap-3.5">
+          <!-- CTAs: Add to Cart & Buy Now (Signature Navy & Brand Orange) -->
+          <div class="mt-3.5 space-y-2.5">
             {% if request.user.is_authenticated %}
-            <form action="{% url 'add_to_cart' product.id %}" method="post" class="flex-1">
+            <!-- Add to Cart Form (Navy) -->
+            <form action="{% url 'add_to_cart' product.id %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="color_id" :value="activeColor ? activeColor.id : ''">
               <button type="submit" 
                       :disabled="!inStock"
-                      class="w-full bg-brand hover:bg-brand-dark disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-6 rounded-xl transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                      class="w-full bg-navy hover:bg-navy-light active:bg-slate-900 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-full shadow-sm hover:shadow transition duration-150 cursor-pointer text-center flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 <span>Add to Cart</span>
               </button>
             </form>
-            <form action="{% url 'toggle_wishlist' product.id %}" method="post">
+
+            <!-- Buy Now Form (ShopKart Brand Orange) -->
+            <form action="{% url 'add_to_cart' product.id %}" method="post">
               {% csrf_token %}
+              <input type="hidden" name="color_id" :value="activeColor ? activeColor.id : ''">
+              <input type="hidden" name="action" value="buy_now">
               <button type="submit" 
-                      title="Save to Wishlist"
-                      class="h-[52px] w-[52px] rounded-xl ring-1 ring-slate-200 hover:ring-brand/40 bg-white hover:bg-rose-50/50 flex items-center justify-center transition duration-200 shadow-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 {% if in_wishlist %}text-rose-500 fill-rose-500{% else %}text-slate-400 hover:text-rose-500{% endif %}" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+                      :disabled="!inStock"
+                      class="w-full bg-brand hover:bg-brand-dark active:bg-[#d95300] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-full shadow-md hover:shadow-lg transition duration-150 cursor-pointer text-center flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Buy Now</span>
               </button>
             </form>
             {% else %}
-            <a href="{% url 'login' %}?next={{ request.path }}" class="flex-1 text-center bg-brand hover:bg-brand-dark text-white font-bold py-3.5 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-              <span>Login to Purchase</span>
+            <a href="{% url 'login' %}?next={{ request.path }}" class="w-full bg-navy hover:bg-navy-light text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-full shadow-sm transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              <span>Add to Cart</span>
+            </a>
+            <a href="{% url 'login' %}?next={{ request.path }}" class="w-full bg-brand hover:bg-brand-dark text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-full shadow-md transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Buy Now</span>
             </a>
             {% endif %}
           </div>
 
-          <!-- Mobile Sticky Quick Action Bar (Floating cleanly above Bottom Navigation on All Devices) -->
-          <div class="md:hidden fixed bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <span class="text-[11px] text-slate-400 font-medium block leading-tight">Total Price</span>
-              <span class="text-lg font-black text-navy leading-none">₹<span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span></span>
+          <!-- Trust Metadata Table -->
+          <div class="mt-4 pt-3 border-t border-gray-200 text-[11px] text-gray-600 space-y-1.5">
+            <div class="grid grid-cols-2">
+              <span class="text-gray-500">Ships from</span>
+              <span class="text-[#0f1111] font-medium">ShopKart</span>
             </div>
+            <div class="grid grid-cols-2">
+              <span class="text-gray-500">Sold by</span>
+              <span class="text-[#007185] hover:underline cursor-pointer truncate">{{ product.brand|default:"Clicktech" }} Retail Pvt Ltd</span>
+            </div>
+            <div class="grid grid-cols-2">
+              <span class="text-gray-500">Payment</span>
+              <span class="text-[#007185] hover:underline cursor-pointer">Secure transaction</span>
+            </div>
+            <div class="grid grid-cols-2">
+              <span class="text-gray-500">Gift options</span>
+              <span class="text-[#007185] hover:underline cursor-pointer">Available at checkout</span>
+            </div>
+          </div>
+
+          <!-- Add a Protection Plan Checkbox -->
+          <div class="mt-3.5 pt-3 border-t border-gray-200 text-xs">
+            <div class="font-bold text-[#0f1111] mb-1.5">Add a Protection Plan:</div>
+            <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-black">
+              <input type="checkbox" x-model="includeProtection" class="mt-0.5 rounded text-brand focus:ring-brand">
+              <span class="text-[11px] leading-tight">
+                1 Year Protect with ShopKart Care for <span class="font-bold text-[#b12704]">₹ 1,499.00</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Wishlist Action -->
+          <div class="mt-3.5 pt-3 border-t border-gray-200">
+            {% if request.user.is_authenticated %}
+            <form action="{% url 'toggle_wishlist' product.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="w-full text-center py-1.5 px-3 bg-gray-100 hover:bg-gray-200 text-[#0f1111] rounded text-xs font-normal border border-gray-300 transition flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5 {% if in_wishlist %}text-red-600 fill-red-600{% else %}text-gray-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <span>{% if in_wishlist %}Remove from Wish List{% else %}Add to Wish List{% endif %}</span>
+              </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="block w-full text-center py-1.5 px-3 bg-gray-100 hover:bg-gray-200 text-[#0f1111] rounded text-xs font-normal border border-gray-300 transition">
+              Add to Wish List
+            </a>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- BELOW THE FOLD: Ratings, Breakdown, Reviews & Related Products -->
+    <!-- ============================================================== -->
+    <div id="reviews-section" class="mt-12 pt-8 border-t border-gray-200">
+      <div class="grid lg:grid-cols-12 gap-8">
+        
+        <!-- Left: Rating Summary & Breakdown Bars -->
+        <div class="lg:col-span-4">
+          <h2 class="text-xl font-bold text-[#0f1111]">Customer Reviews</h2>
+          <div class="flex items-center gap-2 mt-2">
+            <div class="flex text-[#ffa41c] text-lg">
+              <span>★★★★</span><span class="{% if product.avg_rating >= 4.5 %}text-[#ffa41c]{% else %}text-gray-300{% endif %}">★</span>
+            </div>
+            <span class="text-sm font-bold text-[#0f1111]">{{ product.avg_rating|default:"4.5" }} out of 5</span>
+          </div>
+          <p class="text-xs text-[#565959] mt-0.5">{{ total_reviews }} global rating{{ total_reviews|pluralize }}</p>
+
+          <!-- 5-Star to 1-Star Distribution Bars -->
+          <div class="mt-5 space-y-2.5 text-xs">
+            {% for rb in rating_breakdown %}
             <div class="flex items-center gap-2">
-              {% if request.user.is_authenticated %}
-              <form action="{% url 'toggle_wishlist' product.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600">
-                  <svg class="w-5 h-5 {% if in_wishlist %}text-rose-500 fill-rose-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-              </form>
-              <form action="{% url 'add_to_cart' product.id %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="color_id" :value="activeColor ? activeColor.id : ''">
-                <button type="submit" :disabled="!inStock" class="px-5 py-2.5 bg-brand hover:bg-brand-dark active:scale-95 disabled:bg-slate-300 text-white font-bold text-sm rounded-xl shadow-md flex items-center gap-1.5">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                  <span>Add to Cart</span>
-                </button>
-              </form>
-              {% else %}
-              <a href="{% url 'login' %}?next={{ request.path }}" class="px-5 py-2.5 bg-brand text-white font-bold text-sm rounded-xl shadow-md">
-                Login to Buy
-              </a>
+              <span class="w-12 text-[#007185] hover:underline cursor-pointer font-medium">{{ rb.star }} star</span>
+              <div class="flex-1 h-4 bg-gray-200 rounded-xs overflow-hidden">
+                <div class="h-full bg-[#ffa41c] rounded-xs transition-all duration-500" style="width: {{ rb.pct }}%;"></div>
+              </div>
+              <span class="w-10 text-right text-[#565959]">{{ rb.pct }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Review Submission CTA -->
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <h3 class="font-bold text-sm text-[#0f1111]">Review this product</h3>
+            <p class="text-xs text-[#565959] mt-1">Share your thoughts with other customers</p>
+            {% if request.user.is_authenticated and not already_reviewed %}
+            <button type="button" @click="showReviewModal = true" class="mt-3 w-full py-1.5 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 text-xs font-medium text-[#0f1111] shadow-2xs transition">
+              Write a product review
+            </button>
+            {% elif already_reviewed %}
+            <div class="mt-3 p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium">
+              ✓ You have reviewed this product.
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="mt-3 block text-center w-full py-1.5 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 text-xs font-medium text-[#0f1111] shadow-2xs transition">
+              Write a product review
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Right: Top Reviews From Customers -->
+        <div class="lg:col-span-8">
+          <h3 class="font-bold text-base text-[#0f1111] mb-4">Top reviews from India</h3>
+          {% if reviews %}
+          <div class="space-y-6">
+            {% for r in reviews %}
+            <div class="border-b border-gray-200 pb-5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-700 font-bold">
+                  {{ r.user.first_name|default:r.user.username|make_list|first|upper }}
+                </div>
+                <span class="text-xs font-medium text-[#0f1111]">{{ r.user.first_name|default:r.user.username }}</span>
+              </div>
+              <div class="flex items-center gap-2 mb-1">
+                <div class="flex text-[#ffa41c] text-xs">
+                  {% for i in "12345"|make_list %}
+                    <span class="{% if forloop.counter <= r.rating %}text-[#ffa41c]{% else %}text-gray-300{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+                {% if r.title %}
+                <span class="font-bold text-xs text-[#0f1111]">{{ r.title }}</span>
+                {% endif %}
+              </div>
+              <div class="text-[11px] text-[#565959] mb-2">
+                Reviewed in India on {{ r.created_at|date:"d F Y" }} &bull; <span class="text-amber-800 font-bold">Verified Purchase</span>
+              </div>
+              {% if r.comment %}
+              <p class="text-xs text-[#0f1111] leading-relaxed">{{ r.comment }}</p>
               {% endif %}
             </div>
+            {% endfor %}
           </div>
-
-          <!-- Trust Badges -->
-          <div class="mt-6 pt-5 border-t border-slate-100 grid grid-cols-3 gap-3 text-center">
-            <div class="p-2.5 rounded-xl bg-slate-50/70 ring-1 ring-slate-100">
-              <p class="text-base">🛡️</p>
-              <p class="text-[11px] font-bold text-slate-800 mt-1">100% Genuine</p>
-              <p class="text-[10px] text-slate-400">Direct Brand Warranty</p>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-50/70 ring-1 ring-slate-100">
-              <p class="text-base">🔄</p>
-              <p class="text-[11px] font-bold text-slate-800 mt-1">7-Day Return</p>
-              <p class="text-[10px] text-slate-400">Hassle-Free Policy</p>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-50/70 ring-1 ring-slate-100">
-              <p class="text-base">⚡</p>
-              <p class="text-[11px] font-bold text-slate-800 mt-1">Fast Delivery</p>
-              <p class="text-[10px] text-slate-400">Tracked Shipping</p>
-            </div>
+          {% else %}
+          <div class="text-center py-10 text-gray-400 bg-gray-50 rounded-lg border border-gray-100">
+            <p class="text-2xl mb-1">⭐</p>
+            <p class="text-xs">No customer reviews yet. Be the first to share your thoughts!</p>
           </div>
-
+          {% endif %}
         </div>
+
       </div>
     </div>
+
+    <!-- Related Products ("Similar Products You May Like") -->
+    {% if related and category %}
+    <div class="mt-12 pt-8 border-t border-gray-200">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-[#0f1111]">Similar products you may like</h2>
+        <a href="{% url 'collections_view' category.slug %}" class="text-xs font-medium text-[#007185] hover:text-[#c7511f] hover:underline">See more</a>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {% for item in related %}
+          {% include 'shop/inc/product_card.html' %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 
-  <!-- Ratings & Reviews Section -->
-  <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 shadow-sm p-6 sm:p-8 mt-8">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-slate-900">Ratings & Customer Reviews</h2>
-      {% if product.review_count %}
-      <span class="text-xs font-semibold text-slate-500">{{ product.review_count }} verified review{{ product.review_count|pluralize }}</span>
+  <!-- Mobile Bottom Sticky Buy Bar (Navy Add to Cart & Brand Orange Buy Now) -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <span class="text-[10px] text-gray-500 block leading-tight">Price</span>
+      <span class="text-base font-bold text-[#b12704]">₹<span x-text="Math.round(currentPrice).toLocaleString('en-IN')"></span></span>
+    </div>
+    <div class="flex items-center gap-2">
+      {% if request.user.is_authenticated %}
+      <form action="{% url 'add_to_cart' product.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="color_id" :value="activeColor ? activeColor.id : ''">
+        <button type="submit" :disabled="!inStock" class="px-4 py-2 bg-navy active:bg-slate-900 text-white font-semibold text-xs rounded-full shadow-xs">
+          Add to Cart
+        </button>
+      </form>
+      <form action="{% url 'add_to_cart' product.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="color_id" :value="activeColor ? activeColor.id : ''">
+        <input type="hidden" name="action" value="buy_now">
+        <button type="submit" :disabled="!inStock" class="px-4 py-2 bg-brand active:bg-brand-dark text-white font-bold text-xs rounded-full shadow-xs">
+          Buy Now
+        </button>
+      </form>
+      {% else %}
+      <a href="{% url 'login' %}?next={{ request.path }}" class="px-4 py-2 bg-navy text-white font-semibold text-xs rounded-full">
+        Add to Cart
+      </a>
+      <a href="{% url 'login' %}?next={{ request.path }}" class="px-4 py-2 bg-brand text-white font-bold text-xs rounded-full">
+        Buy Now
+      </a>
       {% endif %}
     </div>
-
-    <!-- Rating Breakdown Summary Card -->
-    <div class="bg-slate-50 rounded-2xl p-5 mb-6 border border-slate-100 grid sm:grid-cols-12 gap-6 items-center">
-      <div class="sm:col-span-4 text-center sm:text-left sm:border-r sm:border-slate-200 sm:pr-6">
-        <p class="text-4xl font-black text-slate-900 leading-none">{{ product.avg_rating|default:"4.8" }} <span class="text-xl text-amber-500">★</span></p>
-        <p class="text-xs text-slate-500 mt-1 font-medium">Out of 5.0 rating score</p>
-        <p class="text-[11px] text-emerald-600 font-bold mt-2">✓ 96% of buyers recommend this</p>
-      </div>
-      <div class="sm:col-span-8 space-y-1.5 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-6 font-bold text-slate-600">5 ★</span>
-          <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-500 rounded-full" style="width: 82%;"></div>
-          </div>
-          <span class="w-8 text-right text-slate-400 font-medium">82%</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-6 font-bold text-slate-600">4 ★</span>
-          <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-400 rounded-full" style="width: 14%;"></div>
-          </div>
-          <span class="w-8 text-right text-slate-400 font-medium">14%</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-6 font-bold text-slate-600">3 ★</span>
-          <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-400 rounded-full" style="width: 3%;"></div>
-          </div>
-          <span class="w-8 text-right text-slate-400 font-medium">3%</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-6 font-bold text-slate-600">2 ★</span>
-          <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-orange-400 rounded-full" style="width: 1%;"></div>
-          </div>
-          <span class="w-8 text-right text-slate-400 font-medium">1%</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-6 font-bold text-slate-600">1 ★</span>
-          <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full bg-rose-400 rounded-full" style="width: 0%;"></div>
-          </div>
-          <span class="w-8 text-right text-slate-400 font-medium">0%</span>
-        </div>
-      </div>
-    </div>
-
-    {% if reviews %}
-    <div class="grid md:grid-cols-2 gap-4 mb-6">
-      {% for r in reviews %}
-      <div class="p-4 rounded-2xl bg-slate-50 ring-1 ring-slate-100 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center gap-2 mb-1.5">
-            <span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">{{ r.rating }} ★</span>
-            {% if r.title %}<span class="font-bold text-sm text-slate-800">{{ r.title }}</span>{% endif %}
-          </div>
-          {% if r.comment %}<p class="text-xs text-slate-600 leading-relaxed">{{ r.comment }}</p>{% endif %}
-        </div>
-        <p class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between">
-          <span>{{ r.user.first_name|default:r.user.username }}</span>
-          <span>{{ r.created_at|date:"M d, Y" }}</span>
-        </p>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-8 text-slate-400">
-      <p class="text-3xl mb-2">⭐</p>
-      <p class="text-sm font-medium">No reviews yet. Be the first to review this product!</p>
-    </div>
-    {% endif %}
-
-    {% if request.user.is_authenticated and not already_reviewed %}
-    <form method="post" class="border-t border-slate-100 pt-6 space-y-3.5 max-w-lg">
-      {% csrf_token %}
-      <h3 class="font-bold text-sm text-slate-800">Write a Review</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1">Your Rating</label>
-        {{ review_form.rating }}
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1">Review Headline</label>
-        {{ review_form.title }}
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1">Detailed Review</label>
-        {{ review_form.comment }}
-      </div>
-      <button type="submit" class="bg-navy hover:bg-navy-light text-white text-sm font-bold px-6 py-2.5 rounded-xl transition shadow-xs">
-        Submit Review
-      </button>
-    </form>
-    {% elif already_reviewed %}
-    <p class="text-xs font-medium text-emerald-700 bg-emerald-50 p-3 rounded-xl border border-emerald-200 border-t mt-4">
-      ✓ You've already submitted a review for this product. Thank you!
-    </p>
-    {% endif %}
   </div>
 
-  <!-- Related Products -->
-  {% if related %}
-  <div class="mt-12">
-    <div class="flex items-center justify-between mb-5">
-      <h2 class="text-xl font-bold text-slate-900">Similar Products You May Like</h2>
-      <a href="{% url 'collections_view' product.category.slug %}" class="text-xs font-bold text-brand hover:underline">Explore More &rarr;</a>
+  <!-- Full-View Lightbox Modal -->
+  <div x-show="showFullView" 
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4"
+       @keydown.escape.window="showFullView = false">
+    <div class="relative max-w-4xl w-full bg-white rounded-xl overflow-hidden shadow-2xl p-6" @click.outside="showFullView = false">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <h3 class="font-bold text-sm text-gray-900 truncate pr-4">{{ product.name }}</h3>
+        <button type="button" @click="showFullView = false" class="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="py-6 flex items-center justify-center max-h-[70vh]">
+        <img :src="activeImage" :alt="'{{ product.name|escapejs }}'" class="max-h-[65vh] w-auto max-w-full object-contain">
+      </div>
+      <div class="flex items-center justify-center gap-2 pt-3 border-t border-gray-100 overflow-x-auto">
+        <template x-for="(imgUrl, i) in currentGallery" :key="i">
+          <button type="button" @click="activeImage = imgUrl" class="w-12 h-12 rounded border p-1" :class="activeImage === imgUrl ? 'border-2 border-[#007185]' : 'border-gray-200'">
+            <img :src="imgUrl" class="w-full h-full object-contain">
+          </button>
+        </template>
+      </div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-      {% for item in related %}
-        {% include 'shop/inc/product_card.html' %}
-      {% endfor %}
+  </div>
+
+  <!-- EMI Options Modal -->
+  <div x-show="showEmiModal" 
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+       @keydown.escape.window="showEmiModal = false">
+    <div class="relative max-w-md w-full bg-white rounded-xl shadow-xl p-5" @click.outside="showEmiModal = false">
+      <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+        <h3 class="font-bold text-sm text-[#0f1111]">EMI Options</h3>
+        <button type="button" @click="showEmiModal = false" class="text-gray-400 hover:text-gray-700">✕</button>
+      </div>
+      <div class="py-3 text-xs space-y-2">
+        <p class="text-gray-600">Available No Cost EMI and Standard Plans for this product:</p>
+        <div class="border border-gray-200 rounded-lg divide-y divide-gray-100">
+          <div class="p-2.5 flex justify-between font-semibold bg-gray-50">
+            <span>Duration</span>
+            <span>Monthly EMI</span>
+          </div>
+          <div class="p-2.5 flex justify-between">
+            <span>3 Months (No Cost EMI)</span>
+            <span class="font-bold text-emerald-700">₹<span x-text="Math.round(currentPrice / 3).toLocaleString('en-IN')"></span>/mo</span>
+          </div>
+          <div class="p-2.5 flex justify-between">
+            <span>6 Months (No Cost EMI)</span>
+            <span class="font-bold text-emerald-700">₹<span x-text="Math.round(currentPrice / 6).toLocaleString('en-IN')"></span>/mo</span>
+          </div>
+          <div class="p-2.5 flex justify-between">
+            <span>12 Months</span>
+            <span class="font-bold">₹<span x-text="Math.round(currentPrice / 12 * 1.05).toLocaleString('en-IN')"></span>/mo</span>
+          </div>
+          <div class="p-2.5 flex justify-between">
+            <span>24 Months</span>
+            <span class="font-bold">₹<span x-text="emiMonthly.toLocaleString('en-IN')"></span>/mo</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" @click="showEmiModal = false" class="w-full mt-2 py-2 bg-navy hover:bg-navy-light text-white text-xs font-semibold rounded-full transition">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Smart Location Update Modal (With City/District Name Resolution + Current Location Option) -->
+  <div x-show="showLocationModal" 
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
+       @keydown.escape.window="showLocationModal = false">
+    <div class="relative max-w-sm w-full bg-white rounded-2xl shadow-2xl p-5 border border-slate-100" @click.outside="showLocationModal = false">
+      <div class="flex items-center justify-between pb-2.5 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📍</span>
+          <h3 class="font-bold text-sm text-[#0f1111]">Choose your location</h3>
+        </div>
+        <button type="button" @click="showLocationModal = false" class="text-gray-400 hover:text-gray-700 text-base">✕</button>
+      </div>
+
+      <div class="py-3 text-xs space-y-3">
+        <p class="text-gray-600 leading-relaxed">Enter your 6-digit PIN code to check delivery availability and speed:</p>
+        
+        <!-- PIN Code Input & Apply -->
+        <div class="flex gap-2">
+          <input type="text" 
+                 x-model="newPincodeInput" 
+                 @keydown.enter.prevent="applyPincode()"
+                 maxlength="6"
+                 placeholder="e.g. 636002" 
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-brand focus:border-brand">
+          <button type="button" 
+                  @click="applyPincode()"
+                  :disabled="isResolvingPin"
+                  class="px-4 py-2 bg-brand hover:bg-brand-dark disabled:opacity-50 text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center">
+            <span x-show="!isResolvingPin">Apply</span>
+            <span x-show="isResolvingPin" class="animate-spin text-sm">⏳</span>
+          </button>
+        </div>
+
+        <!-- Status / Error message -->
+        <p x-show="locationStatusMessage" x-text="locationStatusMessage" class="text-[11px] font-medium" :class="locationStatusSuccess ? 'text-emerald-700' : 'text-rose-600'"></p>
+
+        <!-- Divider with OR text -->
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="flex-shrink mx-3 text-gray-400 text-[10px] font-bold uppercase tracking-wider">OR</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <!-- Use My Current Location Option -->
+        <button type="button" 
+                @click="useCurrentLocation()"
+                :disabled="isDetectingLocation"
+                class="w-full py-2.5 px-3 rounded-xl border border-slate-200 hover:border-brand/60 bg-slate-50 hover:bg-brand-light/30 active:scale-[0.98] text-xs font-semibold text-slate-800 flex items-center justify-center gap-2 transition disabled:opacity-60 shadow-2xs">
+          <template x-if="!isDetectingLocation">
+            <svg class="w-4 h-4 text-brand shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </template>
+          <template x-if="isDetectingLocation">
+            <svg class="animate-spin w-4 h-4 text-brand shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </template>
+          <span x-text="isDetectingLocation ? 'Detecting your location...' : 'Use my current location'"></span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Write Review Modal -->
+  {% if request.user.is_authenticated and not already_reviewed %}
+  <div x-show="showReviewModal" 
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+       @keydown.escape.window="showReviewModal = false">
+    <div class="relative max-w-lg w-full bg-white rounded-xl shadow-xl p-6" @click.outside="showReviewModal = false">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <h3 class="font-bold text-base text-[#0f1111]">Create Review</h3>
+        <button type="button" @click="showReviewModal = false" class="text-gray-400 hover:text-gray-700">✕</button>
+      </div>
+      <form method="post" class="mt-4 space-y-3.5 text-xs">
+        {% csrf_token %}
+        <div>
+          <label class="block font-bold text-[#0f1111] mb-1">Overall Rating</label>
+          {{ review_form.rating }}
+        </div>
+        <div>
+          <label class="block font-bold text-[#0f1111] mb-1">Add a headline</label>
+          {{ review_form.title }}
+        </div>
+        <div>
+          <label class="block font-bold text-[#0f1111] mb-1">Add a written review</label>
+          {{ review_form.comment }}
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" @click="showReviewModal = false" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-6 py-2 bg-brand hover:bg-brand-dark text-white font-bold rounded-lg shadow-sm transition">Submit</button>
+        </div>
+      </form>
     </div>
   </div>
   {% endif %}
@@ -448,10 +710,39 @@ function productDetailState() {
         {% for g in product.gallery.all %}'{{ g.image.url }}',{% endfor %}
     ];
 
+    // Saved location from localStorage or default
+    const savedLoc = localStorage.getItem('shopkart_delivery_location') || 'Salem 636002';
+
+    // Quick built-in Indian PIN code directory fallback for instant resolution
+    const pinDirectory = {
+        '11': 'New Delhi', '12': 'Gurugram', '13': 'Ambala', '14': 'Ludhiana', '16': 'Chandigarh',
+        '17': 'Shimla', '18': 'Jammu', '19': 'Srinagar', '20': 'Noida', '21': 'Prayagraj',
+        '22': 'Lucknow', '24': 'Dehradun', '28': 'Agra', '30': 'Jaipur', '34': 'Jodhpur',
+        '36': 'Rajkot', '38': 'Ahmedabad', '39': 'Surat', '40': 'Mumbai', '41': 'Pune',
+        '42': 'Nashik', '44': 'Nagpur', '45': 'Indore', '46': 'Bhopal', '50': 'Hyderabad',
+        '51': 'Tirupati', '52': 'Vijayawada', '53': 'Visakhapatnam', '56': 'Bengaluru',
+        '57': 'Mangaluru', '58': 'Hubli', '59': 'Belagavi', '60': 'Chennai', '61': 'Thanjavur',
+        '62': 'Madurai', '63': 'Salem', '64': 'Coimbatore', '65': 'Tirunelveli', '67': 'Kozhikode',
+        '68': 'Kochi', '69': 'Thiruvananthapuram', '70': 'Kolkata', '75': 'Bhubaneswar',
+        '78': 'Guwahati', '80': 'Patna', '83': 'Ranchi', '84': 'Muzaffarpur'
+    };
+
     return {
         colors: rawColors,
         activeColorId: defaultColId,
         activeImage: fallbackImage,
+        showFullView: false,
+        showEmiModal: false,
+        showLocationModal: false,
+        showReviewModal: false,
+        selectedPurchaseMode: 'without_exchange',
+        deliveryLocationLabel: savedLoc,
+        newPincodeInput: '',
+        isResolvingPin: false,
+        isDetectingLocation: false,
+        locationStatusMessage: '',
+        locationStatusSuccess: false,
+        includeProtection: false,
 
         get activeColor() {
             if (!this.colors || !this.colors.length) return null;
@@ -493,6 +784,12 @@ function productDetailState() {
             }
             return {{ product.quantity }};
         },
+        get exchangeSavings() {
+            return Math.min(37350, Math.round(this.currentPrice * 0.55));
+        },
+        get emiMonthly() {
+            return Math.max(999, Math.round(this.currentPrice / 24));
+        },
         selectColor(color) {
             this.activeColorId = color.id;
             if (color.gallery && color.gallery.length > 0) {
@@ -500,6 +797,133 @@ function productDetailState() {
             } else if (color.image_url) {
                 this.activeImage = color.image_url;
             }
+        },
+        shareProduct() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ product.name|escapejs }}',
+                    url: window.location.href
+                }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Product link copied to clipboard!');
+            }
+        },
+        async applyPincode() {
+            const pin = (this.newPincodeInput || '').trim();
+            if (!pin || pin.length < 6 || !/^\d{6}$/.test(pin)) {
+                this.locationStatusSuccess = false;
+                this.locationStatusMessage = 'Please enter a valid 6-digit Indian PIN code.';
+                return;
+            }
+
+            this.isResolvingPin = true;
+            this.locationStatusMessage = 'Looking up location...';
+            this.locationStatusSuccess = true;
+
+            let resolvedName = '';
+
+            try {
+                // Try India Post Postal PIN API
+                const resp = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+                        const po = data[0].PostOffice[0];
+                        resolvedName = po.District || po.Name || po.Block || po.State;
+                    }
+                }
+            } catch (err) {
+                // Network failure, continue to fallback
+            }
+
+            // If API didn't resolve, check built-in directory
+            if (!resolvedName) {
+                const prefix2 = pin.substring(0, 2);
+                resolvedName = pinDirectory[prefix2] || 'India';
+            }
+
+            const formattedLocation = `${resolvedName} ${pin}`;
+            this.deliveryLocationLabel = formattedLocation;
+            localStorage.setItem('shopkart_delivery_location', formattedLocation);
+
+            this.locationStatusSuccess = true;
+            this.locationStatusMessage = `✓ Delivering to ${formattedLocation}`;
+            this.isResolvingPin = false;
+
+            setTimeout(() => {
+                this.showLocationModal = false;
+                this.locationStatusMessage = '';
+                this.newPincodeInput = '';
+            }, 600);
+        },
+        useCurrentLocation() {
+            if (!navigator.geolocation) {
+                this.locationStatusSuccess = false;
+                this.locationStatusMessage = 'Geolocation is not supported by your browser. Please enter PIN code.';
+                return;
+            }
+
+            this.isDetectingLocation = true;
+            this.locationStatusSuccess = true;
+            this.locationStatusMessage = 'Detecting your location...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+
+                    let cityName = '';
+                    let postalCode = '';
+
+                    try {
+                        // Reverse geocoding via free client endpoint
+                        const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+                        const res = await fetch(geoUrl);
+                        if (res.ok) {
+                            const data = await res.json();
+                            cityName = data.city || data.locality || data.principalSubdivision;
+                            postalCode = data.postcode || '';
+                        }
+                    } catch (e) {
+                        // Fallback attempt via OpenStreetMap
+                        try {
+                            const osmRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                            if (osmRes.ok) {
+                                const osmData = await osmRes.json();
+                                const addr = osmData.address || {};
+                                cityName = addr.city || addr.town || addr.county || addr.state_district;
+                                postalCode = addr.postcode || '';
+                            }
+                        } catch (e2) {}
+                    }
+
+                    if (!cityName) cityName = 'Current Location';
+                    const finalLoc = postalCode ? `${cityName} ${postalCode}` : cityName;
+
+                    this.deliveryLocationLabel = finalLoc;
+                    localStorage.setItem('shopkart_delivery_location', finalLoc);
+
+                    this.locationStatusSuccess = true;
+                    this.locationStatusMessage = `✓ Detected: ${finalLoc}`;
+                    this.isDetectingLocation = false;
+
+                    setTimeout(() => {
+                        this.showLocationModal = false;
+                        this.locationStatusMessage = '';
+                    }, 700);
+                },
+                (err) => {
+                    this.isDetectingLocation = false;
+                    this.locationStatusSuccess = false;
+                    if (err.code === 1) {
+                        this.locationStatusMessage = 'Location permission denied. Please type your PIN code above.';
+                    } else {
+                        this.locationStatusMessage = 'Could not detect location. Please type your PIN code above.';
+                    }
+                },
+                { timeout: 8000, enableHighAccuracy: true }
+            );
         }
     };
 }

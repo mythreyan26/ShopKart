@@ -82,6 +82,36 @@
         </form>
       </div>
 
+      <!-- Security & Password Card -->
+      <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 shadow-xs">
+        <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <span>🔒</span>
+          <span>Account Security & Password</span>
+        </h2>
+        <p class="text-xs text-slate-500 mb-4">Ensure your account is protected with a strong, updated password.</p>
+        
+        <form action="{% url 'change_password' %}" method="post" class="space-y-3">
+          {% csrf_token %}
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Current Password</label>
+            {{ password_form.old_password }}
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">New Password</label>
+              {{ password_form.new_password }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Confirm New Password</label>
+              {{ password_form.confirm_password }}
+            </div>
+          </div>
+          <button type="submit" class="px-5 py-2.5 bg-navy hover:bg-navy-light text-white font-bold text-xs rounded-xl transition shadow-xs">
+            Update Password
+          </button>
+        </form>
+      </div>
+
       <!-- Address Book Manager -->
       <div class="bg-white rounded-3xl ring-1 ring-slate-200/90 p-6 shadow-xs">
         <div class="flex items-center justify-between mb-4">
@@ -132,12 +162,15 @@
             </div>
             
             <div class="flex items-center gap-2 shrink-0">
+              <a href="{% url 'edit_address' a.id %}" class="text-xs font-semibold text-slate-600 hover:text-navy px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
+                Edit
+              </a>
               {% if not a.is_default %}
               <a href="{% url 'set_default_address' a.id %}" class="text-xs font-semibold text-slate-600 hover:text-brand px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-orange-100 transition">
                 Set Default
               </a>
               {% endif %}
-              <a href="{% url 'delete_address' a.id %}" onclick="return confirm('Delete this address?')" class="text-xs font-semibold text-red-500 hover:text-red-700 p-1">
+              <a href="{% url 'delete_address' a.id %}" onclick="return confirm('Delete this address?')" class="text-xs font-semibold text-red-500 hover:text-red-700 p-1" title="Delete Address">
                 ✕
               </a>
             </div>

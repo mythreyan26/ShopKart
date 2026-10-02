@@ -1,0 +1,199 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+
+{% block content %}
+
+{% if not original %}
+  <!-- Standard creation form for brand new products -->
+  {{ block.super }}
+{% else %}
+
+<div class="shopkart-product-studio" style="margin-bottom: 24px;">
+
+  <!-- ========================================================================= -->
+  <!-- 1. Executive Product Studio Header Banner -->
+  <!-- ========================================================================= -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 22px 26px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+        <a href="{% url 'admin:shop_product_changelist' %}" style="color: #94a3b8; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+          <i class="fas fa-arrow-left"></i> All Products
+        </a>
+        <span style="font-family: monospace; font-size: 13px; font-weight: 800; color: #0284c7; background: rgba(2,132,199,0.15); border: 1px solid rgba(2,132,199,0.3); padding: 3px 10px; border-radius: 6px;">
+          #SK-PRD-{{ original.id|stringformat:"04d" }}
+        </span>
+        {% if not original.status %}
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+          Active &amp; Public on Storefront
+        </span>
+        {% else %}
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">
+          <i class="fas fa-eye-slash"></i> Hidden / Draft
+        </span>
+        {% endif %}
+      </div>
+
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;">
+        {{ original.name }}
+      </h1>
+      <p style="font-size: 12.5px; color: #94a3b8; margin: 0;">
+        {% if original.brand %}Brand: <strong style="color: #f1f5f9; text-transform: uppercase;">{{ original.brand }}</strong> &middot; {% endif %}
+        Primary Category: <strong style="color: #f1f5f9;">{{ original.category.name|default:"Uncategorized" }}</strong> &middot; 
+        Added on {{ original.created_at|date:"F d, Y" }}
+      </p>
+    </div>
+
+    <!-- Quick External Actions -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      {% if product_studio_data.storefront_url %}
+      <a href="{{ product_studio_data.storefront_url }}" target="_blank"
+         style="background: #ffffff; color: #0f172a; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.15s;">
+        <i class="fas fa-external-link-alt" style="color: #ff6000;"></i> View on Storefront
+      </a>
+      {% endif %}
+      <form method="POST" action="{% url 'admin:shop_product_quick_toggle' original.id 'status' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: rgba(255,255,255,0.08); color: #ffffff; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          {% if not original.status %}
+            <i class="fas fa-eye-slash"></i> Hide Product
+          {% else %}
+            <i class="fas fa-globe"></i> Publish Live
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. Product Studio 4-Tile Operational Metrics & Quick Restock Bar -->
+  <!-- ========================================================================= -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+
+    <!-- Tile 1: Live Warehouse Stock -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Warehouse Stock</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-warehouse"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        {{ original.quantity }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">units</span>
+      </div>
+      <div style="margin-top: 6px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+        {% if original.quantity > 10 %}
+          <span style="font-size: 11px; font-weight: 700; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1px 6px; border-radius: 4px;">
+            <i class="fas fa-check"></i> Healthy Stock
+          </span>
+        {% elif original.quantity > 0 %}
+          <span style="font-size: 11px; font-weight: 700; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; padding: 1px 6px; border-radius: 4px;">
+            <i class="fas fa-exclamation-triangle"></i> Low Stock
+          </span>
+        {% else %}
+          <span style="font-size: 11px; font-weight: 700; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 1px 6px; border-radius: 4px;">
+            <i class="fas fa-ban"></i> Out of Stock
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tile 2: Retail Pricing & Margin -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Retail Price</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-tag"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        ₹{{ original.selling_price|floatformat:0 }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+        {% if original.original_price and original.original_price > original.selling_price %}
+          MRP: <span style="text-decoration: line-through;">₹{{ original.original_price|floatformat:0 }}</span>
+          <span style="color: #15803d; font-weight: 700; margin-left: 4px;">-{{ product_studio_data.discount_pct }}% OFF</span>
+        {% else %}
+          Standard Retail Price
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tile 3: Total Stock Valuation -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Stock Valuation</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-coins"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+        ₹{{ product_studio_data.stock_valuation|floatformat:0 }}
+      </div>
+      <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+        {{ original.quantity }} units &times; ₹{{ original.selling_price|floatformat:0 }}
+      </div>
+    </div>
+
+    <!-- Tile 4: Lifetime Demand & Merchandising -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Lifetime Sales</span>
+        <div style="width: 30px; height: 30px; border-radius: 8px; background: #faf5ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+          <i class="fas fa-chart-line"></i>
+        </div>
+      </div>
+      <div style="font-size: 22px; font-weight: 800; color: #7c3aed; letter-spacing: -0.02em;">
+        {{ product_studio_data.lifetime_sales|default:0 }} <span style="font-size: 12px; font-weight: 600; color: #64748b;">sold</span>
+      </div>
+      <div style="margin-top: 6px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+        {% if original.trending %}<span style="font-size: 10px; font-weight: 700; background: #fff7ed; color: #ea580c; padding: 1px 5px; border-radius: 4px;">🔥 Trending</span>{% endif %}
+        {% if original.is_bestseller %}<span style="font-size: 10px; font-weight: 700; background: #faf5ff; color: #7c3aed; padding: 1px 5px; border-radius: 4px;">🏆 Bestseller</span>{% endif %}
+        {% if original.featured %}<span style="font-size: 10px; font-weight: 700; background: #eff6ff; color: #1d4ed8; padding: 1px 5px; border-radius: 4px;">⭐ Featured</span>{% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Stock Replenish Bar -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span style="font-size: 12px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-bolt" style="color: #ff6000;"></i> 1-Click Inventory Replenishment:
+      </span>
+      
+      <form method="POST" action="{% url 'admin:shop_product_quick_stock' original.id 10 %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.15s;">
+          +10 Units
+        </button>
+      </form>
+
+      <form method="POST" action="{% url 'admin:shop_product_quick_stock' original.id 25 %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.15s;">
+          +25 Units
+        </button>
+      </form>
+
+      <form method="POST" action="{% url 'admin:shop_product_quick_stock' original.id 50 %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.15s;">
+          +50 Units
+        </button>
+      </form>
+    </div>
+
+    <div style="font-size: 11px; color: #64748b;">
+      <i class="fas fa-sync-alt" style="margin-right: 4px;"></i> Instantly updates warehouse stock without resetting unsaved fields
+    </div>
+  </div>
+
+</div>
+
+<!-- Render standard Django Admin form, widgets, inlines (gallery, colors, reviews), and save rows -->
+{{ block.super }}
+
+{% endif %}
+
+{% endblock %}

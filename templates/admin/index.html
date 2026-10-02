@@ -1,175 +1,278 @@
 {% extends "admin/index.html" %}
 {% load i18n static %}
 
-{% block content %}
-<div class="shopkart-admin-dashboard" style="margin-bottom: 28px;">
+{% block content_title %}{% endblock %}
 
-  <!-- Executive Banner -->
-  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid rgba(255,255,255,0.08);">
+{% block extrahead %}
+{{ block.super }}
+<style>
+  /* Suppress default page header and breadcrumbs that collide with the Command Center */
+  .app-content-header,
+  .content-header {
+      display: none !important;
+  }
+  .app-content,
+  .content-wrapper > .content {
+      padding-top: 18px !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+  .app-content-header,
+  .content-header {
+      display: none !important;
+  }
+  .app-content,
+  .content-wrapper > .content {
+      padding-top: 18px !important;
+  }
+</style>
+<div class="shopkart-admin-dashboard" style="margin-bottom: 32px;">
+
+  <!-- ========================================================================= -->
+  <!-- 1. Executive Operations Header Banner -->
+  <!-- ========================================================================= -->
+  <div style="background: linear-gradient(135deg, #0b1120 0%, #1e293b 100%); color: #ffffff; border-radius: 18px; padding: 26px 30px; margin-bottom: 26px; box-shadow: 0 12px 28px -6px rgba(0,0,0,0.18); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid rgba(255,255,255,0.08);">
     <div>
-      <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,96,0,0.15); border: 1px solid rgba(255,96,0,0.3); padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; color: #ff8c42; margin-bottom: 12px;">
-        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ff6000;"></span>
-        EXECUTIVE STORE OPERATIONS
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #4ade80;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>
+          LIVE STOREFRONT OPERATIONAL
+        </span>
+        <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">
+          <i class="far fa-calendar-alt" style="margin-right: 4px;"></i> {% now "l, F d, Y" %}
+        </span>
       </div>
-      <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 6px 0; color: #ffffff; letter-spacing: -0.02em;">
+      <h1 style="font-size: 25px; font-weight: 800; margin: 0 0 5px 0; color: #ffffff; letter-spacing: -0.02em;">
         ShopKart Pro Command Center
       </h1>
-      <p style="font-size: 13.5px; color: #94a3b8; margin: 0; max-width: 600px;">
-        Real-time sales revenue, inventory health, order fulfillment pipeline, and customer activity.
+      <p style="font-size: 13px; color: #94a3b8; margin: 0; max-width: 620px;">
+        Real-time sales revenue, automated inventory alerts, order fulfillment pipeline, and customer activity.
       </p>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <a href="/admin/shop/product/add/" style="background: #ff6000; color: #ffffff; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(255,96,0,0.35); transition: all 0.2s;">
+
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="/admin/shop/product/add/" style="background: #ff6000; color: #ffffff; padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 4px 12px rgba(255,96,0,0.35); transition: all 0.2s;">
         <i class="fas fa-plus-circle"></i> Add Product
       </a>
-      <a href="/admin/shop/order/" style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.15);">
-        <i class="fas fa-box"></i> View Orders
+      <a href="/admin/shop/order/" style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;">
+        <i class="fas fa-shopping-bag"></i> View Orders
       </a>
-      <a href="/" target="_blank" style="background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1);">
-        <i class="fas fa-external-link-alt"></i> Live Store
+      <a href="/" target="_blank" style="background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1);">
+        <i class="fas fa-external-link-alt"></i> Storefront
       </a>
     </div>
   </div>
 
-  <!-- Real-Time KPI Cards Grid (4 Cards) -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 28px;">
+  <!-- ========================================================================= -->
+  <!-- 2. Real-Time KPI Cards (4 Cards with True Real Metrics) -->
+  <!-- ========================================================================= -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-bottom: 26px;">
     
-    <!-- KPI 1: Total Revenue -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; overflow: hidden;">
+    <!-- KPI 1: Total Sales Revenue -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); position: relative; transition: transform 0.15s ease;">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Total Sales Revenue</span>
-        <div style="width: 40px; height: 40px; border-radius: 10px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Total Sales Revenue</span>
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 16px;">
           <i class="fas fa-rupee-sign"></i>
         </div>
       </div>
-      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
-        ₹{{ admin_kpi.total_revenue|floatformat:0 }}
+      <div style="font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
+        {{ admin_kpi.total_revenue_display|default:admin_kpi.total_revenue }}
       </div>
-      <div style="margin-top: 10px; font-size: 12px; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-        <i class="fas fa-arrow-trend-up"></i>
-        <span>Active customer orders placed</span>
+      <div style="margin-top: 8px; font-size: 11.5px; color: #16a34a; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fas fa-check-circle"></i> {{ admin_kpi.active_orders_count }} active order{{ admin_kpi.active_orders_count|pluralize }}</span>
+        <span style="color: #64748b; font-size: 11px;">AOV: {{ admin_kpi.avg_order_value_display|default:admin_kpi.avg_order_value }}</span>
       </div>
     </div>
 
-    <!-- KPI 2: Order Fulfillment -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <!-- KPI 2: Fulfillment Pipeline -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Fulfillment Pipeline</span>
-        <div style="width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Fulfillment Pipeline</span>
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 16px;">
           <i class="fas fa-shipping-fast"></i>
         </div>
       </div>
-      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
+      <div style="font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
         {{ admin_kpi.total_orders_count }} Orders
       </div>
-      <div style="margin-top: 10px; font-size: 11.5px; color: #475569; display: flex; gap: 10px; flex-wrap: wrap;">
-        <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_placed_count }} Placed</span>
-        <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_shipped_count }} Shipped</span>
-        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_delivered_count }} Delivered</span>
+      <div style="margin-top: 8px; font-size: 11px; display: flex; gap: 6px; flex-wrap: wrap;">
+        <span style="background: #fef3c7; color: #92400e; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_placed_count }} Placed</span>
+        <span style="background: #dbeafe; color: #1e40af; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_shipped_count }} Shipped</span>
+        <span style="background: #dcfce7; color: #166534; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_delivered_count }} Delivered</span>
+        {% if admin_kpi.orders_cancelled_count %}
+        <span style="background: #fee2e2; color: #991b1b; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{{ admin_kpi.orders_cancelled_count }} Cancelled</span>
+        {% endif %}
       </div>
     </div>
 
-    <!-- KPI 3: Catalog Size -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <!-- KPI 3: Live Catalog & Stock Health -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Catalog Health</span>
-        <div style="width: 40px; height: 40px; border-radius: 10px; background: #fdf2f8; color: #db2777; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Live Catalog</span>
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: #fdf2f8; color: #db2777; display: flex; align-items: center; justify-content: center; font-size: 16px;">
           <i class="fas fa-boxes"></i>
         </div>
       </div>
-      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
-        {{ admin_kpi.active_products_count }} Live Items
+      <div style="font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
+        {{ admin_kpi.active_products_count }} Products
       </div>
-      <div style="margin-top: 10px; font-size: 12px; color: #64748b; font-weight: 500;">
-        Across <strong>{{ admin_kpi.total_categories_count }}</strong> product categories & subcategories
+      <div style="margin-top: 8px; font-size: 11.5px; color: #64748b; font-weight: 500; display: flex; align-items: center; justify-content: space-between;">
+        <span><strong>{{ admin_kpi.total_categories_count }}</strong> Categories</span>
+        {% if admin_kpi.low_stock_products_count > 0 %}
+        <span style="color: #d97706; font-weight: 700;"><i class="fas fa-exclamation-circle"></i> {{ admin_kpi.low_stock_products_count }} Low Stock</span>
+        {% else %}
+        <span style="color: #16a34a; font-weight: 600;"><i class="fas fa-check"></i> Stock Healthy</span>
+        {% endif %}
       </div>
     </div>
 
     <!-- KPI 4: Customers & Engagement -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Customer Base</span>
-        <div style="width: 40px; height: 40px; border-radius: 10px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Audience & Engagement</span>
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 16px;">
           <i class="fas fa-users"></i>
         </div>
       </div>
-      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
-        {{ admin_kpi.total_customers_count }} Users
+      <div style="font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">
+        {{ admin_kpi.total_customers_count }} Customers
       </div>
-      <div style="margin-top: 10px; font-size: 12px; color: #64748b; font-weight: 500;">
-        ⭐ <strong>{{ admin_kpi.total_reviews_count }}</strong> verified product reviews posted
+      <div style="margin-top: 8px; font-size: 11.5px; color: #64748b; font-weight: 500; display: flex; align-items: center; justify-content: space-between;">
+        <span>⭐ <strong>{{ admin_kpi.total_reviews_count }}</strong> Reviews</span>
+        <span>🏷️ <strong>{{ admin_kpi.active_coupons_count }}</strong> Coupons</span>
       </div>
     </div>
 
   </div>
 
-  <!-- Low Stock Alert Banner (if any) -->
-  {% if admin_kpi.low_stock_products_count > 0 %}
-  <div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 5px solid #f59e0b; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <span style="font-size: 20px; color: #d97706;"><i class="fas fa-exclamation-triangle"></i></span>
+  <!-- ========================================================================= -->
+  <!-- 3. Real 7-Day Sales Trend Visualizer (100% Real DB Data) -->
+  <!-- ========================================================================= -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; margin-bottom: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
       <div>
-        <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #92400e;">Inventory Alert: {{ admin_kpi.low_stock_products_count }} Products are running low on stock!</h4>
-        <p style="margin: 2px 0 0 0; font-size: 12px; color: #b45309;">Items with 5 or fewer units remaining:</p>
+        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-chart-bar" style="color: #2563eb;"></i>
+          7-Day Sales &amp; Revenue Velocity
+        </h3>
+        <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0;">
+          Real database sales performance aggregated per calendar day.
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 600;">
+        <span style="display: inline-flex; align-items: center; gap: 5px; color: #2563eb;">
+          <span style="width: 10px; height: 10px; border-radius: 3px; background: #2563eb;"></span> Daily Revenue (₹)
+        </span>
+      </div>
+    </div>
+
+    <!-- Interactive Bar Chart Area -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; height: 160px; padding: 10px 10px 0 10px; border-bottom: 1px solid #e2e8f0;">
+      {% for day in admin_kpi.daily_sales %}
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative;"
+           title="{{ day.date }}: ₹{{ day.revenue|floatformat:0 }} ({{ day.orders_count }} order{{ day.orders_count|pluralize }})">
+        
+        <!-- Revenue value tooltip on top -->
+        <span style="font-size: 10px; font-weight: 700; color: #475569; margin-bottom: 6px; white-space: nowrap;">
+          {% if day.revenue > 0 %}{{ day.revenue_display }}{% else %}₹0{% endif %}
+        </span>
+
+        <!-- Vertical Bar -->
+        <div style="width: 100%; max-width: 36px; height: {{ day.height_percent }}%; border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(37,99,235,0.2);"
+             onmouseover="this.style.background='linear-gradient(180deg, #ff6000 0%, #ea580c 100%)'; this.style.boxShadow='0 4px 10px rgba(255,96,0,0.4)';"
+             onmouseout="this.style.background='linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)'; this.style.boxShadow='0 2px 4px rgba(37,99,235,0.2)';">
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Day Labels below chart -->
+    <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px 0 10px;">
+      {% for day in admin_kpi.daily_sales %}
+      <div style="flex: 1; text-align: center;">
+        <div style="font-size: 11.5px; font-weight: 700; color: #1e293b;">{{ day.day }}</div>
+        <div style="font-size: 10px; color: #94a3b8;">{{ day.date }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. Low Stock Alert Banner (Conditional) -->
+  <!-- ========================================================================= -->
+  {% if admin_kpi.low_stock_products_count > 0 %}
+  <div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 5px solid #f59e0b; border-radius: 14px; padding: 16px 20px; margin-bottom: 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 22px; color: #d97706;"><i class="fas fa-exclamation-triangle"></i></span>
+      <div>
+        <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #92400e;">Inventory Alert: {{ admin_kpi.low_stock_products_count }} Product{{ admin_kpi.low_stock_products_count|pluralize }} Running Low!</h4>
+        <p style="margin: 2px 0 0 0; font-size: 12px; color: #b45309;">Immediate replenishment suggested for products with 5 or fewer items remaining.</p>
       </div>
     </div>
     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
       {% for lsp in admin_kpi.low_stock_products %}
-      <a href="/admin/shop/product/{{ lsp.id }}/change/" style="background: #ffffff; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; color: #92400e; text-decoration: none;">
-        {{ lsp.name }} ({{ lsp.quantity }} left)
+      <a href="/admin/shop/product/{{ lsp.id }}/change/" style="background: #ffffff; border: 1px solid #fde68a; padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; color: #92400e; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+        {{ lsp.name }} ({{ lsp.quantity }} left) &rarr;
       </a>
       {% endfor %}
     </div>
   </div>
   {% endif %}
 
-  <!-- 2-Column Operational Grid: Recent Orders & Trending Products -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px;">
+  <!-- ========================================================================= -->
+  <!-- 5. Operational Tables: Recent Orders & Top Selling Products -->
+  <!-- ========================================================================= -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 26px;">
     
     <!-- Recent Customer Orders Card -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-      <div style="padding: 16px 22px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #0f172a;">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; color: #0f172a;">
           <i class="fas fa-shopping-bag" style="color: #ff6000;"></i>
           <span>Recent Customer Orders</span>
         </div>
-        <a href="/admin/shop/order/" style="font-size: 12px; font-weight: 600; color: #ff6000; text-decoration: none;">
-          View All &rarr;
+        <a href="/admin/shop/order/" style="font-size: 12px; font-weight: 700; color: #ff6000; text-decoration: none;">
+          All Orders &rarr;
         </a>
       </div>
       <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
           <thead>
             <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">
-              <th style="padding: 10px 18px;">Order</th>
-              <th style="padding: 10px 14px;">Customer</th>
-              <th style="padding: 10px 14px;">Total</th>
+              <th style="padding: 10px 16px;">Order</th>
+              <th style="padding: 10px 12px;">Customer</th>
+              <th style="padding: 10px 12px;">Total</th>
               <th style="padding: 10px 14px;">Status</th>
             </tr>
           </thead>
           <tbody>
             {% for o in admin_kpi.recent_orders %}
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-              <td style="padding: 12px 18px;">
-                <a href="/admin/shop/order/{{ o.id }}/change/" style="font-weight: 700; color: #ff6000; text-decoration: none;">
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.1s ease;">
+              <td style="padding: 12px 16px;">
+                <a href="/admin/shop/order/{{ o.id }}/change/" style="font-weight: 800; color: #0284c7; text-decoration: none;">
                   #{{ o.id }}
                 </a>
               </td>
-              <td style="padding: 12px 14px; font-weight: 600; color: #1e293b;">
+              <td style="padding: 12px 12px; font-weight: 600; color: #1e293b;">
                 {{ o.user.username }}
               </td>
-              <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">
+              <td style="padding: 12px 12px; font-weight: 800; color: #0f172a;">
                 ₹{{ o.total_amount|floatformat:0 }}
               </td>
               <td style="padding: 12px 14px;">
                 {% if o.status == 'delivered' %}
-                <span style="background: #ecfdf5; color: #047857; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #a7f3d0;">Delivered</span>
+                <span style="background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #a7f3d0;">Delivered</span>
                 {% elif o.status == 'shipped' %}
-                <span style="background: #eff6ff; color: #1d4ed8; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #bfdbfe;">Shipped</span>
+                <span style="background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #bfdbfe;">Shipped</span>
                 {% elif o.status == 'cancelled' %}
-                <span style="background: #fef2f2; color: #b91c1c; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #fecaca;">Cancelled</span>
+                <span style="background: #fef2f2; color: #b91c1c; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #fecaca;">Cancelled</span>
                 {% else %}
-                <span style="background: #fff7ed; color: #c2410c; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #fed7aa;">Placed</span>
+                <span style="background: #fff7ed; color: #c2410c; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid #fed7aa;">Placed</span>
                 {% endif %}
               </td>
             </tr>
@@ -183,61 +286,100 @@
       </div>
     </div>
 
-    <!-- Featured & Trending Products Card -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-      <div style="padding: 16px 22px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #0f172a;">
+    <!-- Top Selling Products / Catalog Highlights -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; color: #0f172a;">
           <i class="fas fa-fire" style="color: #ff6000;"></i>
-          <span>Featured & Trending Catalog</span>
+          <span>Top Velocity Products</span>
         </div>
-        <a href="/admin/shop/product/" style="font-size: 12px; font-weight: 600; color: #ff6000; text-decoration: none;">
-          Manage All &rarr;
+        <a href="/admin/shop/product/" style="font-size: 12px; font-weight: 700; color: #ff6000; text-decoration: none;">
+          All Products &rarr;
         </a>
       </div>
       <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
           <thead>
             <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">
-              <th style="padding: 10px 18px;">Product</th>
-              <th style="padding: 10px 14px;">Price</th>
-              <th style="padding: 10px 14px;">Stock</th>
-              <th style="padding: 10px 14px;">Action</th>
+              <th style="padding: 10px 16px;">Product Name</th>
+              <th style="padding: 10px 14px; text-align: right;">Units Sold</th>
             </tr>
           </thead>
           <tbody>
-            {% for p in admin_kpi.featured_products %}
+            {% for item in admin_kpi.top_selling_products %}
             <tr style="border-bottom: 1px solid #f1f5f9;">
-              <td style="padding: 12px 18px;">
-                <div style="font-weight: 600; color: #0f172a;">{{ p.name }}</div>
-                <div style="font-size: 11px; color: #64748b;">{{ p.brand }}</div>
+              <td style="padding: 12px 16px; font-weight: 700; color: #0f172a;">
+                {{ item.product_name }}
               </td>
-              <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">
-                ₹{{ p.selling_price|floatformat:0 }}
-              </td>
-              <td style="padding: 12px 14px;">
-                {% if p.quantity > 5 %}
-                <span style="color: #16a34a; font-weight: 700;">{{ p.quantity }} units</span>
-                {% elif p.quantity > 0 %}
-                <span style="color: #d97706; font-weight: 700;">{{ p.quantity }} low</span>
-                {% else %}
-                <span style="color: #dc2626; font-weight: 700;">Out of Stock</span>
-                {% endif %}
-              </td>
-              <td style="padding: 12px 14px;">
-                <a href="/admin/shop/product/{{ p.id }}/change/" style="color: #ff6000; font-weight: 600; text-decoration: none;">
-                  Edit &rarr;
-                </a>
+              <td style="padding: 12px 14px; text-align: right;">
+                <span style="background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; border: 1px solid #bfdbfe;">
+                  {{ item.total_qty }} unit{{ item.total_qty|pluralize }}
+                </span>
               </td>
             </tr>
             {% empty %}
-            <tr>
-              <td colspan="4" style="padding: 24px; text-align: center; color: #94a3b8; font-style: italic;">No featured products yet.</td>
+            {% for p in admin_kpi.featured_products|slice:":4" %}
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 12px 16px; font-weight: 700; color: #0f172a;">
+                {{ p.name }}
+              </td>
+              <td style="padding: 12px 14px; text-align: right;">
+                <span style="color: #64748b; font-size: 11px;">₹{{ p.selling_price|floatformat:0 }}</span>
+              </td>
             </tr>
+            {% endfor %}
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 6. Quick Management Shortcuts Hub -->
+  <!-- ========================================================================= -->
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+    
+    <a href="/admin/shop/coupon/" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-decoration: none; display: flex; align-items: center; gap: 12px; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+      <div style="width: 36px; height: 36px; border-radius: 8px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+        <i class="fas fa-tags"></i>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Coupons</div>
+        <div style="font-size: 11px; color: #64748b;">{{ admin_kpi.active_coupons_count }} Active codes</div>
+      </div>
+    </a>
+
+    <a href="/admin/shop/review/" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-decoration: none; display: flex; align-items: center; gap: 12px; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+      <div style="width: 36px; height: 36px; border-radius: 8px; background: #fefce8; color: #ca8a04; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+        <i class="fas fa-star"></i>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Product Reviews</div>
+        <div style="font-size: 11px; color: #64748b;">{{ admin_kpi.total_reviews_count }} Submitted</div>
+      </div>
+    </a>
+
+    <a href="/admin/shop/contactmessage/" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-decoration: none; display: flex; align-items: center; gap: 12px; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+      <div style="width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+        <i class="fas fa-headset"></i>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Support Desk</div>
+        <div style="font-size: 11px; color: #64748b;">{{ admin_kpi.unresolved_tickets_count }} Unresolved</div>
+      </div>
+    </a>
+
+    <a href="/admin/shop/category/" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-decoration: none; display: flex; align-items: center; gap: 12px; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+      <div style="width: 36px; height: 36px; border-radius: 8px; background: #fdf2f8; color: #db2777; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Categories</div>
+        <div style="font-size: 11px; color: #64748b;">{{ admin_kpi.total_categories_count }} Taxonomies</div>
+      </div>
+    </a>
 
   </div>
 
