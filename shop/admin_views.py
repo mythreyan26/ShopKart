@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
-from django.db.models import Sum, Q, Count, F
+from django.db.models import Sum, Q, Count, F, Avg
 from django.utils import timezone
 from django.utils.text import slugify
 from django.contrib.auth.models import User
@@ -14,7 +14,8 @@ from django.contrib import admin
 
 from .models import (
     Order, OrderItem, Product, ProductColor, ProductColorImage,
-    ProductImage, Category, ContactMessage, Review, Coupon
+    ProductImage, Category, ContactMessage, Review, Coupon,
+    Cart, Wishlist, Address
 )
 
 staff_required = user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url='/admin/login/')
@@ -22,16 +23,111 @@ staff_required = user_passes_test(lambda u: u.is_authenticated and u.is_staff, l
 
 @staff_required
 def admin_dashboard_redirect(request):
-    return redirect('/admin/')
+    return redirect('admin_orders')
 
 
 # ==============================================================================
-# 1. Orders & Revenue Dashboard (Redirected to Django Admin)
+# 1. Orders & Revenue Dashboard (ShopKart Studio - Image 1 Replica)
 # ==============================================================================
 
 @staff_required
 def admin_orders(request):
-    return redirect('/admin/shop/order/')
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('q', '').strip()
+
+    orders_qs = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
+
+    if status_filter and status_filter != 'all':
+        orders_qs = orders_qs.filter(status=status_filter)
+
+    if search_query:
+        orders_qs = orders_qs.filter(
+            Q(tracking_no__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(items__product_name__icontains=search_query)
+        ).distinct()
+
+    paginator = Paginator(orders_qs, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    all_orders = Order.objects.all()
+    total_earnings = all_orders.exclude(status='cancelled').aggregate(s=Sum('total_amount'))['s'] or 0.0
+    total_orders_count = all_orders.count()
+    
+    now = timezone.now()
+    earning_this_month = all_orders.filter(
+        created_at__year=now.year,
+        created_at__month=now.month
+    ).exclude(status='cancelled').aggregate(s=Sum('total_amount'))['s'] or 0.0
+
+    pending_amount = all_orders.filter(
+        status__in=['placed', 'confirmed', 'shipped', 'out_for_delivery']
+    ).aggregate(s=Sum('total_amount'))['s'] or 0.0
+
+    total_users_count = User.objects.count()
+
+    # Recent Orders for Image 1 Recent Order table (top 5)
+    recent_orders_table = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')[:5]
+
+    # Recent Sales for Image 1 Recent Sales card (top 5 items sold)
+    recent_sales = OrderItem.objects.select_related('order', 'product').exclude(
+        order__status='cancelled'
+    ).order_by('-order__created_at')[:5]
+
+    # Top Categories for Gauge Chart
+    categories_data = []
+    parent_categories = Category.objects.filter(parent__isnull=True, status=0)[:4]
+    for cat in parent_categories:
+        cat_sales = OrderItem.objects.filter(
+            product__category=cat
+        ).exclude(order__status='cancelled').aggregate(s=Sum('price'))['s'] or 0.0
+        categories_data.append({
+            'name': cat.name,
+            'sales': cat_sales,
+        })
+    total_cat_sales = sum(c['sales'] for c in categories_data) or 1.0
+    for c in categories_data:
+        c['percent'] = round((c['sales'] / total_cat_sales) * 100, 1)
+
+    # Comprehensive Section Statistics for All Shop Modules (matching user screenshot)
+    section_stats = {
+        'products': Product.objects.count(),
+        'categories': Category.objects.count(),
+        'product_colors': ProductColor.objects.count(),
+        'orders': total_orders_count,
+        'order_items': OrderItem.objects.count(),
+        'coupons': Coupon.objects.count(),
+        'active_coupons': Coupon.objects.filter(active=True).count(),
+        'reviews': Review.objects.count(),
+        'addresses': Address.objects.count(),
+        'contact_messages': ContactMessage.objects.count(),
+        'unresolved_support': ContactMessage.objects.filter(is_resolved=False).count(),
+        'carts': Cart.objects.count(),
+        'wishlists': Wishlist.objects.count(),
+        'low_stock': Product.objects.filter(quantity__lte=5).count(),
+        'users': total_users_count,
+    }
+
+    return render(request, 'shop/admin/orders.html', {
+        'orders': page_obj,
+        'recent_orders_table': recent_orders_table,
+        'recent_sales': recent_sales,
+        'total_earnings': total_earnings,
+        'total_orders_count': total_orders_count,
+        'earning_this_month': earning_this_month,
+        'pending_amount': pending_amount,
+        'total_users_count': total_users_count,
+        'top_categories': categories_data,
+        'section_stats': section_stats,
+        'status_choices': Order.STATUS_CHOICES,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'active_menu': 'dashboard',
+        'page_title': 'Dashboard',
+    })
 
 
 @staff_required
@@ -508,7 +604,9 @@ def admin_analytics_view(request):
         'top_coupon_code': top_coupon_code,
         'total_reviews': Review.objects.count(),
     }
-    return render(request, 'admin/analytics.html', context)
+    context['active_menu'] = 'analytics'
+    context['page_title'] = 'Executive Analytics'
+    return render(request, 'shop/admin/analytics.html', context)
 
 
 @staff_member_required
@@ -516,12 +614,30 @@ def admin_inventory_view(request):
     """
     Centralized Warehouse Inventory & Stock Control Studio.
     """
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        new_quantity = request.POST.get('quantity')
+        if product_id and new_quantity is not None:
+            p = get_object_or_404(Product, id=product_id)
+            p.quantity = max(0, int(new_quantity))
+            p.save(update_fields=['quantity'])
+            messages.success(request, f"Updated stock quantity for '{p.name}' to {p.quantity} units.")
+            return redirect('admin_inventory')
+
     context = admin.site.each_context(request)
     context['title'] = "Warehouse & Inventory Management Studio"
     context['subtitle'] = "Real-Time Physical Stock Control"
 
     filter_param = request.GET.get('filter', '')
+    search_query = request.GET.get('q', '').strip()
     products_qs = Product.objects.select_related('category').order_by('quantity', 'name')
+
+    if search_query:
+        products_qs = products_qs.filter(
+            Q(name__icontains=search_query) |
+            Q(brand__icontains=search_query) |
+            Q(category__name__icontains=search_query)
+        )
 
     total_units = sum(p.quantity for p in Product.objects.all())
     total_valuation = sum(p.quantity * p.selling_price for p in Product.objects.all())
@@ -556,6 +672,391 @@ def admin_inventory_view(request):
         'total_valuation_display': valuation_display,
         'low_stock_count': low_stock_count,
         'out_of_stock_count': out_of_stock_count,
+        'filter_param': filter_param,
+        'search_query': search_query,
     }
-    return render(request, 'admin/inventory.html', context)
+    context['active_menu'] = 'inventory'
+    context['page_title'] = 'Warehouse Stock Control'
+    return render(request, 'shop/admin/inventory.html', context)
+
+
+# ==============================================================================
+# 5. Product Colors Management Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_product_colors(request):
+    search_query = request.GET.get('q', '').strip()
+    product_id = request.GET.get('product', '')
+
+    colors_qs = ProductColor.objects.select_related('product', 'product__category').order_by('-created_at')
+
+    if search_query:
+        colors_qs = colors_qs.filter(
+            Q(name__icontains=search_query) |
+            Q(color_code__icontains=search_query) |
+            Q(product__name__icontains=search_query)
+        )
+
+    if product_id:
+        colors_qs = colors_qs.filter(product_id=product_id)
+
+    paginator = Paginator(colors_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    all_products = Product.objects.filter(status=False).order_by('name')
+
+    total_variants = ProductColor.objects.count()
+    low_stock_variants = ProductColor.objects.filter(quantity__lte=5).count()
+    default_variants = ProductColor.objects.filter(is_default=True).count()
+    products_with_variants = Product.objects.filter(colors__isnull=False).distinct().count()
+
+    return render(request, 'shop/admin/product_colors.html', {
+        'colors': page_obj,
+        'products': all_products,
+        'search_query': search_query,
+        'selected_product': product_id,
+        'total_variants': total_variants,
+        'low_stock_variants': low_stock_variants,
+        'default_variants': default_variants,
+        'products_with_variants': products_with_variants,
+        'active_menu': 'product_colors',
+        'page_title': 'Product colors',
+    })
+
+
+@staff_required
+def admin_product_color_create(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        name = request.POST.get('name', '').strip()
+        color_code = request.POST.get('color_code', '#000000').strip()
+        price = request.POST.get('price')
+        original_price = request.POST.get('original_price')
+        quantity = int(request.POST.get('quantity') or 10)
+        is_default = request.POST.get('is_default') == 'on'
+        image = request.FILES.get('image')
+
+        product = get_object_or_404(Product, id=product_id)
+        if is_default:
+            product.colors.update(is_default=False)
+
+        ProductColor.objects.create(
+            product=product,
+            name=name,
+            color_code=color_code,
+            price=float(price) if price else None,
+            original_price=float(original_price) if original_price else None,
+            quantity=quantity,
+            is_default=is_default,
+            image=image or product.product_image,
+        )
+        messages.success(request, f"Colorway '{name}' created for {product.name}!")
+    return redirect('admin_product_colors')
+
+
+@staff_required
+@require_POST
+def admin_product_color_delete(request, color_id):
+    color = get_object_or_404(ProductColor, id=color_id)
+    name = color.name
+    pname = color.product.name
+    color.delete()
+    messages.success(request, f"Colorway '{name}' of {pname} deleted.")
+    return redirect('admin_product_colors')
+
+
+# ==============================================================================
+# 6. Order Items Management Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_order_items(request):
+    search_query = request.GET.get('q', '').strip()
+
+    items_qs = OrderItem.objects.select_related('order', 'order__user', 'product').order_by('-order__created_at')
+
+    if search_query:
+        items_qs = items_qs.filter(
+            Q(product_name__icontains=search_query) |
+            Q(order__tracking_no__icontains=search_query) |
+            Q(order__id__icontains=search_query) |
+            Q(order__user__username__icontains=search_query)
+        )
+
+    paginator = Paginator(items_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_units_sold = OrderItem.objects.exclude(order__status='cancelled').aggregate(s=Sum('quantity'))['s'] or 0
+    total_line_items = OrderItem.objects.count()
+    gross_revenue = sum(item.price * item.quantity for item in OrderItem.objects.exclude(order__status='cancelled'))
+
+    return render(request, 'shop/admin/order_items.html', {
+        'items': page_obj,
+        'search_query': search_query,
+        'total_units_sold': total_units_sold,
+        'total_line_items': total_line_items,
+        'gross_revenue': gross_revenue,
+        'active_menu': 'order_items',
+        'page_title': 'Order items',
+    })
+
+
+# ==============================================================================
+# 7. Coupons Management Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_coupons(request):
+    search_query = request.GET.get('q', '').strip()
+
+    coupons_qs = Coupon.objects.all().order_by('-created_at')
+    if search_query:
+        coupons_qs = coupons_qs.filter(
+            Q(code__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+
+    paginator = Paginator(coupons_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_coupons = Coupon.objects.count()
+    active_coupons = Coupon.objects.filter(active=True).count()
+    percentage_coupons = Coupon.objects.filter(discount_type='percentage').count()
+    fixed_coupons = Coupon.objects.filter(discount_type='fixed').count()
+
+    return render(request, 'shop/admin/coupons.html', {
+        'coupons': page_obj,
+        'search_query': search_query,
+        'total_coupons': total_coupons,
+        'active_coupons': active_coupons,
+        'percentage_coupons': percentage_coupons,
+        'fixed_coupons': fixed_coupons,
+        'active_menu': 'coupons',
+        'page_title': 'Coupons',
+    })
+
+
+@staff_required
+def admin_coupon_create(request):
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip().upper()
+        discount_type = request.POST.get('discount_type', 'percentage')
+        discount_value = float(request.POST.get('discount_value') or 10.0)
+        min_order_amount = float(request.POST.get('min_order_amount') or 0.0)
+        max_discount = request.POST.get('max_discount')
+        description = request.POST.get('description', '').strip()
+        active = request.POST.get('active') == 'on'
+
+        if Coupon.objects.filter(code=code).exists():
+            messages.error(request, f"Coupon code '{code}' already exists.")
+        else:
+            Coupon.objects.create(
+                code=code,
+                discount_type=discount_type,
+                discount_value=discount_value,
+                min_order_amount=min_order_amount,
+                max_discount=float(max_discount) if max_discount else None,
+                description=description,
+                active=active,
+            )
+            messages.success(request, f"Coupon '{code}' created successfully!")
+    return redirect('admin_coupons')
+
+
+@staff_required
+@require_POST
+def admin_coupon_toggle(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    coupon.active = not coupon.active
+    coupon.save(update_fields=['active'])
+    status_str = "Activated" if coupon.active else "Deactivated"
+    messages.success(request, f"Coupon '{coupon.code}' {status_str}.")
+    return redirect('admin_coupons')
+
+
+@staff_required
+@require_POST
+def admin_coupon_delete(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    code = coupon.code
+    coupon.delete()
+    messages.success(request, f"Coupon '{code}' deleted.")
+    return redirect('admin_coupons')
+
+
+# ==============================================================================
+# 8. Reviews Management Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_reviews(request):
+    search_query = request.GET.get('q', '').strip()
+    rating_filter = request.GET.get('rating', '')
+
+    reviews_qs = Review.objects.select_related('product', 'user').order_by('-created_at')
+
+    if search_query:
+        reviews_qs = reviews_qs.filter(
+            Q(product__name__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(title__icontains=search_query) |
+            Q(comment__icontains=search_query)
+        )
+
+    if rating_filter:
+        reviews_qs = reviews_qs.filter(rating=int(rating_filter))
+
+    paginator = Paginator(reviews_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_reviews = Review.objects.count()
+    avg_rating_val = Review.objects.aggregate(a=Avg('rating'))['a'] or 5.0
+    avg_rating = round(avg_rating_val, 1)
+    five_star_count = Review.objects.filter(rating=5).count()
+    critical_count = Review.objects.filter(rating__lte=2).count()
+
+    return render(request, 'shop/admin/reviews.html', {
+        'reviews': page_obj,
+        'search_query': search_query,
+        'rating_filter': rating_filter,
+        'total_reviews': total_reviews,
+        'avg_rating': avg_rating,
+        'five_star_count': five_star_count,
+        'critical_count': critical_count,
+        'active_menu': 'reviews',
+        'page_title': 'Reviews',
+    })
+
+
+@staff_required
+@require_POST
+def admin_review_delete(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    pname = review.product.name
+    review.delete()
+    messages.success(request, f"Review for '{pname}' deleted.")
+    return redirect('admin_reviews')
+
+
+# ==============================================================================
+# 9. Addresses Directory Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_addresses(request):
+    search_query = request.GET.get('q', '').strip()
+
+    addr_qs = Address.objects.select_related('user').order_by('-created_at')
+
+    if search_query:
+        addr_qs = addr_qs.filter(
+            Q(full_name__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(city__icontains=search_query) |
+            Q(state__icontains=search_query) |
+            Q(pincode__icontains=search_query) |
+            Q(user__username__icontains=search_query)
+        )
+
+    paginator = Paginator(addr_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_addresses = Address.objects.count()
+    unique_users = Address.objects.values('user').distinct().count()
+    default_addresses = Address.objects.filter(is_default=True).count()
+
+    return render(request, 'shop/admin/addresses.html', {
+        'addresses': page_obj,
+        'search_query': search_query,
+        'total_addresses': total_addresses,
+        'unique_users': unique_users,
+        'default_addresses': default_addresses,
+        'active_menu': 'addresses',
+        'page_title': 'Addresses',
+    })
+
+
+# ==============================================================================
+# 10. Active Carts Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_carts(request):
+    search_query = request.GET.get('q', '').strip()
+
+    carts_qs = Cart.objects.select_related('user', 'product', 'color').order_by('-created_at')
+
+    if search_query:
+        carts_qs = carts_qs.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(product__name__icontains=search_query)
+        )
+
+    paginator = Paginator(carts_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_carts = Cart.objects.count()
+    total_qty = Cart.objects.aggregate(s=Sum('product_qty'))['s'] or 0
+    total_pipeline_val = sum(c.total_price for c in Cart.objects.all())
+
+    return render(request, 'shop/admin/carts.html', {
+        'carts': page_obj,
+        'search_query': search_query,
+        'total_carts': total_carts,
+        'total_qty': total_qty,
+        'total_pipeline_val': total_pipeline_val,
+        'active_menu': 'carts',
+        'page_title': 'Carts',
+    })
+
+
+@staff_required
+@require_POST
+def admin_cart_delete(request, cart_id):
+    cart = get_object_or_404(Cart, id=cart_id)
+    cart.delete()
+    messages.success(request, "Cart item removed.")
+    return redirect('admin_carts')
+
+
+# ==============================================================================
+# 11. Wishlists Studio (Miguel Studio Theme)
+# ==============================================================================
+
+@staff_required
+def admin_wishlists(request):
+    search_query = request.GET.get('q', '').strip()
+
+    wishlist_qs = Wishlist.objects.select_related('user', 'product', 'product__category').order_by('-created_at')
+
+    if search_query:
+        wishlist_qs = wishlist_qs.filter(
+            Q(user__username__icontains=search_query) |
+            Q(product__name__icontains=search_query)
+        )
+
+    paginator = Paginator(wishlist_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    total_wishlists = Wishlist.objects.count()
+    unique_users = Wishlist.objects.values('user').distinct().count()
+
+    return render(request, 'shop/admin/wishlists.html', {
+        'wishlists': page_obj,
+        'search_query': search_query,
+        'total_wishlists': total_wishlists,
+        'unique_users': unique_users,
+        'active_menu': 'wishlists',
+        'page_title': 'Wishlists',
+    })
+
 

@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Avg
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.utils import timezone
 
@@ -204,6 +205,10 @@ def collectionsview(request, name):
     if category.parent:
         sibling_subcategories = category.parent.subcategories.filter(status=0)
 
+    # Root department and its subcategories for the horizontal pills
+    root_category = category.parent if category.parent else category
+    department_subcategories = root_category.subcategories.filter(status=0) if root_category else []
+
     return render(request, "shop/products/index.html", {
         "products": page_obj,
         "page_obj": page_obj,
@@ -212,6 +217,8 @@ def collectionsview(request, name):
         "category_name": category.name,
         "subcategories": subcategories,
         "sibling_subcategories": sibling_subcategories,
+        "root_category": root_category,
+        "department_subcategories": department_subcategories,
         "brands": brands,
         "selected_brand": selected_brand,
         "in_stock": in_stock,
@@ -307,10 +314,18 @@ def product_details(request, cname, pname):
     positive_count = reviews_all.filter(rating__gte=4).count()
     recommend_pct = round((positive_count / total_reviews * 100) if total_reviews > 0 else 100)
 
+    # Accessories for 'Frequently Bought Together' bundle (Reference Image 5)
+    accessories = Product.objects.filter(status=0).exclude(pk=product.pk).order_by('selling_price')[:3]
+    
+    # Products for 'Compare with similar products' matrix (Reference Image 5)
+    compare_products = list(related[:3])
+
     return render(request, "shop/products/product_details.html", {
         "products": product,
         "product": product,
         "related": related,
+        "accessories": accessories,
+        "compare_products": compare_products,
         "reviews": reviews,
         "total_reviews": total_reviews,
         "rating_breakdown": rating_breakdown,
@@ -993,4 +1008,28 @@ def terms_of_service(request):
 
 def privacy_policy(request):
     return render(request, "shop/privacy.html")
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def ai_chat_view(request):
+    """
+    Storefront Google AI Studio Gemini Assistant endpoint.
+    """
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    prompt = data.get('prompt', '').strip()
+    if not prompt:
+        return JsonResponse({'success': False, 'error': 'Prompt cannot be empty.'}, status=400)
+
+    context_type = data.get('context_type', 'shopping')
+    product_id = data.get('product_id')
+
+    from .ai_service import query_gemini_ai
+    result = query_gemini_ai(prompt, context_type=context_type, product_id=product_id)
+    return JsonResponse(result, status=200 if result.get('success') else 400)
+
 

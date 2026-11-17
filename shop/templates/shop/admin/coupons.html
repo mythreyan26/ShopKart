@@ -1,0 +1,232 @@
+{% extends 'shop/admin/layout.html' %}
+{% block title %}Coupons &amp; Promotions | ShopKart Admin{% endblock title %}
+{% block topbar_title %}Coupons{% endblock topbar_title %}
+
+{% block admin_content %}
+<div class="space-y-6" x-data="{ addCouponModal: false }">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Coupons &amp; Discounts</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Manage promotional codes, percentage discounts, minimum thresholds, and campaigns.</p>
+    </div>
+    
+    <button type="button" @click="addCouponModal = true" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
+      <span>+</span>
+      <span>Create Coupon</span>
+    </button>
+  </div>
+
+  <!-- Metric Badges Row -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Coupons</div>
+      <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1">{{ total_coupons }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Configured vouchers</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Active Promos</div>
+      <div class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">{{ active_coupons }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Redeemable at checkout</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Percentage (%)</div>
+      <div class="text-xl sm:text-2xl font-black text-blue-600 mt-1">{{ percentage_coupons }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Relative markdowns</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Fixed (₹)</div>
+      <div class="text-xl sm:text-2xl font-black text-purple-600 mt-1">{{ fixed_coupons }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Flat cash deductions</p>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+    
+    <!-- Filter Toolbar -->
+    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <h2 class="text-base font-bold text-slate-900">Configured Promotion Codes</h2>
+
+      <form method="get" class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-72">
+          <input type="text" name="q" value="{{ search_query }}" placeholder="Search coupon code or description..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        {% if search_query %}
+        <a href="{% url 'admin_coupons' %}" class="text-xs font-bold text-slate-500 hover:text-blue-600 transition">Reset</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[11px] tracking-wider bg-slate-50/50">
+            <th class="py-3.5 px-5">Coupon Code</th>
+            <th class="py-3.5 px-4">Discount</th>
+            <th class="py-3.5 px-4">Min Spend</th>
+            <th class="py-3.5 px-4">Max Cap</th>
+            <th class="py-3.5 px-4">Description</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          {% if coupons %}
+            {% for c in coupons %}
+            <tr class="hover:bg-slate-50/70 transition">
+              <!-- Coupon Code -->
+              <td class="py-4 px-5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl font-mono font-bold text-xs bg-slate-100 text-slate-900 border border-slate-200 shadow-xs">
+                  🎟️ {{ c.code }}
+                </span>
+              </td>
+
+              <!-- Discount -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                {% if c.discount_type == 'percentage' %}
+                  <span class="text-blue-600">{{ c.discount_value }}% OFF</span>
+                {% else %}
+                  <span class="text-emerald-600">₹{{ c.discount_value|floatformat:0 }} OFF</span>
+                {% endif %}
+              </td>
+
+              <!-- Min Spend -->
+              <td class="py-4 px-4 whitespace-nowrap text-slate-600 font-medium">
+                {% if c.min_order_amount > 0 %}
+                  ₹{{ c.min_order_amount|floatformat:0 }}
+                {% else %}
+                  <span class="text-slate-400">No minimum</span>
+                {% endif %}
+              </td>
+
+              <!-- Max Cap -->
+              <td class="py-4 px-4 whitespace-nowrap text-slate-600 font-medium">
+                {% if c.max_discount %}
+                  ₹{{ c.max_discount|floatformat:0 }}
+                {% else %}
+                  <span class="text-slate-400">Unlimited</span>
+                {% endif %}
+              </td>
+
+              <!-- Description -->
+              <td class="py-4 px-4 max-w-xs truncate text-slate-500">
+                {{ c.description|default:"No description" }}
+              </td>
+
+              <!-- Status Toggle -->
+              <td class="py-4 px-4 whitespace-nowrap text-center">
+                <form action="{% url 'admin_coupon_toggle' c.id %}" method="post" class="inline">
+                  {% csrf_token %}
+                  {% if c.active %}
+                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition" title="Click to deactivate">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                    </button>
+                  {% else %}
+                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200 transition" title="Click to activate">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactive
+                    </button>
+                  {% endif %}
+                </form>
+              </td>
+
+              <!-- Actions -->
+              <td class="py-4 px-5 whitespace-nowrap text-right">
+                <form action="{% url 'admin_coupon_delete' c.id %}" method="post" class="inline" onsubmit="return confirm('Delete coupon code {{ c.code }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="p-1.5 text-rose-500 hover:text-rose-700 transition" title="Delete Coupon">
+                    🗑️ Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <p class="text-3xl mb-2">🏷️</p>
+                <p class="font-medium text-slate-600">No promotion coupons found</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if coupons.has_other_pages %}
+    <div class="p-5 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+      <div>Page {{ coupons.number }} of {{ coupons.paginator.num_pages }}</div>
+      <div class="flex items-center gap-1.5">
+        {% if coupons.has_previous %}
+        <a href="?page={{ coupons.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&larr;</a>
+        {% endif %}
+        <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">{{ coupons.number }}</span>
+        {% if coupons.has_next %}
+        <a href="?page={{ coupons.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Add Coupon Modal -->
+  <div x-show="addCouponModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div @click.away="addCouponModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl ring-1 ring-slate-200">
+      <h3 class="text-base font-bold text-slate-900 mb-4">Create Promotion Coupon</h3>
+      
+      <form action="{% url 'admin_coupon_create' %}" method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Coupon Code *</label>
+          <input type="text" name="code" required placeholder="e.g. FESTIVE20, WELCOME100" class="w-full uppercase bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Discount Type</label>
+            <select name="discount_type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount (₹)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Discount Value *</label>
+            <input type="number" step="0.1" name="discount_value" required value="15" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Min Spend (₹)</label>
+            <input type="number" name="min_order_amount" value="500" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Max Cap (₹)</label>
+            <input type="number" name="max_discount" placeholder="Leave blank if unlimited" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
+          <input type="text" name="description" placeholder="e.g. 15% discount across all store collections" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" name="active" id="act" checked class="rounded text-blue-600 focus:ring-blue-500">
+          <label for="act" class="text-xs text-slate-700 font-medium">Activate immediately upon creation</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3">
+          <button type="button" @click="addCouponModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition">Create Coupon</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock admin_content %}

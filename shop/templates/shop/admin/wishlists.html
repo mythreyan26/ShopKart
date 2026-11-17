@@ -1,0 +1,149 @@
+{% extends 'shop/admin/layout.html' %}
+{% block title %}Customer Wishlists | ShopKart Admin{% endblock title %}
+{% block topbar_title %}Wishlists{% endblock topbar_title %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Customer Wishlists</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Saved-for-later items, buyer demand telemetry, and product interest indicators.</p>
+    </div>
+  </div>
+
+  <!-- Metric Badges Row -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Wishlisted Items</div>
+      <div class="text-2xl font-black text-slate-900 mt-1">{{ total_wishlists }} saved</div>
+      <p class="text-[11px] text-slate-400 mt-1">Products bookmarked for future purchases</p>
+    </div>
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Shoppers with Wishlists</div>
+      <div class="text-2xl font-black text-purple-600 mt-1">{{ unique_users }} customers</div>
+      <p class="text-[11px] text-slate-400 mt-1">Actively tracking favorite merchandise</p>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+    
+    <!-- Filter Toolbar -->
+    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <h2 class="text-base font-bold text-slate-900">Wishlist Items List</h2>
+
+      <form method="get" class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-72">
+          <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer, username, product..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        {% if search_query %}
+        <a href="{% url 'admin_wishlists' %}" class="text-xs font-bold text-slate-500 hover:text-blue-600 transition">Reset</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[11px] tracking-wider bg-slate-50/50">
+            <th class="py-3.5 px-5">Customer</th>
+            <th class="py-3.5 px-4">Product</th>
+            <th class="py-3.5 px-4">Category</th>
+            <th class="py-3.5 px-4">Price</th>
+            <th class="py-3.5 px-4 text-center">Stock Status</th>
+            <th class="py-3.5 px-5 text-right">Saved Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          {% if wishlists %}
+            {% for w in wishlists %}
+            <tr class="hover:bg-slate-50/70 transition">
+              <!-- Customer -->
+              <td class="py-4 px-5 whitespace-nowrap">
+                <span class="font-bold text-slate-900 block">{{ w.user.get_full_name|default:w.user.username }}</span>
+                <span class="text-[10px] text-slate-400 font-mono block">@{{ w.user.username }}</span>
+              </td>
+
+              <!-- Product -->
+              <td class="py-4 px-4 min-w-[200px]">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-0.5 shrink-0">
+                    {% if w.product.product_image %}
+                      <img src="{{ w.product.product_image.url }}" alt="{{ w.product.name }}" class="w-full h-full object-contain">
+                    {% else %}
+                      <span>❤️</span>
+                    {% endif %}
+                  </div>
+                  <div class="min-w-0">
+                    <a href="{% url 'admin_product_edit' w.product.id %}" class="font-bold text-slate-900 hover:text-blue-600 transition truncate block">
+                      {{ w.product.name }}
+                    </a>
+                    <span class="text-[10px] text-slate-400">{{ w.product.brand|default:"ShopKart" }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Category -->
+              <td class="py-4 px-4 whitespace-nowrap text-slate-600">
+                {{ w.product.category.name|default:"Catalog" }}
+              </td>
+
+              <!-- Price -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                ₹{{ w.product.selling_price|floatformat:2 }}
+              </td>
+
+              <!-- Stock Status -->
+              <td class="py-4 px-4 whitespace-nowrap text-center">
+                {% if w.product.quantity > 0 %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                    {{ w.product.quantity }} in stock
+                  </span>
+                {% else %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700">
+                    Out of stock
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Saved Date -->
+              <td class="py-4 px-5 whitespace-nowrap text-right text-slate-400">
+                {{ w.created_at|date:"M d, Y" }}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-400">
+                <p class="text-3xl mb-2">❤️</p>
+                <p class="font-medium text-slate-600">No items in customer wishlists</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if wishlists.has_other_pages %}
+    <div class="p-5 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+      <div>Page {{ wishlists.number }} of {{ wishlists.paginator.num_pages }}</div>
+      <div class="flex items-center gap-1.5">
+        {% if wishlists.has_previous %}
+        <a href="?page={{ wishlists.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&larr;</a>
+        {% endif %}
+        <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">{{ wishlists.number }}</span>
+        {% if wishlists.has_next %}
+        <a href="?page={{ wishlists.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock admin_content %}

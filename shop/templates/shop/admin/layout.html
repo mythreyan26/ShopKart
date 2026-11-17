@@ -43,16 +43,19 @@
   <div class="flex min-h-screen">
 
     <!-- ========================================================================= -->
-    <!-- LEFT SIDEBAR (Matching Reference Design) -->
+    <!-- LEFT SIDEBAR (Miguel Studio Replica from Reference Image 1)               -->
     <!-- ========================================================================= -->
     <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-40 fixed inset-y-0 left-0 lg:static lg:translate-x-0"
            :class="sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'">
 
       <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
-        <!-- Brand Header with Logo & Collapse button -->
+        <!-- Brand Header: Blue Square 'S' + ShopKart Admin -->
         <div class="h-20 px-6 flex items-center justify-between border-b border-slate-100">
-          <a href="{% url 'admin_orders' %}" class="flex items-center gap-2 text-slate-900 font-black tracking-widest text-lg uppercase">
-            <span>SHOPKART</span>
+          <a href="{% url 'admin_orders' %}" class="flex items-center gap-3 group">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-base shadow-xs group-hover:bg-blue-700 transition">
+              S
+            </div>
+            <span class="text-base font-bold text-slate-900 tracking-tight">ShopKart Admin</span>
           </a>
           <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -60,100 +63,176 @@
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="p-4 space-y-1 text-sm font-medium text-slate-600 flex-1">
+        <nav class="p-3 space-y-1 text-sm font-medium text-slate-600 flex-1">
           <!-- Dashboard -->
-          <a href="{% url 'admin_orders' %}" class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'dashboard' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
-            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <a href="{% url 'admin_orders' %}" class="flex items-center gap-3 px-3 py-2 rounded-xl transition {% if active_menu == 'dashboard' and request.path == '/admin/' or request.path == '/admin/dashboard/' %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <svg class="w-4 h-4 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
             <span>Dashboard</span>
           </a>
 
-          <!-- Products (Expandable) -->
-          <div>
-            <button @click="productsOpen = !productsOpen" type="button" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'products' %}text-blue-600 font-semibold{% endif %}">
-              <div class="flex items-center gap-3.5">
-                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                <span>Products</span>
-              </div>
-              <svg class="w-4 h-4 transition-transform duration-200" :class="productsOpen ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </button>
-            <div x-show="productsOpen" x-cloak class="mt-1 pl-10 pr-2 space-y-1">
-              <a href="{% url 'admin_products' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'products' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'products' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
-                <span>Products</span>
-              </a>
-              <a href="{% url 'admin_product_create' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'create_product' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'create_product' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
-                <span>Create Product</span>
-              </a>
-              <a href="{% url 'admin_categories' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition {% if active_submenu == 'categories' %}bg-blue-600 text-white font-semibold shadow-xs{% else %}text-slate-500 hover:text-blue-600 hover:bg-slate-50{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full {% if active_submenu == 'categories' %}bg-white{% else %}bg-slate-300{% endif %}"></span>
-                <span>Categories</span>
-              </a>
-            </div>
+          <!-- Section: SHOP (Exact Replica of Uploaded Reference Image) -->
+          <div class="pt-3 pb-1 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Shop</span>
+            <span class="text-[9px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">13 Modules</span>
           </div>
 
-          <!-- Books / Collections -->
-          <a href="{% url 'collections' %}" target="_blank" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50">
-            <div class="flex items-center gap-3.5">
-              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-              <span>Books & Catalog</span>
+          <!-- 1. Products -->
+          <a href="{% url 'admin_products' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'products' or '/admin/products/' in request.path or '/admin/shop/product/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              <span>Products</span>
             </div>
-            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            {% if section_stats.products %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.products }}</span>{% endif %}
           </a>
 
-          <!-- Payments -->
-          <a href="{% url 'admin_orders' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'payments' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
-            <div class="flex items-center gap-3.5">
-              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-              <span>Payments</span>
+          <!-- 2. Categories -->
+          <a href="{% url 'admin_categories' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'categories' or '/admin/categories/' in request.path or '/admin/shop/category/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              <span>Categories</span>
             </div>
-            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            {% if section_stats.categories %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.categories }}</span>{% endif %}
           </a>
 
-          <!-- Orders (Active in Image 1!) -->
-          <a href="{% url 'admin_orders' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {% if active_menu == 'orders' %}bg-blue-50 text-blue-600 font-semibold shadow-2xs ring-1 ring-blue-100{% else %}hover:text-blue-600 hover:bg-slate-50{% endif %}">
-            <div class="flex items-center gap-3.5">
-              <svg class="w-5 h-5 {% if active_menu == 'orders' %}text-blue-600{% else %}opacity-80{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <!-- 3. Product colors -->
+          <a href="{% url 'admin_product_colors' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'product_colors' or '/admin/product-colors/' in request.path or '/admin/shop/productcolor/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 4 4 0 014-4c.72 0 1.39.2 1.97.54l6.09-6.09a2.5 2.5 0 113.54 3.54l-6.09 6.09c.34.58.54 1.25.54 1.97a4 4 0 01-4 4zm0 0a2 2 0 100-4 2 2 0 000 4z"/></svg>
+              <span>Product colors</span>
+            </div>
+            {% if section_stats.product_colors %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.product_colors }}</span>{% endif %}
+          </a>
+
+          <!-- 4. Orders -->
+          <a href="{% url 'admin_orders' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'orders' or '/admin/orders/' in request.path or '/admin/shop/order/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
               <span>Orders</span>
             </div>
-            <span class="w-2 h-2 rounded-full {% if active_menu == 'orders' %}bg-blue-600{% else %}bg-transparent{% endif %}"></span>
+            {% if section_stats.orders %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.orders }}</span>{% endif %}
           </a>
 
-          <!-- Users -->
-          <a href="{% url 'admin_users' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'users' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
-            <div class="flex items-center gap-3.5">
-              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              <span>Users</span>
+          <!-- 5. Order items -->
+          <a href="{% url 'admin_order_items' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'order_items' or '/admin/order-items/' in request.path or '/admin/shop/orderitem/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              <span>Order items</span>
             </div>
-            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            {% if section_stats.order_items %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.order_items }}</span>{% endif %}
           </a>
 
-          <!-- Customer Support -->
-          <a href="{% url 'admin_support' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50 {% if active_menu == 'customer_support' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
-            <div class="flex items-center gap-3.5">
-              <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              <span>Customer Support</span>
+          <!-- 6. Coupons -->
+          <a href="{% url 'admin_coupons' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'coupons' or '/admin/coupons/' in request.path or '/admin/shop/coupon/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+              <span>Coupons</span>
             </div>
-            <svg class="w-3.5 h-3.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            {% if section_stats.coupons %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.coupons }}</span>{% endif %}
           </a>
 
-          <!-- Settings -->
-          <a href="{% url 'admin_categories' %}" class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition hover:text-blue-600 hover:bg-slate-50">
-            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Settings</span>
+          <!-- 7. Reviews -->
+          <a href="{% url 'admin_reviews' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'reviews' or '/admin/reviews/' in request.path or '/admin/shop/review/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+              <span>Reviews</span>
+            </div>
+            {% if section_stats.reviews %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.reviews }}</span>{% endif %}
+          </a>
+
+          <!-- 8. Addresses -->
+          <a href="{% url 'admin_addresses' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'addresses' or '/admin/addresses/' in request.path or '/admin/shop/address/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span>Addresses</span>
+            </div>
+            {% if section_stats.addresses %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.addresses }}</span>{% endif %}
+          </a>
+
+          <!-- 9. Contact messages -->
+          <a href="{% url 'admin_support' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'support' or '/admin/support/' in request.path or '/admin/shop/contactmessage/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span>Contact messages</span>
+            </div>
+            {% if section_stats.unresolved_support %}
+              <span class="text-[10px] font-bold text-white bg-amber-500 px-1.5 py-0.5 rounded-full">{{ section_stats.unresolved_support }}</span>
+            {% elif section_stats.contact_messages %}
+              <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.contact_messages }}</span>
+            {% endif %}
+          </a>
+
+          <!-- 10. Carts -->
+          <a href="{% url 'admin_carts' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'carts' or '/admin/carts/' in request.path or '/admin/shop/cart/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span>Carts</span>
+            </div>
+            {% if section_stats.carts %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.carts }}</span>{% endif %}
+          </a>
+
+          <!-- 11. Wishlists -->
+          <a href="{% url 'admin_wishlists' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'wishlists' or '/admin/wishlists/' in request.path or '/admin/shop/wishlist/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              <span>Wishlists</span>
+            </div>
+            {% if section_stats.wishlists %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.wishlists }}</span>{% endif %}
+          </a>
+
+          <!-- 12. Executive Analytics -->
+          <a href="{% url 'admin_analytics' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'analytics' or '/admin/analytics/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              <span>Executive Analytics</span>
+            </div>
+            <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">Live</span>
+          </a>
+
+          <!-- 13. Warehouse Stock Control -->
+          <a href="{% url 'admin_inventory' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'inventory' or '/admin/inventory/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <span class="truncate">Warehouse Stock Con...</span>
+            </div>
+            {% if section_stats.low_stock %}
+              <span class="text-[10px] font-bold text-white bg-rose-500 px-1.5 py-0.5 rounded-full">{{ section_stats.low_stock }}</span>
+            {% endif %}
+          </a>
+
+          <!-- Section: AUDIENCE / CUSTOMERS -->
+          <div class="pt-3 pb-1 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <span>Audience</span>
+          </div>
+
+          <!-- Customers (Users) -->
+          <a href="{% url 'admin_users' %}" class="flex items-center justify-between px-3 py-2 rounded-xl transition {% if active_menu == 'users' or '/admin/users/' in request.path or '/admin/auth/user/' in request.path %}bg-slate-100 text-slate-900 font-bold{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span>Customers</span>
+            </div>
+            {% if section_stats.users %}<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{{ section_stats.users }}</span>{% endif %}
           </a>
         </nav>
 
-        <!-- Bottom Storefront Switcher & Logout -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col gap-2">
-          <a href="{% url 'home' %}" target="_blank" class="flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition shadow-2xs">
-            <span>🛍️</span>
-            <span>View Storefront</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        <!-- Bottom Menu: Help & Settings (Matching Image 1) -->
+        <div class="p-4 border-t border-slate-100 space-y-1 text-sm font-medium text-slate-600">
+          <a href="{% url 'admin_support' %}" class="flex items-center gap-3.5 px-3.5 py-2 rounded-xl transition hover:text-slate-900 hover:bg-slate-50">
+            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Help</span>
           </a>
-          <a href="{% url 'logout' %}" class="flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition">
-            <span>Log Out</span>
+          <a href="{% url 'admin_categories' %}" class="flex items-center gap-3.5 px-3.5 py-2 rounded-xl transition hover:text-slate-900 hover:bg-slate-50">
+            <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Settings</span>
           </a>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+            <a href="{% url 'home' %}" target="_blank" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-lg transition">
+              <span>🛍️ Storefront</span>
+            </a>
+            <a href="{% url 'logout' %}" class="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition">
+              <span>Logout</span>
+            </a>
+          </div>
         </div>
       </div>
     </aside>
@@ -166,7 +245,7 @@
     <!-- ========================================================================= -->
     <div class="flex-1 flex flex-col min-w-0">
 
-      <!-- TOPBAR (Matching Image 1 & 2) -->
+      <!-- TOPBAR (Miguel Studio Replica from Reference Image 1) -->
       <header class="h-20 bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
         <div class="flex items-center gap-3">
           <!-- Mobile Menu Hamburger -->
@@ -174,37 +253,58 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
 
-          <!-- Back / Collapse toggle icon (blue square in screenshot) -->
-          <div class="hidden sm:flex w-7 h-7 rounded-lg bg-blue-600 text-white items-center justify-center text-xs font-bold shadow-xs">
-            &lt;
-          </div>
-
-          <!-- Breadcrumb -->
-          <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-            <span>🏷️</span>
-            <span>&gt;</span>
-            <span class="text-slate-800 font-semibold">{% block breadcrumb %}Order{% endblock breadcrumb %}</span>
-          </div>
+          <!-- Topbar Title matching Image 1: 'Dashboard' -->
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">{% block topbar_title %}{{ page_title|default:"Dashboard" }}{% endblock topbar_title %}</h1>
         </div>
 
-        <!-- Right User Actions & Profile Chip -->
-        <div class="flex items-center gap-4">
+        <!-- Right User Actions & Search Bar (Image 1) -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <!-- Search Bar with Magnifier Icon -->
+          <form method="get" action="{% url 'admin_orders' %}" class="relative hidden sm:block">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <input type="text" name="q" placeholder="Search" value="{{ search_query|default:'' }}" class="w-48 md:w-60 bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200/80 rounded-full pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          </form>
+
           <!-- Notification Bell with Dot -->
-          <div class="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl cursor-pointer transition">
+          <div class="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full cursor-pointer transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
             <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white"></span>
           </div>
 
-          <!-- User Profile Chip (Avatar + Name + Role + Dropdown) -->
-          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-100">
-            <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          <!-- User Profile Avatar with dropdown (Image 1) -->
+          <div class="relative" x-data="{ profileMenu: false }">
+            <button @click="profileMenu = !profileMenu" @click.away="profileMenu = false" type="button" class="flex items-center gap-2 focus:outline-none">
+              <div class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs ring-2 ring-slate-100 shadow-xs overflow-hidden">
+                {% if request.user.first_name %}
+                  {{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}
+                {% else %}
+                  {{ request.user.username|slice:":1"|upper }}
+                {% endif %}
+              </div>
+            </button>
+
+            <!-- Profile Dropdown -->
+            <div x-show="profileMenu" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl ring-1 ring-slate-200/80 py-2 z-30 text-xs text-slate-700">
+              <div class="px-4 py-2 border-b border-slate-100">
+                <p class="font-bold text-slate-900 truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                <p class="text-[10px] text-slate-400">@{{ request.user.username }}</p>
+              </div>
+              <a href="/admin/" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition">
+                <span>⚙️</span> <span>Django Admin</span>
+              </a>
+              <a href="/admin/analytics/" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition">
+                <span>📈</span> <span>Full Analytics</span>
+              </a>
+              <a href="{% url 'home' %}" target="_blank" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 transition">
+                <span>🛍️</span> <span>View Storefront</span>
+              </a>
+              <div class="border-t border-slate-100 my-1"></div>
+              <a href="{% url 'logout' %}" class="flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 transition font-semibold">
+                <span>✕</span> <span>Log Out</span>
+              </a>
             </div>
-            <div class="hidden md:flex flex-col text-left">
-              <span class="text-xs font-bold text-slate-900 leading-tight">{{ request.user.username|capfirst }}</span>
-              <span class="text-[10px] text-slate-400 font-medium">{% if request.user.is_superuser %}Admin{% else %}Staff{% endif %}</span>
-            </div>
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </div>
         </div>
       </header>

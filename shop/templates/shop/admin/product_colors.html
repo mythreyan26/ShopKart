@@ -1,0 +1,259 @@
+{% extends 'shop/admin/layout.html' %}
+{% block title %}Product Colors &amp; Variants | ShopKart Admin{% endblock title %}
+{% block topbar_title %}Product colors{% endblock topbar_title %}
+
+{% block admin_content %}
+<div class="space-y-6" x-data="{ addColorModal: false }">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Product Colors</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Manage SKU colorways, hex codes, variant stock, and image assignments.</p>
+    </div>
+    
+    <button type="button" @click="addColorModal = true" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
+      <span>+</span>
+      <span>Add Colorway</span>
+    </button>
+  </div>
+
+  <!-- Metric Badges Row -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Variants</div>
+      <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1">{{ total_variants }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Managed color options</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Products Covered</div>
+      <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1">{{ products_with_variants }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Multi-color products</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Low Stock</div>
+      <div class="text-xl sm:text-2xl font-black text-rose-600 mt-1">{{ low_stock_variants }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">&le; 5 units remaining</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Default Display</div>
+      <div class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">{{ default_variants }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Primary landing swatches</p>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+    
+    <!-- Filter Toolbar -->
+    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <h2 class="text-base font-bold text-slate-900">All Color Variants</h2>
+
+      <form method="get" class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+        <select name="product" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+          <option value="">All Products</option>
+          {% for p in products %}
+          <option value="{{ p.id }}" {% if selected_product == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name|truncatechars:28 }}</option>
+          {% endfor %}
+        </select>
+
+        <div class="relative flex-1 sm:w-64">
+          <input type="text" name="q" value="{{ search_query }}" placeholder="Search color, hex, product..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        {% if search_query or selected_product %}
+        <a href="{% url 'admin_product_colors' %}" class="text-xs font-bold text-slate-500 hover:text-blue-600 transition">Reset</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[11px] tracking-wider bg-slate-50/50">
+            <th class="py-3.5 px-5">Colorway</th>
+            <th class="py-3.5 px-4">Product</th>
+            <th class="py-3.5 px-4">Price</th>
+            <th class="py-3.5 px-4">Stock</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          {% if colors %}
+            {% for c in colors %}
+            <tr class="hover:bg-slate-50/70 transition">
+              <!-- Colorway Preview + Name + Hex -->
+              <td class="py-4 px-5 whitespace-nowrap">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full border border-slate-200 shadow-xs flex items-center justify-center shrink-0" style="background-color: {{ c.color_code }};">
+                  </div>
+                  <div>
+                    <span class="font-bold text-slate-900 block">{{ c.name }}</span>
+                    <span class="font-mono text-[10px] text-slate-400 block">{{ c.color_code }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Product -->
+              <td class="py-4 px-4 min-w-[200px]">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-0.5 shrink-0">
+                    {% if c.image %}
+                      <img src="{{ c.image.url }}" alt="{{ c.name }}" class="w-full h-full object-contain">
+                    {% elif c.product.product_image %}
+                      <img src="{{ c.product.product_image.url }}" alt="{{ c.product.name }}" class="w-full h-full object-contain">
+                    {% else %}
+                      <span>🎨</span>
+                    {% endif %}
+                  </div>
+                  <div class="min-w-0">
+                    <a href="{% url 'admin_product_edit' c.product.id %}" class="font-bold text-slate-900 hover:text-blue-600 transition truncate block">
+                      {{ c.product.name }}
+                    </a>
+                    <span class="text-[10px] text-slate-400">{{ c.product.category.name|default:"Catalog" }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Price -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                ₹{{ c.effective_price|floatformat:2 }}
+                {% if c.price %}
+                  <span class="text-[10px] font-semibold text-blue-600 block">Custom</span>
+                {% else %}
+                  <span class="text-[10px] font-semibold text-slate-400 block">Base Price</span>
+                {% endif %}
+              </td>
+
+              <!-- Stock -->
+              <td class="py-4 px-4 whitespace-nowrap">
+                {% if c.quantity > 5 %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700">
+                    {{ c.quantity }} in stock
+                  </span>
+                {% elif c.quantity > 0 %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700">
+                    {{ c.quantity }} low stock
+                  </span>
+                {% else %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700">
+                    Out of stock
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Default Badge -->
+              <td class="py-4 px-4 whitespace-nowrap text-center">
+                {% if c.is_default %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    ⭐ Default
+                  </span>
+                {% else %}
+                  <span class="text-slate-400 text-xs">-</span>
+                {% endif %}
+              </td>
+
+              <!-- Actions -->
+              <td class="py-4 px-5 whitespace-nowrap text-right space-x-2">
+                <a href="{% url 'admin_product_edit' c.product.id %}" class="p-1.5 text-slate-500 hover:text-blue-600 transition font-bold" title="Edit in Product Studio">
+                  ✏️ Edit
+                </a>
+                <form action="{% url 'admin_product_color_delete' c.id %}" method="post" class="inline" onsubmit="return confirm('Delete colorway {{ c.name|escapejs }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="p-1.5 text-rose-500 hover:text-rose-700 transition" title="Delete Colorway">
+                    🗑️
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-400">
+                <p class="text-3xl mb-2">🎨</p>
+                <p class="font-medium text-slate-600">No product colors found</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if colors.has_other_pages %}
+    <div class="p-5 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+      <div>Page {{ colors.number }} of {{ colors.paginator.num_pages }}</div>
+      <div class="flex items-center gap-1.5">
+        {% if colors.has_previous %}
+        <a href="?page={{ colors.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_product %}&product={{ selected_product }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&larr;</a>
+        {% endif %}
+        <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">{{ colors.number }}</span>
+        {% if colors.has_next %}
+        <a href="?page={{ colors.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_product %}&product={{ selected_product }}{% endif %}" class="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">&rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Add Color Modal -->
+  <div x-show="addColorModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div @click.away="addColorModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl ring-1 ring-slate-200">
+      <h3 class="text-base font-bold text-slate-900 mb-4">Add Product Colorway</h3>
+      
+      <form action="{% url 'admin_product_color_create' %}" method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target Product *</label>
+          <select name="product_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {% for p in products %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Color Name *</label>
+          <input type="text" name="name" required placeholder="e.g. Space Black, Lavender, Ocean Blue" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Hex Code</label>
+            <input type="text" name="color_code" value="#2563EB" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Stock Quantity</label>
+            <input type="number" name="quantity" value="25" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom Price (₹)</label>
+            <input type="number" step="0.01" name="price" placeholder="Leave blank for base" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Variant Image</label>
+            <input type="file" name="image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" name="is_default" id="is_def" class="rounded text-blue-600 focus:ring-blue-500">
+          <label for="is_def" class="text-xs text-slate-700 font-medium">Set as default selected color for this product</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3">
+          <button type="button" @click="addColorModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition">Create Colorway</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock admin_content %}

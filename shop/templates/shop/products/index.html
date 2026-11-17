@@ -1,177 +1,308 @@
 {% extends 'shop/layouts/main.html' %}
+{% load static %}
 {% block title %}{{ category_name }} | ShopKart{% endblock title %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-36 sm:pb-32 md:pb-12">
 
-  <!-- Breadcrumb -->
-  <div class="text-sm text-slate-500 mb-4 flex items-center flex-wrap gap-1">
-    <a href="{% url 'home' %}" class="hover:text-brand">Home</a>
-    <span class="mx-1">/</span>
-    <a href="{% url 'collections' %}" class="hover:text-brand">Categories</a>
+  <!-- Breadcrumb Navigation -->
+  <nav class="text-xs text-slate-500 mb-4 flex items-center flex-wrap gap-1 font-medium">
+    <a href="{% url 'home' %}" class="hover:text-slate-900 transition">Home</a>
+    <span class="text-slate-300">/</span>
+    <a href="{% url 'collections' %}" class="hover:text-slate-900 transition">Collections</a>
     {% if category.parent %}
-    <span class="mx-1">/</span>
-    <a href="{% url 'collections_view' category.parent.slug %}" class="hover:text-brand">{{ category.parent.name }}</a>
+    <span class="text-slate-300">/</span>
+    <a href="{% url 'collections_view' category.parent.slug %}" class="hover:text-slate-900 transition">{{ category.parent.name }}</a>
     {% endif %}
-    <span class="mx-1">/</span>
-    <span class="text-slate-800 font-medium">{{ category_name }}</span>
-  </div>
+    <span class="text-slate-300">/</span>
+    <span class="text-slate-900 font-semibold">{{ category_name }}</span>
+  </nav>
 
-  {% if subcategories %}
-  <!-- Featured Visual Subcategory Cards -->
-  <div class="mb-8 bg-white rounded-2xl p-6 ring-1 ring-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-5">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span>📁</span>
-          <span>Shop by Subcategory</span>
-        </h2>
-        <p class="text-xs text-slate-500 mt-0.5">Explore specific departments inside {{ category.name }}</p>
-      </div>
-      <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">
-        {{ subcategories|length }} Subcategories
-      </span>
-    </div>
+  <!-- Horizontal Category Pill Carousel (Department & Subcategories Context) -->
+  <div class="mb-6 flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none select-none">
+    {% if root_category and department_subcategories %}
+      <!-- 1. All in this Department -->
+      <a href="{% url 'collections_view' root_category.slug %}" 
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all shadow-2xs {% if category and category.id == root_category.id %}bg-slate-900 text-white border-slate-900 shadow-xs{% else %}bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50{% endif %}">
+        <span>🛍️</span>
+        <span>All {{ root_category.name }}</span>
+      </a>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      {% for sub in subcategories %}
-      <a href="{% url 'collections_view' sub.slug %}" class="group bg-slate-50 hover:bg-white rounded-xl p-3.5 ring-1 ring-slate-200 hover:ring-brand hover:shadow-md transition text-center flex flex-col items-center">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white ring-1 ring-slate-200 overflow-hidden flex items-center justify-center mb-2.5 p-1 group-hover:scale-105 transition shadow-sm">
-          {% if sub.image %}
-          <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="w-full h-full object-cover rounded-full">
-          {% else %}
-          <span class="text-2xl">📦</span>
-          {% endif %}
-        </div>
-        <span class="text-xs font-semibold text-slate-800 group-hover:text-brand transition line-clamp-1">{{ sub.name }}</span>
+      <!-- 2. Subcategories of this Department -->
+      {% for sub in department_subcategories %}
+      <a href="{% url 'collections_view' sub.slug %}" 
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all shadow-2xs {% if category and category.id == sub.id %}bg-slate-900 text-white border-slate-900 shadow-xs{% else %}bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50{% endif %}">
+        {% if sub.image %}
+        <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="w-4 h-4 rounded-full object-cover">
+        {% endif %}
+        <span>{{ sub.name }}</span>
       </a>
       {% endfor %}
+    {% else %}
+      <!-- Global Department Pills (when at /collections or standalone) -->
+      <a href="{% url 'collections' %}" 
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all shadow-2xs {% if not category %}bg-slate-900 text-white border-slate-900 shadow-xs{% else %}bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50{% endif %}">
+        <span>🛍️</span>
+        <span>All Categories</span>
+      </a>
+      {% for nav_cat in nav_categories %}
+      <a href="{% url 'collections_view' nav_cat.slug %}" 
+         class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all shadow-2xs {% if category and category.slug == nav_cat.slug %}bg-slate-900 text-white border-slate-900 shadow-xs{% else %}bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50{% endif %}">
+        {% if nav_cat.image %}
+        <img src="{{ nav_cat.image.url }}" alt="{{ nav_cat.name }}" class="w-5 h-5 rounded-full object-cover">
+        {% endif %}
+        <span>{{ nav_cat.name }}</span>
+      </a>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8 items-start relative" x-data="{ mobileFilterOpen: false, brandQuery: '', showMoreBrands: false, viewMode: 'grid' }">
+    
+    <!-- Mobile Filter Dropdown Toolbar (Visible ONLY on Mobile/Tablet < lg) -->
+    <div class="lg:hidden w-full mb-1">
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-3 shadow-2xs flex items-center justify-between gap-3">
+        
+        <!-- Toggle Button for Mobile Filter Dropdown -->
+        <button type="button" 
+                @click="mobileFilterOpen = !mobileFilterOpen"
+                class="flex-1 inline-flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-bold transition shadow-2xs"
+                :class="mobileFilterOpen ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100'">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            <span>Filters &amp; Refine</span>
+            {% if in_stock or request.GET.min_price or request.GET.max_price or selected_brand %}
+            <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-black bg-blue-500 text-white">Active</span>
+            {% endif %}
+          </span>
+          <svg class="w-4 h-4 transition-transform duration-200" :class="mobileFilterOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+
+        {% if in_stock or request.GET.min_price or request.GET.max_price or selected_brand %}
+        <a href="{% if category %}{% url 'collections_view' category.slug %}{% else %}{% url 'collections' %}{% endif %}" 
+           class="px-3 py-2.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200/60 shrink-0">
+          Reset
+        </a>
+        {% endif %}
+      </div>
     </div>
-  </div>
 
-  <!-- Subcategory Quick Filter Pills (for Parent Category) -->
-  <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4">
-    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Filter:</span>
-    <span class="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand text-white shrink-0">All {{ category.name }}</span>
-    {% for sub in subcategories %}
-    <a href="{% url 'collections_view' sub.slug %}" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-brand hover:text-brand shrink-0 transition">
-      {{ sub.name }}
-    </a>
-    {% endfor %}
-  </div>
-  {% elif sibling_subcategories %}
-  <!-- Sibling Subcategory Quick Filter Pills (for Subcategory) -->
-  <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4">
-    <span class="text-xs font-semibold uppercase text-slate-400 shrink-0 mr-1">Department:</span>
-    <a href="{% url 'collections_view' category.parent.slug %}" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-brand hover:text-brand shrink-0 transition">
-      All {{ category.parent.name }}
-    </a>
-    {% for sib in sibling_subcategories %}
-    <a href="{% url 'collections_view' sib.slug %}" class="px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition {% if sib.id == category.id %}bg-brand text-white font-semibold{% else %}bg-white ring-1 ring-slate-200 text-slate-700 hover:ring-brand hover:text-brand{% endif %}">
-      {{ sib.name }}
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <div class="flex flex-col lg:flex-row gap-6">
-    <!-- Filters sidebar -->
-    <aside class="lg:w-64 shrink-0">
-      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-4 sticky top-24">
-        <h3 class="font-bold text-slate-900 mb-3">Filters</h3>
-        <form method="get" class="space-y-4">
-          <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase">Min Price</label>
-            <input type="number" name="min_price" value="{{ request.GET.min_price }}" placeholder="₹0" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:ring-2 focus:ring-orange-100 outline-none">
+    <!-- Filter Section: Dropdown on Mobile (< lg), Fixed & Sticky on Desktop (>= lg) -->
+    <aside class="w-full lg:w-64 shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto custom-scrollbar"
+           :class="mobileFilterOpen ? 'block mb-4 lg:mb-0' : 'hidden lg:block'">
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs divide-y divide-slate-100">
+        
+        <!-- Header: Filter count and reset -->
+        <div class="flex items-center justify-between pb-4">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            <span>Filters</span>
+          </h3>
+          <div class="flex items-center gap-2">
+            {% if category %}
+            <a href="{% url 'collections_view' category.slug %}" class="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition">Reset All</a>
+            {% endif %}
+            <button type="button" @click="mobileFilterOpen = false" class="lg:hidden p-1 text-slate-400 hover:text-slate-600" title="Close Filters">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase">Max Price</label>
-            <input type="number" name="max_price" value="{{ request.GET.max_price }}" placeholder="₹10000" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:ring-2 focus:ring-orange-100 outline-none">
-          </div>
+        </div>
 
-          {% if brands %}
+        <form method="get" id="filterForm" class="space-y-5 pt-4">
+          {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+          <!-- Category Subtree (Image 4) -->
+          {% if subcategories or sibling_subcategories %}
           <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Brand</label>
-            <select name="brand" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand outline-none">
-              <option value="">All Brands</option>
-              {% for b in brands %}
-              <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">Category</span>
+            <div class="space-y-1 max-h-40 overflow-y-auto scrollbar-none pr-1">
+              {% for sub in subcategories|default:sibling_subcategories %}
+              <a href="{% url 'collections_view' sub.slug %}" 
+                 class="flex items-center justify-between py-1.5 px-2.5 rounded-xl text-xs transition {% if sub.id == category.id %}bg-slate-900 font-bold text-white shadow-2xs{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+                <span>{{ sub.name }}</span>
+                <span class="text-[10px] {% if sub.id == category.id %}text-white/70{% else %}text-slate-400{% endif %} font-normal">→</span>
+              </a>
               {% endfor %}
-            </select>
+            </div>
           </div>
           {% endif %}
 
-          <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
-            <input type="checkbox" name="in_stock" value="1" {% if in_stock == '1' %}checked{% endif %} class="rounded text-brand focus:ring-brand">
-            <span>In-Stock Items Only</span>
-          </label>
+          <!-- Availability Filter (Image 3 & 4) -->
+          <div>
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">Availability</span>
+            <div class="space-y-2">
+              <label class="flex items-center justify-between text-xs text-slate-700 cursor-pointer hover:text-black">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" name="in_stock" value="1" {% if in_stock == '1' %}checked{% endif %} 
+                         onchange="this.form.submit()"
+                         class="rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+                  <span>In stock</span>
+                </div>
+                <span class="text-[11px] text-slate-400 font-semibold">{{ total_count|default:"24" }}</span>
+              </label>
+            </div>
+          </div>
 
-          {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-          <button type="submit" class="w-full bg-navy hover:bg-navy-light text-white text-sm font-semibold py-2 rounded-lg transition">Apply Filters</button>
-          <a href="{% url 'collections_view' category.slug %}" class="block text-center text-xs text-slate-500 hover:text-brand">Clear filters</a>
+          <!-- Price Range Filter (Image 3 & 4) -->
+          <div>
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">Price</span>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="relative">
+                <span class="absolute left-2.5 top-2 text-xs text-slate-400 font-bold">₹</span>
+                <input type="number" name="min_price" value="{{ request.GET.min_price }}" placeholder="0" 
+                       class="w-full pl-6 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:border-slate-900 focus:outline-none transition">
+              </div>
+              <div class="relative">
+                <span class="absolute left-2.5 top-2 text-xs text-slate-400 font-bold">₹</span>
+                <input type="number" name="max_price" value="{{ request.GET.max_price }}" placeholder="50000" 
+                       class="w-full pl-6 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:border-slate-900 focus:outline-none transition">
+              </div>
+            </div>
+            <button type="submit" class="mt-2 w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold rounded-xl transition">
+              Apply Price
+            </button>
+          </div>
+
+          <!-- Brand Filter with Search Bar (Image 4) -->
+          {% if brands %}
+          <div>
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block mb-2">Brand</span>
+            
+            <!-- Brand Search Input -->
+            <div class="relative mb-2">
+              <input type="text" x-model="brandQuery" placeholder="Search brands" 
+                     class="w-full pl-7 pr-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-slate-900 transition">
+              <svg class="w-3.5 h-3.5 absolute left-2 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <div class="space-y-1.5 max-h-48 overflow-y-auto scrollbar-none pr-1">
+              {% for b in brands %}
+              <label x-show="!brandQuery || '{{ b|lower }}'.includes(brandQuery.toLowerCase())"
+                     class="flex items-center justify-between text-xs text-slate-700 cursor-pointer hover:text-black py-0.5">
+                <div class="flex items-center gap-2">
+                  <input type="radio" name="brand" value="{{ b }}" {% if selected_brand == b %}checked{% endif %} 
+                         onchange="this.form.submit()"
+                         class="border-slate-300 text-slate-900 focus:ring-slate-900">
+                  <span class="line-clamp-1">{{ b }}</span>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Mobile Apply & Close Buttons -->
+          <div class="lg:hidden pt-3 border-t border-slate-100 flex items-center gap-2.5">
+            <button type="submit" class="flex-1 py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs transition">
+              Apply Filters
+            </button>
+            <button type="button" @click="mobileFilterOpen = false" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+              Close
+            </button>
+          </div>
+
         </form>
       </div>
     </aside>
 
-    <!-- Product grid -->
-    <div class="flex-1">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-        <h1 class="text-xl font-bold text-slate-900">{{ category_name }} <span class="text-sm font-normal text-slate-500">({{ total_count|default:products|length }} products)</span></h1>
-        <form method="get" class="flex items-center gap-2">
-          {% if request.GET.min_price %}<input type="hidden" name="min_price" value="{{ request.GET.min_price }}">{% endif %}
-          {% if request.GET.max_price %}<input type="hidden" name="max_price" value="{{ request.GET.max_price }}">{% endif %}
-          {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
-          {% if in_stock %}<input type="hidden" name="in_stock" value="{{ in_stock }}">{% endif %}
-          <label class="text-sm text-slate-500">Sort:</label>
-          <select name="sort" onchange="this.form.submit()" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand outline-none">
-            <option value="" {% if not sort %}selected{% endif %}>Relevance</option>
-            <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-            <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
-          </select>
-        </form>
+    <!-- Main Catalog View -->
+    <main class="flex-1 w-full min-w-0">
+      
+      <!-- Catalog Top Bar: Product count, View Switcher & Sort (from Image 4) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+        <div>
+          <span class="text-xs font-bold text-slate-900">
+            Showing {{ products|length }} {% if total_count %}of {{ total_count }}{% endif %} products
+          </span>
+          <span class="text-xs text-slate-400 ml-1">in {{ category_name }}</span>
+        </div>
+
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <!-- View Toggle Buttons -->
+          <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200">
+            <button type="button" @click="viewMode = 'grid'" 
+                    class="p-1.5 rounded-lg transition"
+                    :class="viewMode === 'grid' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-400 hover:text-slate-600'">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            </button>
+            <button type="button" @click="viewMode = 'list'" 
+                    class="p-1.5 rounded-lg transition"
+                    :class="viewMode === 'list' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-400 hover:text-slate-600'">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+            </button>
+          </div>
+
+          <!-- Sort Select -->
+          <form method="get" class="flex items-center gap-1.5">
+            {% if request.GET.min_price %}<input type="hidden" name="min_price" value="{{ request.GET.min_price }}">{% endif %}
+            {% if request.GET.max_price %}<input type="hidden" name="max_price" value="{{ request.GET.max_price }}">{% endif %}
+            {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
+            {% if in_stock %}<input type="hidden" name="in_stock" value="{{ in_stock }}">{% endif %}
+            
+            <label class="text-xs text-slate-400 font-medium">Sort by:</label>
+            <select name="sort" onchange="this.form.submit()" 
+                    class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-slate-900 cursor-pointer">
+              <option value="" {% if not sort %}selected{% endif %}>Featured</option>
+              <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+              <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            </select>
+          </form>
+        </div>
       </div>
 
+      <!-- Products Grid / List -->
       {% if products %}
-      <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5' : 'flex flex-col gap-4'">
         {% for item in products %}
           {% include 'shop/inc/product_card.html' %}
         {% endfor %}
       </div>
 
-      <!-- Pagination Controls -->
+      <!-- Pagination -->
       {% if page_obj.has_other_pages %}
-      <div class="mt-8 flex items-center justify-center gap-2">
+      <div class="mt-10 flex items-center justify-center gap-2">
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-brand transition">
-          &larr; Prev
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-slate-400 transition shadow-2xs">
+          ← Prev
         </a>
         {% endif %}
 
         {% for num in page_obj.paginator.page_range %}
           {% if page_obj.number == num %}
-          <span class="px-3.5 py-2 rounded-xl bg-brand text-white text-xs font-extrabold shadow-xs">{{ num }}</span>
+          <span class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold shadow-xs">{{ num }}</span>
           {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-          <a href="?page={{ num }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-brand transition">
+          <a href="?page={{ num }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+             class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-slate-400 transition shadow-2xs">
             {{ num }}
           </a>
           {% endif %}
         {% endfor %}
 
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-brand transition">
-          Next &rarr;
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if in_stock %}&in_stock={{ in_stock }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-slate-400 transition shadow-2xs">
+          Next →
         </a>
         {% endif %}
       </div>
       {% endif %}
 
       {% else %}
-      <div class="bg-white rounded-xl ring-1 ring-slate-200 p-12 text-center">
-        <p class="text-4xl mb-3">🔍</p>
-        <p class="text-slate-500">No products match your filters.</p>
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
+        <span class="text-5xl block mb-3">🔍</span>
+        <h3 class="text-base font-bold text-slate-900 mb-1">No products found</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">No items matched your current filter criteria. Try resetting price, brand, or availability.</p>
+        {% if category %}
+        <a href="{% url 'collections_view' category.slug %}" class="inline-flex px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-black transition">
+          Clear Filters
+        </a>
+        {% endif %}
       </div>
       {% endif %}
-    </div>
+
+    </main>
+
   </div>
 </div>
 {% endblock content %}

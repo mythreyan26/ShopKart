@@ -53,20 +53,16 @@ urlpatterns = [
     path('returns-policy', views.returns_policy, name="returns_policy"),
     path('terms', views.terms_of_service, name="terms"),
     path('privacy', views.privacy_policy, name="privacy"),
+    path('ai/chat', views.ai_chat_view, name="ai_chat"),
 
     # ==============================================================================
-    # Custom SaaS Admin Portal (Matching Reference Design)
+    # Backward Compatibility Redirects to Unified Admin Panel (/admin/)
     # ==============================================================================
     path('panel/', admin_views.admin_dashboard_redirect, name="admin_panel_root"),
-    path('panel/orders/', admin_views.admin_orders, name="admin_orders"),
-    path('panel/orders/<int:order_id>/status/', admin_views.admin_order_update_status, name="admin_order_update_status"),
-    path('panel/products/', admin_views.admin_products, name="admin_products"),
-    path('panel/products/create/', admin_views.admin_product_create, name="admin_product_create"),
-    path('panel/products/<int:product_id>/edit/', admin_views.admin_product_edit, name="admin_product_edit"),
-    path('panel/products/<int:product_id>/delete/', admin_views.admin_product_delete, name="admin_product_delete"),
-    path('panel/products/<int:product_id>/variant/add/', admin_views.admin_variant_add, name="admin_variant_add"),
-    path('panel/categories/', admin_views.admin_categories, name="admin_categories"),
-    path('panel/users/', admin_views.admin_users, name="admin_users"),
-    path('panel/support/', admin_views.admin_support, name="admin_support"),
-    path('panel/support/<int:message_id>/toggle/', admin_views.admin_support_toggle, name="admin_support_toggle"),
+    path('panel/orders/', admin_views.admin_dashboard_redirect),
+    path('panel/orders/<int:order_id>/status/', admin_views.admin_order_update_status),
+    path('panel/products/', lambda r: redirect('admin_products')),
+    path('panel/categories/', lambda r: redirect('admin_categories')),
+    path('panel/users/', lambda r: redirect('admin_users')),
+    path('panel/support/', lambda r: redirect('admin_support')),
 ]

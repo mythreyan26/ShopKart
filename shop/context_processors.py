@@ -2,7 +2,7 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q, Count, F
-from .models import Cart, Wishlist, Category, Product, Order, OrderItem, Review, Coupon, ContactMessage
+from .models import Cart, Wishlist, Category, Product, Order, OrderItem, Review, Coupon, ContactMessage, Address, ProductColor
 
 
 def cart_context(request):
@@ -93,7 +93,26 @@ def admin_dashboard_context(request):
     recent_orders = Order.objects.select_related('user', 'address').prefetch_related('items').order_by('-created_at')[:8]
     featured_products = Product.objects.filter(Q(trending=True) | Q(featured=True), status=False)[:6]
 
+    section_stats = {
+        'products': Product.objects.count(),
+        'categories': total_categories_count,
+        'product_colors': ProductColor.objects.count(),
+        'orders': total_orders_count,
+        'order_items': OrderItem.objects.count(),
+        'coupons': Coupon.objects.count(),
+        'active_coupons': active_coupons_count,
+        'reviews': total_reviews_count,
+        'addresses': Address.objects.count(),
+        'contact_messages': ContactMessage.objects.count(),
+        'unresolved_support': unresolved_tickets_count,
+        'carts': Cart.objects.count(),
+        'wishlists': Wishlist.objects.count(),
+        'low_stock': low_stock_products_count,
+        'users': User.objects.count(),
+    }
+
     return {
+        'section_stats': section_stats,
         'admin_kpi': {
             'total_revenue': total_revenue,
             'total_revenue_display': total_revenue_display,

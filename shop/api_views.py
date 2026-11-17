@@ -1354,3 +1354,45 @@ def api_live_sync_stream(request):
     response['Access-Control-Allow-Origin'] = '*'
     return response
 
+
+# ==============================================================================
+# Google Gemini AI Integration (Google AI Studio)
+# ==============================================================================
+
+from .ai_service import query_gemini_ai
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_ai_chat(request):
+    """
+    JSON API for Google AI Studio Gemini Assistant.
+    Accepts: { "prompt": "...", "context_type": "shopping"|"product"|"admin", "product_id": <int> }
+    Returns: { "success": true, "response": "...", "model": "..." }
+    """
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    prompt = data.get('prompt', '').strip()
+    if not prompt:
+        return JsonResponse({'success': False, 'error': 'Prompt cannot be empty.'}, status=400)
+
+    context_type = data.get('context_type', 'shopping')
+    product_id = data.get('product_id')
+
+    result = query_gemini_ai(prompt, context_type=context_type, product_id=product_id)
+    if not result.get('success'):
+        return JsonResponse({
+            'success': False,
+            'error': result.get('error', 'Unable to generate AI response.')
+        }, status=400)
+
+    return JsonResponse({
+        'success': True,
+        'response': result.get('response'),
+        'model': result.get('model_used'),
+        'method': result.get('method')
+    })
+
+

@@ -1,64 +1,128 @@
 {% load static %}
-<div class="group relative bg-white rounded-2xl ring-1 ring-slate-200/90 hover:ring-brand/40 hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col">
-  <a href="{{ item.get_absolute_url }}" class="block relative aspect-[4/5] bg-slate-50 overflow-hidden select-none">
-    {% if item.product_image %}
-    <img src="{{ item.product_image.url }}" alt="{{ item.name }}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
+<div class="group relative bg-white rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+     x-data="{ activeImg: '{% if item.product_image %}{{ item.product_image.url }}{% endif %}', selectedColor: null }">
+  
+  <!-- Image Container with Clean Neutral Canvas -->
+  <div class="relative aspect-square bg-[#F8F9FA] overflow-hidden select-none flex items-center justify-center p-3">
+    <!-- Wishlist Bookmark Button (Top-Right) -->
+    {% if request.user.is_authenticated %}
+    <form action="{% url 'toggle_wishlist' item.id %}" method="post" class="absolute top-3 right-3 z-10">
+      {% csrf_token %}
+      <button type="submit" aria-label="Save to Wishlist" 
+              class="h-8 w-8 rounded-full bg-white/90 backdrop-blur-xs border border-slate-200/80 shadow-xs flex items-center justify-center hover:bg-white hover:scale-105 active:scale-90 transition duration-150">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             class="h-4 w-4 {% if item.id in wishlist_ids %}text-rose-500 fill-rose-500{% else %}text-slate-400 hover:text-rose-500{% endif %}" 
+             viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
+    </form>
     {% else %}
-    <div class="w-full h-full flex items-center justify-center text-slate-300 text-4xl">🛍️</div>
-    {% endif %}
-    {% if item.discount_percent > 0 %}
-    <span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 py-0.5 rounded-md shadow-xs">{{ item.discount_percent }}% OFF</span>
-    {% endif %}
-    {% if item.is_bestseller %}
-    <span class="absolute top-2 right-2 bg-amber-500 text-white text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-md shadow-xs">★ BESTSELLER</span>
-    {% endif %}
-  </a>
-
-  {% if request.user.is_authenticated %}
-  <form action="{% url 'toggle_wishlist' item.id %}" method="post" class="absolute top-2 right-2 {% if item.is_bestseller %}mt-6{% endif %} z-10">
-    {% csrf_token %}
-    <button type="submit" aria-label="Save to Wishlist" class="h-8 w-8 rounded-full bg-white/95 shadow-sm border border-slate-200/60 flex items-center justify-center hover:bg-white active:scale-90 transition duration-150">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 {% if item.id in wishlist_ids %}text-rose-500 fill-rose-500{% else %}text-slate-400 hover:text-rose-500{% endif %}" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+    <a href="{% url 'login' %}?next={{ request.path }}" 
+       class="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-white/90 backdrop-blur-xs border border-slate-200/80 shadow-xs flex items-center justify-center hover:bg-white text-slate-400 hover:text-rose-500 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
-    </button>
-  </form>
-  {% endif %}
-
-  <div class="p-3 sm:p-4 flex flex-col flex-1">
-    <p class="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-400 font-bold truncate">{{ item.brand }}</p>
-    <a href="{{ item.get_absolute_url }}" class="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 mt-0.5 hover:text-brand transition leading-snug">{{ item.name }}</a>
-
-    {% if item.review_count %}
-    <div class="flex items-center gap-1 mt-1.5">
-      <span class="flex items-center gap-0.5 bg-emerald-600 text-white text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded">{{ item.avg_rating }} ★</span>
-      <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium">({{ item.review_count }})</span>
-    </div>
+    </a>
     {% endif %}
 
-    <div class="mt-2 flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-      <span class="text-base sm:text-lg font-black text-slate-900">₹{{ item.selling_price|floatformat:0 }}</span>
-      {% if item.discount_percent > 0 %}
-      <span class="text-[11px] sm:text-xs text-slate-400 line-through font-medium">₹{{ item.original_price|floatformat:0 }}</span>
+    <!-- Main Product Image -->
+    <a href="{{ item.get_absolute_url }}" class="w-full h-full flex items-center justify-center">
+      {% if item.product_image %}
+      <img :src="activeImg || '{{ item.product_image.url }}'" 
+           alt="{{ item.name }}" 
+           class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300">
+      {% else %}
+      <div class="w-full h-full flex items-center justify-center text-slate-300 text-4xl">🛍️</div>
       {% endif %}
-    </div>
-    {% if item.free_delivery %}
-    <p class="text-[10px] sm:text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
-      <span>🚚</span> Free Delivery
-    </p>
-    {% endif %}
+    </a>
+  </div>
 
-    <div class="mt-auto pt-3">
+  <!-- Content & Details -->
+  <div class="p-4 flex flex-col flex-1 justify-between bg-white">
+    <div>
+      <!-- Brand & Rating -->
+      <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+        <span class="uppercase tracking-wider font-semibold text-[10px] text-slate-500">{{ item.brand|default:"ShopKart" }}</span>
+        {% if item.review_count %}
+        <div class="flex items-center gap-1 text-[11px] font-bold text-slate-700">
+          <span class="text-amber-400">★</span>
+          <span>{{ item.avg_rating }}</span>
+          <span class="text-slate-400 font-normal">({{ item.review_count }})</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Title -->
+      <a href="{{ item.get_absolute_url }}" 
+         class="text-sm font-semibold text-slate-900 line-clamp-1 hover:text-brand transition leading-snug">
+        {{ item.name }}
+      </a>
+
+      <!-- Pricing, Discount Offer & Status Badges -->
+      <div class="mt-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+        <span class="text-base sm:text-lg font-black text-slate-900">₹{{ item.selling_price|floatformat:0 }}</span>
+        {% if item.discount_percent > 0 %}
+        <span class="text-xs text-slate-400 line-through font-normal">₹{{ item.original_price|floatformat:0 }}</span>
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200">
+          -{{ item.discount_percent }}%
+        </span>
+        {% endif %}
+        {% if item.is_bestseller %}
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200">
+          Bestseller
+        </span>
+        {% elif item.trending or item.featured %}
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          New
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Interactive Color Swatches (from Reference Image 3 & 4) -->
+      {% if item.colors.all %}
+      <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+        {% for col in item.colors.all|slice:":5" %}
+        <button type="button"
+                @click.stop="activeImg = '{{ col.image.url }}'; selectedColor = {{ col.id }}"
+                class="w-4 h-4 rounded-full border border-slate-300 shadow-2xs hover:scale-125 transition-transform focus:outline-none ring-1"
+                :class="selectedColor === {{ col.id }} ? 'ring-2 ring-slate-900 ring-offset-1' : 'ring-transparent'"
+                style="background-color: {{ col.color_code }};"
+                title="{{ col.name }}">
+        </button>
+        {% endfor %}
+        {% if item.colors.all|length > 5 %}
+        <span class="text-[10px] text-slate-400 font-medium">+{{ item.colors.all|length|add:"-5" }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Quick Size / Spec Badges (from Reference Image 4) -->
+      <div class="mt-2.5 flex items-center gap-1">
+        <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded border border-slate-200">S</span>
+        <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded border border-slate-200">M</span>
+        <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded border border-slate-200">L</span>
+        <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded border border-slate-200">XL</span>
+      </div>
+    </div>
+
+    <!-- Add to Cart CTA -->
+    <div class="mt-4 pt-2 border-t border-slate-100">
       {% if request.user.is_authenticated %}
       <form action="{% url 'add_to_cart' item.id %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="w-full text-xs sm:text-sm font-bold bg-brand hover:bg-brand-dark active:scale-[0.98] text-white rounded-xl py-2 sm:py-2.5 transition flex items-center justify-center gap-1.5 shadow-xs">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <input type="hidden" name="color_id" :value="selectedColor || ''">
+        <button type="submit" 
+                class="w-full text-xs font-bold bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-xl py-2 sm:py-2.5 transition flex items-center justify-center gap-2 shadow-xs">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
           <span>Add to Cart</span>
         </button>
       </form>
       {% else %}
-      <a href="{% url 'login' %}?next={{ request.path }}" class="w-full text-xs sm:text-sm font-bold bg-brand hover:bg-brand-dark active:scale-[0.98] text-white rounded-xl py-2 sm:py-2.5 transition flex items-center justify-center gap-1.5 shadow-xs">
+      <a href="{% url 'login' %}?next={{ request.path }}" 
+         class="w-full text-xs font-bold bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-xl py-2 sm:py-2.5 transition flex items-center justify-center gap-2 shadow-xs">
         <span>Add to Cart</span>
       </a>
       {% endif %}

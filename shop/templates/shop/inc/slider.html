@@ -24,51 +24,88 @@
      class="relative overflow-hidden select-none">
 
   <div class="flex transition-transform duration-700 ease-out" :style="`transform: translateX(-${slide * 100}%)`">
+    
     <!-- Slide 1: Electronics -->
-    <div class="min-w-full bg-gradient-to-br from-amber-600 via-orange-500 to-amber-400">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="text-white max-w-lg">
-          <p class="uppercase tracking-wider text-[11px] sm:text-xs font-bold text-white/90">Big Shopping Days</p>
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1 leading-tight">Up to 60% off<br>on Electronics</h1>
-          <p class="mt-2 text-xs sm:text-sm text-white/90">Top brands. Unbeatable prices. Free delivery on eligible orders.</p>
-          <a href="{% url 'collections_view' 'electronics' %}" class="inline-block mt-3.5 bg-navy hover:bg-navy-light text-white font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition">Shop Electronics</a>
+    <div class="min-w-full bg-gradient-to-br from-amber-600 via-orange-500 to-amber-400 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10 flex items-center justify-between gap-4">
+        <div class="max-w-md sm:max-w-lg flex-1">
+          <span class="inline-block uppercase tracking-wider text-[10px] sm:text-xs font-extrabold bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full mb-1 sm:mb-2">
+            Big Shopping Days
+          </span>
+          <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight">
+            Up to 60% off<br>on Electronics
+          </h1>
+          <p class="mt-1.5 sm:mt-2 text-[11px] sm:text-sm text-white/90 line-clamp-2 sm:line-clamp-none">
+            Top brands, audio, smart devices, and computers with free delivery.
+          </p>
+          <a href="{% url 'collections_view' 'electronics' %}" 
+             class="inline-flex items-center gap-1.5 mt-3 sm:mt-4 bg-slate-950 hover:bg-black text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition active:scale-95">
+            <span>Shop Electronics</span>
+            <span>&rarr;</span>
+          </a>
         </div>
-        <div class="hidden md:block w-56 lg:w-72 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/30 transform -rotate-1 hover:rotate-0 transition duration-300">
+        <!-- Banner Image Visible on All Devices -->
+        <div class="w-28 sm:w-44 md:w-60 lg:w-72 aspect-[4/3] sm:aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/40 transform rotate-1 hover:rotate-0 transition duration-300">
           <img src="{% static 'images/banner_electronics.jpg' %}" alt="Electronics Collection" class="w-full h-full object-cover">
         </div>
       </div>
     </div>
+
     <!-- Slide 2: Fashion -->
-    <div class="min-w-full bg-gradient-to-br from-indigo-700 via-blue-600 to-sky-500">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="text-white max-w-lg">
-          <p class="uppercase tracking-wider text-[11px] sm:text-xs font-bold text-white/90">New Season</p>
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1 leading-tight">Refresh Your<br>Fashion Wardrobe</h1>
-          <p class="mt-2 text-xs sm:text-sm text-white/90">Trending styles across apparel and footwear, starting at ₹499.</p>
-          <a href="{% url 'collections_view' 'fashion' %}" class="inline-block mt-3.5 bg-navy hover:bg-navy-light text-white font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition">Explore Fashion</a>
+    <div class="min-w-full bg-gradient-to-br from-indigo-700 via-blue-600 to-sky-500 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10 flex items-center justify-between gap-4">
+        <div class="max-w-md sm:max-w-lg flex-1">
+          <span class="inline-block uppercase tracking-wider text-[10px] sm:text-xs font-extrabold bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full mb-1 sm:mb-2">
+            New Season
+          </span>
+          <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight">
+            Refresh Your<br>Fashion Wardrobe
+          </h1>
+          <p class="mt-1.5 sm:mt-2 text-[11px] sm:text-sm text-white/90 line-clamp-2 sm:line-clamp-none">
+            Trending styles across apparel, hoodies, and footwear starting at ₹499.
+          </p>
+          <a href="{% url 'collections_view' 'fashion' %}" 
+             class="inline-flex items-center gap-1.5 mt-3 sm:mt-4 bg-slate-950 hover:bg-black text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition active:scale-95">
+            <span>Explore Fashion</span>
+            <span>&rarr;</span>
+          </a>
         </div>
-        <div class="hidden md:block w-56 lg:w-72 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/30 transform rotate-1 hover:rotate-0 transition duration-300">
+        <!-- Banner Image Visible on All Devices -->
+        <div class="w-28 sm:w-44 md:w-60 lg:w-72 aspect-[4/3] sm:aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/40 transform -rotate-1 hover:rotate-0 transition duration-300">
           <img src="{% static 'images/banner_fashion.jpg' %}" alt="Fashion Collection" class="w-full h-full object-cover">
         </div>
       </div>
     </div>
+
     <!-- Slide 3: Home & Living -->
-    <div class="min-w-full bg-gradient-to-br from-emerald-700 via-teal-600 to-green-500">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="text-white max-w-lg">
-          <p class="uppercase tracking-wider text-[11px] sm:text-xs font-bold text-white/90">Home Essentials</p>
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1 leading-tight">Make Your Home<br>Feel Brand New</h1>
-          <p class="mt-2 text-xs sm:text-sm text-white/90">Furniture, decor and kitchen must-haves, delivered fast.</p>
-          <a href="{% url 'collections_view' 'home-kitchen' %}" class="inline-block mt-3.5 bg-navy hover:bg-navy-light text-white font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition">Shop Home</a>
+    <div class="min-w-full bg-gradient-to-br from-emerald-700 via-teal-600 to-green-500 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10 flex items-center justify-between gap-4">
+        <div class="max-w-md sm:max-w-lg flex-1">
+          <span class="inline-block uppercase tracking-wider text-[10px] sm:text-xs font-extrabold bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full mb-1 sm:mb-2">
+            Home Essentials
+          </span>
+          <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight">
+            Make Your Home<br>Feel Brand New
+          </h1>
+          <p class="mt-1.5 sm:mt-2 text-[11px] sm:text-sm text-white/90 line-clamp-2 sm:line-clamp-none">
+            Furniture, decor, lighting, and kitchen appliances delivered fast.
+          </p>
+          <a href="{% url 'collections_view' 'home-kitchen' %}" 
+             class="inline-flex items-center gap-1.5 mt-3 sm:mt-4 bg-slate-950 hover:bg-black text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition active:scale-95">
+            <span>Shop Home</span>
+            <span>&rarr;</span>
+          </a>
         </div>
-        <div class="hidden md:block w-56 lg:w-72 aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/30 transform -rotate-1 hover:rotate-0 transition duration-300">
+        <!-- Banner Image Visible on All Devices -->
+        <div class="w-28 sm:w-44 md:w-60 lg:w-72 aspect-[4/3] sm:aspect-[16/10] shrink-0 rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/40 transform rotate-1 hover:rotate-0 transition duration-300">
           <img src="{% static 'images/banner_home.jpg' %}" alt="Home Essentials" class="w-full h-full object-cover">
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- Dots -->
+  <!-- Dots Navigation Indicator -->
   <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
     <template x-for="i in slides">
       <button @click="slide = i - 1" class="h-1.5 rounded-full transition-all" :class="slide === i - 1 ? 'w-5 bg-white' : 'w-1.5 bg-white/50'"></button>

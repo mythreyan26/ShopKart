@@ -1,5 +1,6 @@
 {% extends 'shop/admin/layout.html' %}
 {% block title %}{% if is_edit %}Edit {{ product.name }}{% else %}Create Product{% endif %} | ShopKart Admin{% endblock title %}
+{% block topbar_title %}{% if is_edit %}Edit Product{% else %}Create Product{% endif %}{% endblock topbar_title %}
 {% block breadcrumb %}Products{% endblock breadcrumb %}
 
 {% block admin_content %}

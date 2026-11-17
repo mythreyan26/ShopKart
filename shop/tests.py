@@ -463,3 +463,21 @@ class AdminPanelLoginTestCase(TestCase):
 
         res_inv = self.client.get(reverse('invoice', kwargs={'order_id': order.id}))
         self.assertEqual(res_inv.status_code, 200)
+
+
+class GeminiAITestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_ai_empty_prompt_rejected(self):
+        res = self.client.post(reverse('api_ai_chat'), json.dumps({'prompt': ''}), content_type='application/json')
+        self.assertEqual(res.status_code, 400)
+        data = res.json()
+        self.assertFalse(data['success'])
+
+    def test_ai_storefront_empty_prompt_rejected(self):
+        res = self.client.post(reverse('ai_chat'), json.dumps({'prompt': ''}), content_type='application/json')
+        self.assertEqual(res.status_code, 400)
+        data = res.json()
+        self.assertFalse(data['success'])
+

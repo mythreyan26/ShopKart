@@ -1,191 +1,229 @@
 {% extends 'shop/layouts/main.html' %}
 {% block title %}Order Details | ShopKart{% endblock title %}
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ cancelModal: false }">
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <a href="{% url 'my_orders' %}" class="text-sm font-semibold text-slate-500 hover:text-brand transition inline-flex items-center gap-1">&larr; Back to Orders</a>
+<div class="max-w-4xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 pb-36 sm:pb-32 md:pb-12" x-data="{ cancelModal: false }">
+  
+  <!-- Back Link & Action Buttons Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <a href="{% url 'my_orders' %}" 
+       class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-900 transition inline-flex items-center gap-1 self-start">
+      <span>&larr;</span>
+      <span>Back to Orders</span>
+    </a>
     <div class="flex items-center gap-2 flex-wrap">
       <form action="{% url 'reorder' order.id %}" method="post" class="inline">
         {% csrf_token %}
-        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-brand font-bold text-xs rounded-xl shadow-xs transition">
+        <button type="submit" 
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl shadow-2xs transition">
           <span>🔁</span>
           <span>Buy Again</span>
         </button>
       </form>
       {% if order.status == 'placed' or order.status == 'confirmed' %}
-      <button type="button" @click="cancelModal = true" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl shadow-xs transition">
+      <button type="button" @click="cancelModal = true" 
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl shadow-2xs transition">
         <span>✕</span>
         <span>Cancel Order</span>
       </button>
       {% endif %}
-      <a href="{% url 'invoice' order.id %}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <a href="{% url 'invoice' order.id %}" target="_blank" 
+         class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-2xs transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>Print Invoice</span>
       </a>
     </div>
   </div>
   
-  <!-- Order Header Banner -->
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-white rounded-2xl p-5 ring-1 ring-slate-200/90 shadow-xs">
+  <!-- Order Header Banner (Responsive) -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs">
     <div>
-      <h1 class="text-2xl font-black text-slate-900">Order Details</h1>
-      <p class="text-xs text-slate-500 mt-0.5">Placed on {{ order.created_at|date:"M d, Y, h:i A" }}{% if order.tracking_number %} &bull; Tracking Ref: <span class="font-mono font-bold text-slate-800">{{ order.tracking_number }}</span>{% endif %}</p>
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900">Order Details</h1>
+        {% if order.tracking_number %}
+        <span class="text-[11px] font-mono font-bold bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200">
+          {{ order.tracking_number }}
+        </span>
+        {% endif %}
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Placed on {{ order.created_at|date:"M d, Y, h:i A" }}</p>
     </div>
-    <div class="flex items-center gap-3">
-      <span class="text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider
-        {% if order.status == 'delivered' %}bg-emerald-100 text-emerald-800
-        {% elif order.status == 'cancelled' %}bg-rose-100 text-rose-800
-        {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-100 text-blue-800
-        {% else %}bg-amber-100 text-amber-800{% endif %}">
+    <div>
+      <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider
+        {% if order.status == 'delivered' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+        {% elif order.status == 'cancelled' %}bg-rose-50 text-rose-700 border border-rose-200
+        {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-50 text-blue-700 border border-blue-200
+        {% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
         ● {{ order.get_status_display }}
       </span>
     </div>
   </div>
 
-  <!-- Cancellation Alert (if cancelled) -->
+  <!-- Cancellation Notice -->
   {% if order.status == 'cancelled' %}
-  <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5 mb-6 text-rose-800 shadow-xs">
-    <div class="flex items-center gap-2 font-bold text-sm">
-      <span class="text-lg">🚫</span>
+  <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 text-rose-900 shadow-2xs">
+    <div class="flex items-center gap-2 font-bold text-xs sm:text-sm">
+      <span class="text-base sm:text-lg">🚫</span>
       <span>This order has been cancelled</span>
       {% if order.cancelled_at %}
-      <span class="text-xs font-normal text-rose-600">({{ order.cancelled_at|date:"M d, Y, h:i A" }})</span>
+      <span class="text-xs font-normal text-rose-600">({{ order.cancelled_at|date:"M d, Y" }})</span>
       {% endif %}
     </div>
     {% if order.cancellation_reason %}
-    <p class="text-xs text-rose-700 mt-1 pl-7">Reason: {{ order.cancellation_reason }}</p>
+    <p class="text-xs text-rose-700 mt-1 pl-6">Reason: {{ order.cancellation_reason }}</p>
     {% endif %}
   </div>
   {% endif %}
 
-  <!-- Visual Order Tracking Stepper -->
+  <!-- Visual 4-Stage Delivery Stepper (Adaptive to Mobile) -->
   {% if order.status != 'cancelled' %}
-  <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-6 mb-6 shadow-xs">
-    <div class="flex flex-wrap items-center justify-between gap-2 mb-6 pb-3 border-b border-slate-100">
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery Progress</h3>
-      <div class="flex items-center gap-3 text-xs">
-        <span class="text-slate-500 font-medium">Tracking: <strong class="text-slate-800 font-mono">{{ order.tracking_number|default:"SK-TRK-000000" }}</strong></span>
-        {% if order.estimated_delivery %}
-        <span class="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-          Estimated: {{ order.estimated_delivery|date:"M d, Y" }}
-        </span>
-        {% endif %}
-      </div>
+  <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 mb-5 sm:mb-6 shadow-2xs">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 pb-3 border-b border-slate-100">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery Status</h3>
+      {% if order.estimated_delivery %}
+      <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 self-start sm:self-auto">
+        Estimated Delivery: {{ order.estimated_delivery|date:"M d, Y" }}
+      </span>
+      {% endif %}
     </div>
+
+    <!-- Stepper Grid -->
     <div class="grid grid-cols-4 relative text-center">
       <!-- Line background -->
-      <div class="absolute top-4 left-[12%] right-[12%] h-1 bg-slate-200 -z-0"></div>
+      <div class="absolute top-3.5 sm:top-4 left-[10%] right-[10%] h-0.5 sm:h-1 bg-slate-200 -z-0"></div>
       
       <!-- Step 1: Placed -->
       <div class="relative z-10 flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-brand text-white shadow-sm ring-4 ring-orange-50">✓</div>
-        <p class="text-xs font-bold text-slate-800 mt-2">Placed</p>
-        <p class="text-[10px] text-slate-400">{{ order.created_at|date:"M d" }}</p>
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-900 text-white shadow-xs">✓</div>
+        <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-1.5 sm:mt-2">Placed</p>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 hidden sm:block">{{ order.created_at|date:"M d" }}</p>
       </div>
 
       <!-- Step 2: Confirmed -->
       <div class="relative z-10 flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-brand text-white shadow-sm ring-4 ring-orange-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-slate-900 text-white shadow-xs{% else %}bg-slate-200 text-slate-500{% endif %}">
           {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}✓{% else %}2{% endif %}
         </div>
-        <p class="text-xs font-bold {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-2">Packed</p>
-        <p class="text-[10px] text-slate-400">Warehouse</p>
+        <p class="text-[11px] sm:text-xs font-bold {% if order.status == 'confirmed' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-1.5 sm:mt-2">Packed</p>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 hidden sm:block">Warehouse</p>
       </div>
 
       <!-- Step 3: Shipped -->
       <div class="relative z-10 flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-brand text-white shadow-sm ring-4 ring-orange-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}bg-slate-900 text-white shadow-xs{% else %}bg-slate-200 text-slate-500{% endif %}">
           {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}✓{% else %}3{% endif %}
         </div>
-        <p class="text-xs font-bold {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-2">Shipped</p>
-        <p class="text-[10px] text-slate-400">In Transit</p>
+        <p class="text-[11px] sm:text-xs font-bold {% if order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-1.5 sm:mt-2">Shipped</p>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 hidden sm:block">In Transit</p>
       </div>
 
       <!-- Step 4: Delivered -->
       <div class="relative z-10 flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'delivered' %}bg-emerald-600 text-white shadow-sm ring-4 ring-emerald-50{% else %}bg-slate-200 text-slate-500{% endif %}">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs {% if order.status == 'delivered' %}bg-emerald-600 text-white shadow-xs{% else %}bg-slate-200 text-slate-500{% endif %}">
           {% if order.status == 'delivered' %}✓{% else %}4{% endif %}
         </div>
-        <p class="text-xs font-bold {% if order.status == 'delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-2">Delivered</p>
-        <p class="text-[10px] text-slate-400">Destination</p>
+        <p class="text-[11px] sm:text-xs font-bold {% if order.status == 'delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-1.5 sm:mt-2">Delivered</p>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 hidden sm:block">Destination</p>
       </div>
     </div>
   </div>
   {% endif %}
 
-  <div class="grid md:grid-cols-3 gap-6">
-    <!-- Items List -->
-    <div class="md:col-span-2 space-y-3">
+  <!-- Order Items & Side Summary Layout (Responsive 2-column) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+    
+    <!-- Ordered Products List (8 cols) -->
+    <div class="lg:col-span-7 space-y-3">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Items in this shipment ({{ order.items.count }})</h3>
       {% for oi in order.items.all %}
-      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-4 sm:p-5 flex items-center justify-between gap-4 shadow-xs">
-        <a href="{% if oi.product %}{{ oi.product.get_absolute_url }}{% else %}#{% endif %}" class="h-16 w-16 rounded-xl overflow-hidden bg-slate-50 p-1 ring-1 ring-slate-100 shrink-0 flex items-center justify-center hover:opacity-90 transition">
-          {% if oi.product and oi.product.product_image %}
-            <img src="{{ oi.product.product_image.url }}" alt="{{ oi.product_name }}" class="w-full h-full object-contain">
-          {% else %}
-            <div class="text-xl">📦</div>
-          {% endif %}
-        </a>
-        <div class="flex-1 min-w-0">
-          <a href="{% if oi.product %}{{ oi.product.get_absolute_url }}{% else %}#{% endif %}" class="font-bold text-slate-800 text-sm hover:text-brand transition truncate block">
-            {{ oi.product_name }}
-          </a>
-          <div class="flex items-center gap-2 mt-1 flex-wrap">
-            <span class="text-xs text-slate-400">Qty: {{ oi.quantity }} &middot; ₹{{ oi.price|floatformat:0 }} each</span>
-            {% if oi.color_name %}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 ring-1 ring-slate-200">
-              <span class="w-2 h-2 rounded-full border border-black/10" style="background-color: {{ oi.color_code|default:'#cbd5e1' }};"></span>
-              <span>{{ oi.color_name }}</span>
-            </span>
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+          <a href="{% if oi.product %}{{ oi.product.get_absolute_url }}{% else %}#{% endif %}" 
+             class="h-16 w-16 rounded-xl overflow-hidden bg-slate-50 p-1 border border-slate-200 shrink-0 flex items-center justify-center hover:opacity-90 transition">
+            {% if oi.product and oi.product.product_image %}
+              <img src="{{ oi.product.product_image.url }}" alt="{{ oi.product_name }}" class="w-full h-full object-contain">
+            {% else %}
+              <div class="text-xl">📦</div>
             {% endif %}
+          </a>
+          <div class="min-w-0 flex-1">
+            <a href="{% if oi.product %}{{ oi.product.get_absolute_url }}{% else %}#{% endif %}" 
+               class="font-bold text-slate-900 text-xs sm:text-sm hover:text-blue-600 transition truncate block">
+              {{ oi.product_name }}
+            </a>
+            <div class="flex items-center gap-2 mt-1 flex-wrap text-[11px] text-slate-500">
+              <span>Qty: <strong>{{ oi.quantity }}</strong></span>
+              <span>&bull;</span>
+              <span>₹{{ oi.price|floatformat:0 }}</span>
+              {% if oi.color_name %}
+              <span>&bull;</span>
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ oi.color_code|default:'#cbd5e1' }};"></span>
+                <span>{{ oi.color_name }}</span>
+              </span>
+              {% endif %}
+            </div>
           </div>
         </div>
-        <div class="text-right shrink-0 flex flex-col items-end gap-1">
+
+        <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
           <p class="font-extrabold text-slate-900 text-sm sm:text-base">₹{{ oi.total_price|floatformat:0 }}</p>
-          <div class="flex items-center gap-2.5">
+          
+          <div class="flex items-center gap-2">
             {% if oi.product %}
-            <a href="{{ oi.product.get_absolute_url }}" class="inline-flex items-center gap-1 text-[11px] font-bold text-brand hover:underline">
-              <span>View Product</span>
-              <span>&rarr;</span>
+            <a href="{{ oi.product.get_absolute_url }}" 
+               class="px-2.5 py-1 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-xs font-bold rounded-lg transition">
+              View
             </a>
             {% endif %}
             {% if order.status == 'placed' or order.status == 'confirmed' %}
-            <form action="{% url 'cancel_order_item' oi.id %}" method="post" class="inline" onsubmit="return confirm('Are you sure you want to cancel {{ oi.product_name|escapejs }}?');">
+            <form action="{% url 'cancel_order_item' oi.id %}" method="post" class="inline" onsubmit="return confirm('Cancel this item?');">
               {% csrf_token %}
-              <button type="submit" class="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline">
-                ✕ Cancel Product
+              <button type="submit" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition">
+                Cancel
               </button>
             </form>
             {% endif %}
           </div>
         </div>
+
       </div>
       {% endfor %}
     </div>
 
-    <!-- Side Summaries -->
-    <div class="space-y-4">
-      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-5 shadow-xs">
-        <h3 class="font-bold text-slate-900 mb-2.5 text-sm">Delivery Address</h3>
+    <!-- Side Summaries: Shipping & Payment (5 cols) -->
+    <div class="lg:col-span-5 space-y-4">
+      
+      <!-- Delivery Destination Address -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+        <h3 class="font-bold text-slate-900 mb-2 text-xs sm:text-sm flex items-center gap-2">
+          <span>📍</span>
+          <span>Delivery Address</span>
+        </h3>
         {% if order.address %}
         <p class="text-xs text-slate-600 leading-relaxed">
-          <strong class="text-slate-800">{{ order.address.full_name }}</strong><br>
+          <strong class="text-slate-900 font-bold block mb-0.5">{{ order.address.full_name }}</strong>
           {{ order.address.address_line }}<br>
           {{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}<br>
-          Phone: {{ order.address.phone }}
+          <span class="text-slate-500 font-medium">Phone: {{ order.address.phone }}</span>
         </p>
         {% endif %}
       </div>
 
-      <div class="bg-white rounded-2xl ring-1 ring-slate-200/90 p-5 shadow-xs">
-        <h3 class="font-bold text-slate-900 mb-3 text-sm">Payment Summary</h3>
-        <div class="space-y-1.5 text-xs">
+      <!-- Financial & Payment Summary -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+        <h3 class="font-bold text-slate-900 mb-3 text-xs sm:text-sm flex items-center gap-2">
+          <span>💳</span>
+          <span>Payment Summary</span>
+        </h3>
+        <div class="space-y-2 text-xs">
           <div class="flex justify-between text-slate-600">
-            <span>Subtotal</span>
-            <span class="font-semibold text-slate-800">₹{{ order.subtotal|floatformat:0 }}</span>
+            <span>Items Subtotal</span>
+            <span class="font-bold text-slate-800">₹{{ order.subtotal|floatformat:0 }}</span>
           </div>
 
           {% if order.discount_amount > 0 %}
-          <div class="flex justify-between text-emerald-600 font-semibold">
+          <div class="flex justify-between text-emerald-600 font-bold">
             <span>Coupon Discount ({{ order.coupon_code }})</span>
             <span>- ₹{{ order.discount_amount|floatformat:0 }}</span>
           </div>
@@ -193,29 +231,35 @@
 
           <div class="flex justify-between text-slate-600">
             <span>Delivery Fee</span>
-            <span>{% if order.delivery_fee == 0 %}<span class="text-emerald-700 font-bold">FREE</span>{% else %}₹{{ order.delivery_fee|floatformat:0 }}{% endif %}</span>
+            <span>{% if order.delivery_fee == 0 %}<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">FREE</span>{% else %}₹{{ order.delivery_fee|floatformat:0 }}{% endif %}</span>
           </div>
+          
           <hr class="my-2 border-slate-100">
-          <div class="flex justify-between font-extrabold text-slate-900 text-sm">
-            <span>Total Amount</span>
-            <span class="text-brand">₹{{ order.total_amount|floatformat:0 }}</span>
+          
+          <div class="flex justify-between font-black text-slate-900 text-sm sm:text-base">
+            <span>Total Paid</span>
+            <span class="text-slate-900">₹{{ order.total_amount|floatformat:0 }}</span>
           </div>
         </div>
-        <p class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-100">Paid via {{ order.get_payment_method_display }}</p>
+        <p class="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-slate-100">
+          Method: <strong class="text-slate-700">{{ order.get_payment_method_display }}</strong>
+        </p>
       </div>
+
     </div>
+
   </div>
 
   <!-- Cancellation Modal -->
   <div x-show="cancelModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-    <div @click.away="cancelModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl ring-1 ring-slate-200">
+    <div @click.away="cancelModal = false" class="bg-white rounded-3xl p-5 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200">
       <div class="flex items-center gap-3 mb-4">
         <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
           ⚠️
         </div>
         <div>
           <h3 class="text-base font-bold text-slate-900">Cancel This Order?</h3>
-          <p class="text-xs text-slate-500">This action will immediately cancel your order and restore items to stock.</p>
+          <p class="text-xs text-slate-500">Inventory will be restored and this order marked cancelled.</p>
         </div>
       </div>
 
@@ -223,7 +267,7 @@
         {% csrf_token %}
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reason for Cancellation</label>
-          <select name="cancellation_reason" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <select name="cancellation_reason" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-slate-900">
             <option value="Changed my mind / Placed order by mistake">Changed my mind / Placed order by mistake</option>
             <option value="Found a better price elsewhere">Found a better price elsewhere</option>
             <option value="Incorrect shipping address selected">Incorrect shipping address selected</option>
@@ -243,5 +287,6 @@
       </form>
     </div>
   </div>
+
 </div>
 {% endblock content %}

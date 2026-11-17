@@ -60,4 +60,7 @@ urlpatterns = [
     path('live-sync/version/', api_views.api_live_sync_version, name='api_live_sync_version'),
     path('live-sync/events/', api_views.api_live_sync_events, name='api_live_sync_events'),
     path('live-sync/stream/', api_views.api_live_sync_stream, name='api_live_sync_stream'),
+
+    # Google AI Studio Gemini Assistant
+    path('ai/chat/', api_views.api_ai_chat, name='api_ai_chat'),
 ]

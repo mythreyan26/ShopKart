@@ -1,0 +1,189 @@
+{% extends 'shop/admin/layout.html' %}
+{% block title %}Warehouse Stock Control | ShopKart Admin{% endblock title %}
+{% block topbar_title %}Warehouse Stock Control{% endblock topbar_title %}
+
+{% block admin_content %}
+<div class="space-y-6" x-data="{ restockModal: false, activeProdId: null, activeProdName: '', activeProdQty: 0 }">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Warehouse Stock Control</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Physical warehouse inventory, stock replenishment, valuation, and threshold alerts.</p>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Units in Stock</div>
+      <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1">{{ inventory_data.total_units }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Available warehouse items</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Inventory Valuation</div>
+      <div class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">₹{{ inventory_data.total_valuation_display }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Total physical stock value</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Low Stock SKUs</div>
+      <div class="text-xl sm:text-2xl font-black text-amber-500 mt-1">{{ inventory_data.low_stock_count }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">&le; 5 units remaining</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Out of Stock SKUs</div>
+      <div class="text-xl sm:text-2xl font-black text-rose-600 mt-1">{{ inventory_data.out_of_stock_count }}</div>
+      <p class="text-[11px] text-slate-400 mt-1">Zero inventory available</p>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+    
+    <!-- Filter Toolbar -->
+    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <a href="{% url 'admin_inventory' %}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if not inventory_data.filter_param %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+          All SKUs ({{ inventory_data.total_products }})
+        </a>
+        <a href="{% url 'admin_inventory' %}?filter=low" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if inventory_data.filter_param == 'low' %}bg-amber-500 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+          Low Stock ({{ inventory_data.low_stock_count }})
+        </a>
+        <a href="{% url 'admin_inventory' %}?filter=out" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if inventory_data.filter_param == 'out' %}bg-rose-600 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+          Out of Stock ({{ inventory_data.out_of_stock_count }})
+        </a>
+        <a href="{% url 'admin_inventory' %}?filter=healthy" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if inventory_data.filter_param == 'healthy' %}bg-emerald-600 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+          Healthy Stock
+        </a>
+      </div>
+
+      <form method="get" class="flex items-center gap-3 w-full sm:w-auto">
+        {% if inventory_data.filter_param %}<input type="hidden" name="filter" value="{{ inventory_data.filter_param }}">{% endif %}
+        <div class="relative flex-1 sm:w-64">
+          <input type="text" name="q" value="{{ inventory_data.search_query }}" placeholder="Search product or brand..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        {% if inventory_data.search_query %}
+        <a href="{% url 'admin_inventory' %}" class="text-xs font-bold text-slate-500 hover:text-blue-600 transition">Reset</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[11px] tracking-wider bg-slate-50/50">
+            <th class="py-3.5 px-5">Product SKU</th>
+            <th class="py-3.5 px-4">Category</th>
+            <th class="py-3.5 px-4">Unit Price</th>
+            <th class="py-3.5 px-4">Current Stock</th>
+            <th class="py-3.5 px-4">Stock Valuation</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-5 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+          {% if inventory_data.products %}
+            {% for prod in inventory_data.products %}
+            <tr class="hover:bg-slate-50/70 transition">
+              <!-- Product -->
+              <td class="py-4 px-5 min-w-[220px]">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-0.5 shrink-0">
+                    {% if prod.product_image %}
+                      <img src="{{ prod.product_image.url }}" alt="{{ prod.name }}" class="w-full h-full object-contain">
+                    {% else %}
+                      <span>📦</span>
+                    {% endif %}
+                  </div>
+                  <div class="min-w-0">
+                    <span class="font-bold text-slate-900 block truncate">{{ prod.name }}</span>
+                    <span class="text-[10px] text-slate-400">{{ prod.brand|default:"ShopKart" }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Category -->
+              <td class="py-4 px-4 whitespace-nowrap text-slate-600">
+                {{ prod.category.name|default:"Catalog" }}
+              </td>
+
+              <!-- Price -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                ₹{{ prod.selling_price|floatformat:2 }}
+              </td>
+
+              <!-- Current Stock -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                {{ prod.quantity }} units
+              </td>
+
+              <!-- Valuation -->
+              <td class="py-4 px-4 whitespace-nowrap font-bold text-slate-900">
+                ₹{{ prod.valuation|floatformat:2 }}
+              </td>
+
+              <!-- Status -->
+              <td class="py-4 px-4 whitespace-nowrap text-center">
+                {% if prod.quantity == 0 %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    Out of Stock
+                  </span>
+                {% elif prod.quantity <= 5 %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    Low Stock
+                  </span>
+                {% else %}
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    In Stock
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Action -->
+              <td class="py-4 px-5 whitespace-nowrap text-right space-x-2">
+                <button type="button" @click="activeProdId = {{ prod.id }}; activeProdName = '{{ prod.name|escapejs }}'; activeProdQty = {{ prod.quantity }}; restockModal = true;" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition">
+                  ⚡ Restock
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <p class="text-3xl mb-2">📦</p>
+                <p class="font-medium text-slate-600">No inventory products match criteria</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Quick Restock Modal -->
+  <div x-show="restockModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div @click.away="restockModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl ring-1 ring-slate-200">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Restock Inventory</h3>
+      <p class="text-xs text-slate-500 mb-4 truncate" x-text="activeProdName"></p>
+
+      <form action="{% url 'admin_inventory' %}" method="post" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" :value="activeProdId">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Updated Stock Quantity *</label>
+          <input type="number" name="quantity" min="0" required x-model="activeProdQty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2">
+          <button type="button" @click="restockModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition">Save Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock admin_content %}

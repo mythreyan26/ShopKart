@@ -72,7 +72,8 @@
     if (document.getElementById('live-sync-indicator')) return;
     const badge = document.createElement('div');
     badge.id = 'live-sync-indicator';
-    badge.className = 'fixed bottom-20 md:bottom-4 left-4 z-40 bg-navy/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg border border-white/10 backdrop-blur-xs flex items-center gap-1.5 opacity-70 hover:opacity-100 transition duration-200 pointer-events-none select-none';
+    // Hidden on mobile (< 768px) to prevent covering customer order buttons & navigation; discreet in desktop bottom-left
+    badge.className = 'hidden md:flex fixed bottom-4 left-4 z-40 bg-navy/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg border border-white/10 backdrop-blur-xs items-center gap-1.5 opacity-70 hover:opacity-100 transition duration-200 pointer-events-none select-none';
     badge.innerHTML = `
       <span class="relative flex h-2 w-2">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>

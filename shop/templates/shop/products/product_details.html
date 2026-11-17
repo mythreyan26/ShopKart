@@ -2,7 +2,7 @@
 {% block title %}{{ product.name }} | ShopKart{% endblock title %}
 
 {% block content %}
-<div class="bg-white min-h-screen py-4 pb-28 md:pb-10" x-data="productDetailState()">
+<div class="bg-white min-h-screen py-4 pb-36 sm:pb-32 md:pb-12" x-data="productDetailState()">
   <div class="max-w-[1460px] mx-auto px-3 sm:px-6 lg:px-8">
 
     <!-- Breadcrumb Navigation -->
@@ -56,6 +56,12 @@
         <!-- Main Product Stage Container -->
         <div class="flex-1 min-h-[380px] sm:min-h-[500px] bg-white flex flex-col items-center justify-center relative p-2">
           
+          <!-- Genuine Trust Badge (from Reference Image 5) -->
+          <div class="absolute top-2 left-2 z-10 flex items-center gap-1.5 bg-blue-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-xs uppercase tracking-wider select-none">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            <span>Genuine</span>
+          </div>
+
           <!-- Share Button (Top-Right) -->
           <button type="button" 
                   @click="shareProduct()"
@@ -393,8 +399,332 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- BELOW THE FOLD: Ratings, Breakdown, Reviews & Related Products -->
+    <!-- SPECIFICATIONS GRID (from Reference Image 5)                   -->
     <!-- ============================================================== -->
+    <div class="mt-12 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>📋</span>
+          <span>Specifications & Key Highlights</span>
+        </h3>
+        <span class="text-xs text-slate-400 font-medium">Verified by Brand</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Brand</span>
+          <span class="text-xs font-bold text-slate-800 mt-1 block truncate">{{ product.brand|default:"ShopKart" }}</span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Category</span>
+          <span class="text-xs font-bold text-slate-800 mt-1 block truncate">{{ category.name|default:"General" }}</span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Discount</span>
+          <span class="text-xs font-bold text-emerald-600 mt-1 block">Save {{ product.discount_percent }}%</span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Stock</span>
+          <span class="text-xs font-bold {% if product.in_stock %}text-emerald-700{% else %}text-rose-600{% endif %} mt-1 block">
+            {% if product.in_stock %}{{ product.quantity }} in stock{% else %}Out of Stock{% endif %}
+          </span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Delivery</span>
+          <span class="text-xs font-bold text-slate-800 mt-1 block">{% if product.free_delivery %}Free 🚚{% else %}Standard{% endif %}</span>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Warranty</span>
+          <span class="text-xs font-bold text-slate-800 mt-1 block">1 Year Official</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- FREQUENTLY BOUGHT TOGETHER BUNDLE (from Reference Image 5)     -->
+    <!-- ============================================================== -->
+    {% if accessories %}
+    <div class="mt-8 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs" 
+         x-data="{
+           basePrice: {{ product.selling_price }},
+           items: [
+             {% for acc in accessories %}
+             { id: {{ acc.id }}, name: '{{ acc.name|escapejs }}', price: {{ acc.selling_price }}, checked: true },
+             {% endfor %}
+           ],
+           get bundleTotal() {
+             let total = this.basePrice;
+             this.items.forEach(i => { if (i.checked) total += i.price; });
+             return Math.round(total);
+           },
+           get selectedCount() {
+             return 1 + this.items.filter(i => i.checked).length;
+           }
+         }">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-5">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>🎁</span>
+            <span>Frequently Bought Together</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Bundle this item with complementary best-sellers and save on shipping.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">Total Bundle:</span>
+            <span class="text-lg font-black text-slate-900">₹<span x-text="bundleTotal.toLocaleString('en-IN')"></span></span>
+          </div>
+          {% if request.user.is_authenticated %}
+          <form action="{% url 'add_to_cart' product.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5">
+              <span>Add <span x-text="selectedCount"></span> to Cart</span>
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}?next={{ request.path }}" 
+             class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5">
+            <span>Add <span x-text="selectedCount"></span> to Cart</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+        <!-- Main Product Card -->
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+          <input type="checkbox" checked disabled class="rounded border-slate-300 text-blue-600 cursor-not-allowed">
+          <div class="w-14 h-14 bg-white rounded-lg p-1 border border-slate-200 shrink-0 flex items-center justify-center">
+            {% if product.product_image %}
+            <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="max-h-full max-w-full object-contain">
+            {% endif %}
+          </div>
+          <div class="min-w-0">
+            <span class="text-[10px] font-bold text-blue-600 uppercase">This Item</span>
+            <p class="text-xs font-semibold text-slate-900 truncate">{{ product.name }}</p>
+            <p class="text-xs font-bold text-slate-800 mt-0.5">₹{{ product.selling_price|floatformat:0 }}</p>
+          </div>
+        </div>
+
+        <!-- Accessories Checkboxes -->
+        {% for acc in accessories %}
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 transition">
+          <input type="checkbox" 
+                 x-model="items[{{ forloop.counter0 }}].checked"
+                 class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+          <div class="w-14 h-14 bg-slate-50 rounded-lg p-1 border border-slate-200 shrink-0 flex items-center justify-center">
+            {% if acc.product_image %}
+            <img src="{{ acc.product_image.url }}" alt="{{ acc.name }}" class="max-h-full max-w-full object-contain">
+            {% endif %}
+          </div>
+          <div class="min-w-0">
+            <a href="{{ acc.get_absolute_url }}" class="text-xs font-semibold text-slate-800 hover:text-blue-600 truncate block">{{ acc.name }}</a>
+            <p class="text-xs font-bold text-slate-900 mt-0.5">₹{{ acc.selling_price|floatformat:0 }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ============================================================== -->
+    <!-- COMPARE WITH SIMILAR PRODUCTS (from Reference Image 5)         -->
+    <!-- ============================================================== -->
+    {% if compare_products %}
+    <div class="mt-8 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs">
+      <div class="pb-4 border-b border-slate-100 mb-5">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>⚖️</span>
+          <span>Compare with Similar Products</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">Direct specs and price comparison with category alternatives.</p>
+      </div>
+
+      <div class="overflow-x-auto scrollbar-none">
+        <table class="w-full text-left text-xs border-collapse min-w-[600px]">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="py-3 px-4 text-slate-400 font-bold uppercase w-1/4">Features</th>
+              <!-- This Product Column -->
+              <th class="py-3 px-4 text-slate-900 font-bold w-1/4 bg-blue-50/50 rounded-t-xl">
+                <div class="w-16 h-16 mx-auto bg-white rounded-lg p-1 border border-blue-200 mb-2 flex items-center justify-center">
+                  {% if product.product_image %}
+                  <img src="{{ product.product_image.url }}" class="max-h-full max-w-full object-contain">
+                  {% endif %}
+                </div>
+                <span class="text-blue-600 font-extrabold block text-[10px] uppercase">This Item</span>
+                <span class="line-clamp-1">{{ product.name }}</span>
+              </th>
+              <!-- Compare Competitors -->
+              {% for comp in compare_products %}
+              <th class="py-3 px-4 text-slate-800 font-semibold w-1/4">
+                <div class="w-16 h-16 mx-auto bg-white rounded-lg p-1 border border-slate-200 mb-2 flex items-center justify-center">
+                  {% if comp.product_image %}
+                  <img src="{{ comp.product_image.url }}" class="max-h-full max-w-full object-contain">
+                  {% endif %}
+                </div>
+                <a href="{{ comp.get_absolute_url }}" class="hover:text-blue-600 line-clamp-1 block">{{ comp.name }}</a>
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="py-3 px-4 font-bold text-slate-500">Price</td>
+              <td class="py-3 px-4 font-black text-slate-900 bg-blue-50/30">₹{{ product.selling_price|floatformat:0 }}</td>
+              {% for comp in compare_products %}
+              <td class="py-3 px-4 font-bold text-slate-700">₹{{ comp.selling_price|floatformat:0 }}</td>
+              {% endfor %}
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold text-slate-500">Rating</td>
+              <td class="py-3 px-4 font-bold text-slate-900 bg-blue-50/30">★ {{ product.avg_rating|default:"4.5" }} ({{ product.review_count }})</td>
+              {% for comp in compare_products %}
+              <td class="py-3 px-4 text-slate-700">★ {{ comp.avg_rating|default:"4.0" }} ({{ comp.review_count }})</td>
+              {% endfor %}
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold text-slate-500">Brand</td>
+              <td class="py-3 px-4 font-semibold text-slate-800 bg-blue-50/30">{{ product.brand }}</td>
+              {% for comp in compare_products %}
+              <td class="py-3 px-4 text-slate-600">{{ comp.brand }}</td>
+              {% endfor %}
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold text-slate-500">Stock Availability</td>
+              <td class="py-3 px-4 font-bold text-emerald-600 bg-blue-50/30">{% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}</td>
+              {% for comp in compare_products %}
+              <td class="py-3 px-4 {% if comp.in_stock %}text-emerald-600{% else %}text-rose-500{% endif %}">
+                {% if comp.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ============================================================== -->
+    <!-- SHOPKART AI COPILOT SHOWCASE (from Reference Image 5)          -->
+    <!-- Powered by Google AI Studio Gemini API                         -->
+    <!-- ============================================================== -->
+    <div class="mt-8 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
+         x-data="{
+           aiPrompt: '',
+           aiResponse: '',
+           aiLoading: false,
+           aiError: '',
+           askGemini(customQuestion) {
+             const query = customQuestion || this.aiPrompt;
+             if (!query.trim()) return;
+             this.aiLoading = true;
+             this.aiError = '';
+             this.aiResponse = '';
+             
+             fetch('/ai/chat', {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': '{{ csrf_token }}'
+               },
+               body: JSON.stringify({
+                 prompt: query,
+                 product_id: {{ product.id }},
+                 context_type: 'product'
+               })
+             })
+             .then(r => r.json())
+             .then(data => {
+               this.aiLoading = false;
+               if (data.success) {
+                 this.aiResponse = data.response;
+               } else {
+                 this.aiError = data.error || 'Unable to generate response. Please check your GEMINI_API_KEY in .env.';
+               }
+             })
+             .catch(err => {
+               this.aiLoading = false;
+               this.aiError = 'Connection failed. Please verify network access.';
+             });
+           }
+         }">
+      
+      <!-- Decorative Backdrop Glow -->
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10">
+        <!-- AI Header Badge -->
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="flex h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 items-center justify-center text-sm shadow-md">✨</span>
+            <div>
+              <h3 class="text-lg font-black tracking-tight text-white flex items-center gap-2">
+                <span>ShopKart AI Copilot</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 uppercase">
+                  Google Gemini
+                </span>
+              </h3>
+              <p class="text-xs text-slate-300">Instant answers, product comparisons, and tailored advice for {{ product.name }}.</p>
+            </div>
+          </div>
+          <span class="text-[11px] text-slate-400 font-medium">Google AI Studio Grounded</span>
+        </div>
+
+        <!-- Quick Question Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mb-4 select-none">
+          <button type="button" @click="askGemini('Summarize the top 3 reasons to buy this product.')"
+                  class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs text-slate-200 hover:text-white transition whitespace-nowrap">
+            ⚡ Top 3 Reasons to Buy
+          </button>
+          <button type="button" @click="askGemini('What are the key benefits and warranty for this item?')"
+                  class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs text-slate-200 hover:text-white transition whitespace-nowrap">
+            🛡️ Benefits & Warranty
+          </button>
+          <button type="button" @click="askGemini('Are there any active discount coupons or deals for this order?')"
+                  class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs text-slate-200 hover:text-white transition whitespace-nowrap">
+            🏷️ Best Offers & Coupons
+          </button>
+          <button type="button" @click="askGemini('How does this product compare with other market alternatives?')"
+                  class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs text-slate-200 hover:text-white transition whitespace-nowrap">
+            ⚖️ Market Comparison
+          </button>
+        </div>
+
+        <!-- Live Question Input Bar -->
+        <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 focus-within:border-cyan-400 transition">
+          <input type="text" 
+                 x-model="aiPrompt"
+                 @keydown.enter="askGemini()"
+                 placeholder="Ask Gemini anything about this product (e.g. 'Is this good for daily travel?')..."
+                 class="w-full bg-transparent px-3 py-2 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none">
+          <button type="button" 
+                  @click="askGemini()"
+                  :disabled="aiLoading"
+                  class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs shrink-0 transition flex items-center gap-1.5 disabled:opacity-50">
+            <span x-show="!aiLoading">Ask AI</span>
+            <span x-show="aiLoading" class="animate-spin text-sm">⏳</span>
+          </button>
+        </div>
+
+        <!-- AI Output Box -->
+        <div x-show="aiLoading || aiResponse || aiError" class="mt-4 p-4 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm leading-relaxed">
+          <div x-show="aiLoading" class="flex items-center gap-2.5 text-cyan-300">
+            <span class="animate-spin">✨</span>
+            <span>Gemini is analyzing {{ product.name }} and catalog specifications...</span>
+          </div>
+          <div x-show="aiError" class="text-rose-400" x-text="aiError"></div>
+          <div x-show="aiResponse" class="text-slate-200 space-y-2">
+            <div class="flex items-center gap-2 text-indigo-300 font-bold text-xs border-b border-white/10 pb-2">
+              <span>✦ Gemini AI Answer:</span>
+            </div>
+            <p class="whitespace-pre-line text-xs sm:text-sm leading-relaxed" x-text="aiResponse"></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div id="reviews-section" class="mt-12 pt-8 border-t border-gray-200">
       <div class="grid lg:grid-cols-12 gap-8">
         
