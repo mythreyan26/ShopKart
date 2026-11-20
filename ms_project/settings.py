@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,15 +22,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env if present
 load_dotenv(BASE_DIR / '.env')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-*@u*b=nl8e3u%kjw=%v+3!l)((hm@o=+k^+-yxguxqy=!owu8+')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').strip().lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',') if h.strip()]
-if not ALLOWED_HOSTS:
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable is required in production (when DEBUG=False).")
+    SECRET_KEY = 'django-insecure-*@u*b=nl8e3u%kjw=%v+3!l)((hm@o=+k^+-yxguxqy=!owu8+'
+
+raw_allowed_hosts = os.getenv('ALLOWED_HOSTS', '')
+if raw_allowed_hosts:
+    ALLOWED_HOSTS = [h.strip() for h in raw_allowed_hosts.split(',') if h.strip()]
+elif DEBUG:
     ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
@@ -76,7 +86,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-X_FRAME_OPTIONS = 'ALLOWALL'
+if DEBUG:
+    X_FRAME_OPTIONS = 'ALLOWALL'
+else:
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = 'ms_project.urls'
 
@@ -235,12 +248,23 @@ JAZZMIN_UI_TWEAKS = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            database_url,
+            conn_max_age=0,  # 0 recommended for serverless connection poolers like PgBouncer on Neon
+            conn_health_checks=True,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

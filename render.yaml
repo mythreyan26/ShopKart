@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     buildCommand: "./build.sh"
-    startCommand: "gunicorn ms_project.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn ms_project.wsgi:application --workers 1 --threads 4 --max-requests 500 --max-requests-jitter 50 --timeout 30 --bind 0.0.0.0:$PORT"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
@@ -16,3 +16,5 @@ services:
         value: ".onrender.com,localhost,127.0.0.1"
       - key: CSRF_TRUSTED_ORIGINS
         value: "https://*.onrender.com"
+      - key: DATABASE_URL
+        sync: false

@@ -12,7 +12,4 @@ python manage.py collectstatic --noinput
 echo "--- Applying database schema migrations ---"
 python manage.py migrate
 
-echo "--- Loading sample seed data (products, categories, users) ---"
-python manage.py loaddata seed_data.json || echo "Seed data already loaded or skipped."
-
 echo "--- ShopKart build completed successfully! ---"

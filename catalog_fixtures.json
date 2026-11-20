@@ -1,0 +1,2936 @@
+[
+{
+  "model": "shop.category",
+  "pk": 21,
+  "fields": {
+    "name": "Electronics",
+    "parent": null,
+    "slug": "electronics",
+    "image": "uploads/20260816165713_d698b243fdb27998e16d721916edf454.jpg",
+    "description": "Phones, laptops, audio and everyday tech.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:49.918Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 22,
+  "fields": {
+    "name": "Fashion",
+    "parent": null,
+    "slug": "fashion",
+    "image": "uploads/20260816112949_cat_fashion.jpg",
+    "description": "Clothing, footwear and accessories for everyone.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:49.941Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 23,
+  "fields": {
+    "name": "Home & Kitchen",
+    "parent": null,
+    "slug": "home-kitchen",
+    "image": "uploads/20260816112949_cat_home_and_kitchen.jpg",
+    "description": "Furniture, decor and kitchen essentials.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:49.965Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 24,
+  "fields": {
+    "name": "Beauty & Personal Care",
+    "parent": null,
+    "slug": "beauty-personal-care",
+    "image": "uploads/20260816165148_3d-rendering-personal-care-products-fondant-pink.jpg",
+    "description": "Skincare, fragrance and grooming.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:49.988Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 25,
+  "fields": {
+    "name": "Sports & Fitness",
+    "parent": null,
+    "slug": "sports-fitness",
+    "image": "uploads/20260816165932_f86d3b76143f19be1a1cb4f0031e1b24.jpg",
+    "description": "Gear and equipment to keep you moving.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.010Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 26,
+  "fields": {
+    "name": "Books",
+    "parent": null,
+    "slug": "books",
+    "image": "uploads/20260816112950_cat_books.jpg",
+    "description": "Bestsellers, fiction and non-fiction reads.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.027Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 27,
+  "fields": {
+    "name": "Grocery",
+    "parent": null,
+    "slug": "grocery",
+    "image": "uploads/20260816112950_cat_grocery.jpg",
+    "description": "Daily essentials delivered to your door.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.044Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 28,
+  "fields": {
+    "name": "Toys & Games",
+    "parent": null,
+    "slug": "toys-games",
+    "image": "uploads/20260816112950_cat_toys_and_games.jpg",
+    "description": "Fun for kids and kids-at-heart.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.063Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 29,
+  "fields": {
+    "name": "Mobiles",
+    "parent": 21,
+    "slug": "mobiles",
+    "image": "uploads/20260816112950_prod_smartphone.jpg",
+    "description": "Latest smartphones, 5G devices and mobile accessories.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.085Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 30,
+  "fields": {
+    "name": "Laptops & Computers",
+    "parent": 21,
+    "slug": "laptops-computers",
+    "image": "uploads/20260816112950_prod_laptop.jpg",
+    "description": "High-performance laptops, ultrabooks and computing gear.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.103Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 31,
+  "fields": {
+    "name": "Audio & Headphones",
+    "parent": 21,
+    "slug": "audio-headphones",
+    "image": "uploads/20260816170303_4aeaf3e24de6a84e7fdb82f969c27ea3.jpg",
+    "description": "Noise-cancelling headphones, wireless earbuds and audio gear.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.120Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 32,
+  "fields": {
+    "name": "Cameras",
+    "parent": 21,
+    "slug": "cameras",
+    "image": "uploads/20260816112950_prod_camera.jpg",
+    "description": "Mirrorless, DSLR and digital cameras.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.133Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 33,
+  "fields": {
+    "name": "Smartwatches",
+    "parent": 21,
+    "slug": "smartwatches",
+    "image": "uploads/20260816112950_prod_smartwatch.jpg",
+    "description": "Fitness trackers, health monitors and smart wearables.",
+    "status": false,
+    "created_at": "2026-08-16T05:59:50.146Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 34,
+  "fields": {
+    "name": "Apple Products",
+    "parent": 21,
+    "slug": "apple",
+    "image": "uploads/20260816163430_Icon.png",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-16T11:04:30.811Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 35,
+  "fields": {
+    "name": "Men's Wear",
+    "parent": 22,
+    "slug": "mens-wear",
+    "image": "uploads/20260816112950_prod_tshirt.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.126Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 36,
+  "fields": {
+    "name": "Women's Wear",
+    "parent": 22,
+    "slug": "womens-wear",
+    "image": "uploads/20260816112950_prod_leather_bag.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.176Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 37,
+  "fields": {
+    "name": "Footwear & Sneakers",
+    "parent": 22,
+    "slug": "footwear-sneakers",
+    "image": "uploads/20260816112950_prod_sneakers.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.190Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 38,
+  "fields": {
+    "name": "Watches & Accessories",
+    "parent": 22,
+    "slug": "watches-accessories",
+    "image": "uploads/20260816112950_prod_watch.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.203Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 39,
+  "fields": {
+    "name": "Furniture & Sofas",
+    "parent": 23,
+    "slug": "furniture-sofas",
+    "image": "uploads/20260816112950_prod_sofa.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.214Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 40,
+  "fields": {
+    "name": "Lighting & Lamps",
+    "parent": 23,
+    "slug": "lighting-lamps",
+    "image": "uploads/20260816112950_prod_floor_lamp.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.222Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 41,
+  "fields": {
+    "name": "Kitchen Appliances",
+    "parent": 23,
+    "slug": "kitchen-appliances",
+    "image": "uploads/20260816112950_prod_kettle.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.230Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 42,
+  "fields": {
+    "name": "Home Decor",
+    "parent": 23,
+    "slug": "home-decor",
+    "image": "uploads/20260816112950_prod_table_lamp.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.238Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 43,
+  "fields": {
+    "name": "Skincare & Lip Care",
+    "parent": 24,
+    "slug": "skincare-lip-care",
+    "image": "uploads/20260816112951_prod_lip_care.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.247Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 44,
+  "fields": {
+    "name": "Fragrances & Perfumes",
+    "parent": 24,
+    "slug": "fragrances-perfumes",
+    "image": "uploads/20260816112950_prod_perfume.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.255Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 45,
+  "fields": {
+    "name": "Makeup & Cosmetics",
+    "parent": 24,
+    "slug": "makeup-cosmetics",
+    "image": "uploads/20260816112950_prod_lipstick.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.263Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 46,
+  "fields": {
+    "name": "Gym & Fitness Equipment",
+    "parent": 25,
+    "slug": "gym-fitness-equipment",
+    "image": "uploads/20260816112951_prod_dumbbells.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.271Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 47,
+  "fields": {
+    "name": "Sports Balls & Gear",
+    "parent": 25,
+    "slug": "sports-balls-gear",
+    "image": "uploads/20260816112951_prod_basketball.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.276Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 48,
+  "fields": {
+    "name": "Athletic Footwear",
+    "parent": 25,
+    "slug": "athletic-footwear",
+    "image": "uploads/20260816112950_prod_running_shoes.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.282Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 49,
+  "fields": {
+    "name": "Fiction & Literature",
+    "parent": 26,
+    "slug": "fiction-literature",
+    "image": "uploads/20260816112951_prod_fiction_book.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.288Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 50,
+  "fields": {
+    "name": "Self-Help & Productivity",
+    "parent": 26,
+    "slug": "self-help-productivity",
+    "image": "uploads/20260816112951_prod_focus_book.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.293Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 51,
+  "fields": {
+    "name": "Sci-Fi & Fantasy",
+    "parent": 26,
+    "slug": "sci-fi-fantasy",
+    "image": "uploads/20260816112951_prod_fantasy_book.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.298Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 52,
+  "fields": {
+    "name": "Tea & Beverages",
+    "parent": 27,
+    "slug": "tea-beverages",
+    "image": "uploads/20260816112951_prod_tea.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.303Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 53,
+  "fields": {
+    "name": "Grains & Staples",
+    "parent": 27,
+    "slug": "grains-staples",
+    "image": "uploads/20260816112951_prod_rice.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.311Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 54,
+  "fields": {
+    "name": "Puzzles & Board Games",
+    "parent": 28,
+    "slug": "puzzles-board-games",
+    "image": "uploads/20260816112951_prod_puzzle.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.319Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 55,
+  "fields": {
+    "name": "Plush & Soft Toys",
+    "parent": 28,
+    "slug": "plush-soft-toys",
+    "image": "uploads/20260816112951_prod_teddy_bear.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.327Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 56,
+  "fields": {
+    "name": "Outdoor & Sports Play",
+    "parent": 28,
+    "slug": "outdoor-sports-play",
+    "image": "uploads/20260816112951_prod_play_balls.jpg",
+    "description": "",
+    "status": false,
+    "created_at": "2026-08-17T15:40:30.335Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 59,
+  "fields": {
+    "name": "Snacks & Confectionery",
+    "parent": 27,
+    "slug": "snacks-confectionery",
+    "image": "",
+    "description": "",
+    "status": false,
+    "created_at": "2026-11-12T16:17:27.200Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 60,
+  "fields": {
+    "name": "Beverages",
+    "parent": 27,
+    "slug": "beverages",
+    "image": "",
+    "description": "",
+    "status": false,
+    "created_at": "2026-11-12T16:17:27.210Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 61,
+  "fields": {
+    "name": "Household Essentials",
+    "parent": 27,
+    "slug": "household-essentials",
+    "image": "",
+    "description": "",
+    "status": false,
+    "created_at": "2026-11-12T16:17:27.218Z"
+  }
+},
+{
+  "model": "shop.category",
+  "pk": 62,
+  "fields": {
+    "name": "Accessories",
+    "parent": 22,
+    "slug": "fashion-accessories",
+    "image": "",
+    "description": "",
+    "status": false,
+    "created_at": "2026-11-12T16:17:27.228Z"
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 69,
+  "fields": {
+    "category": 34,
+    "name": "IPhone 17 pro",
+    "slug": "IPhone-17-pro",
+    "brand": "Apple",
+    "vendor": "Apple",
+    "product_image": "uploads/20260816115651_iPhone_17_pro.jpg",
+    "quantity": 36,
+    "original_price": 154900.0,
+    "selling_price": 150900.0,
+    "description": "Apple iPhone 17 Pro 512 GB: 15.93 cm (6.3″) Display with Promotion up to 120Hz, A19 Pro Chip, Breakthrough Battery Life, Pro Fusion Camera System with Center Stage Front Camera,Silver.",
+    "highlights": "About this item\r\n• UNIBODY DESIGN. FOR EXCEPTIONAL    POWER — Heat-forged aluminium unibody enclosure for the most powerful iPhone ever made.\r\n• DURABLE CERAMIC SHIELD. FRONT AND BACK — Ceramic Shield protects the back of iPhone 17 Pro Max, making it 4x more resistant to cracks. And the new Ceramic Shield 2 on the front has 3x better scratch resistance.\r\n• THE ULTIMATE PRO CAMERA SYSTEM — With all 48MP rear cameras and 8x optical-quality zoom — the longest zoom ever on an iPhone. It’s the equivalent of 8 pro lenses in your pocket.\r\n• 18MP CENTER STAGE FRONT CAMERA — Flexible ways to frame your shot. Smarter group selfies, Dual Capture video for simultaneous front and rear recording, and more.\r\n• A19 PRO CHIP. VAPOUR COOLED. LIGHTNING FAST — A19 Pro is the most powerful iPhone chip yet, delivering up to 40% better sustained performance.\r\n• BREAKTHROUGH BATTERY LIFE — The unibody design creates massive additional battery capacity, for up to 31 hours of video playback. Charge up to 50%",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.161Z",
+    "updated_at": "2026-08-17T15:36:46.625Z",
+    "categories": [
+      34
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 70,
+  "fields": {
+    "category": 34,
+    "name": "MacBook M5",
+    "slug": "MacBook-M5",
+    "brand": "Apple",
+    "vendor": "Apple",
+    "product_image": "uploads/20260816181236_Air_M5.jpg",
+    "quantity": 50,
+    "original_price": 179900.0,
+    "selling_price": 166900.0,
+    "description": "Apple 2026 MacBook Air 15″ Laptop with M5 chip: AI and Apple Intelligence, 38.91 cm (15.3″) Liquid Retina Display, 16GB Unified Memory, 512GB SSD Storage, 12MP Center Stage Camera, Touch ID; Sky Blue.",
+    "highlights": "About this item\r\nMIGHT TAKES FLIGHT — MacBook Air with the M5 chip packs blazing speed and powerful AI capabilities into an incredibly portable design. With Apple Intelligence, up to 18 hours of battery life and fast SSD storage starting from 512GB, you can work, create and play anywhere life takes you.\r\nSUPERCHARGED BY M5 — With its faster CPU and unified memory, the M5 chip delivers even more performance and fluidity across apps, making multitasking and creative workflows smooth and responsive. A powerful Neural Engine and next-generation GPU with Neural Accelerators give you a powerful platform for AI.\r\nAPPLE INTELLIGENCE — Apple Intelligence is the personal intelligence system that helps you write, express yourself and get things done effortlessly. With groundbreaking privacy protections, it gives you peace of mind that no one else can access your data — not even Apple.\r\nUP TO 18 HOURS OF BATTERY LIFE — MacBook Air delivers incredible battery life with amazing performance.",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.186Z",
+    "updated_at": "2026-08-30T13:43:52.286Z",
+    "categories": [
+      34,
+      21,
+      30
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 71,
+  "fields": {
+    "category": 31,
+    "name": "AuraSound Wireless ANC Headphones",
+    "slug": "aurasound-wireless-anc-headphones",
+    "brand": "AuraSound",
+    "vendor": "AuraSound",
+    "product_image": "uploads/20260816170355_4aeaf3e24de6a84e7fdb82f969c27ea3.jpg",
+    "quantity": 42,
+    "original_price": 6999.0,
+    "selling_price": 3499.0,
+    "description": "Immersive over-ear headphones with active noise cancellation and 40-hour battery life.",
+    "highlights": "Active Noise Cancellation\r\n40-hour battery life\r\nBluetooth 5.3\r\nFast charge: 10 min = 5 hrs playback",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.213Z",
+    "updated_at": "2026-08-16T11:33:55.722Z",
+    "categories": [
+      31
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 72,
+  "fields": {
+    "category": 31,
+    "name": "Nimbus Buds Pro Earbuds",
+    "slug": "nimbus-buds-pro-earbuds",
+    "brand": "Nimbus",
+    "vendor": "Nimbus",
+    "product_image": "uploads/20260816112950_prod_earbuds.jpg",
+    "quantity": 22,
+    "original_price": 3999.0,
+    "selling_price": 1799.0,
+    "description": "True wireless earbuds with rich bass and a compact charging case.",
+    "highlights": "Active noise cancellation\n30-hour total battery\nIPX5 water resistant\nTouch controls",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.255Z",
+    "updated_at": "2026-08-16T05:59:50.264Z",
+    "categories": [
+      31
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 73,
+  "fields": {
+    "category": 32,
+    "name": "Lumen S1 Mirrorless Camera",
+    "slug": "lumen-s1-mirrorless-camera",
+    "brand": "Lumen",
+    "vendor": "Lumen",
+    "product_image": "uploads/20260816112950_prod_camera_lK19v3a.jpg",
+    "quantity": 20,
+    "original_price": 54999.0,
+    "selling_price": 42999.0,
+    "description": "Capture stunning photos and 4K video with this compact mirrorless camera.",
+    "highlights": "24MP sensor\n4K video recording\nIn-body stabilization\nWi-Fi transfer",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.305Z",
+    "updated_at": "2026-08-16T05:59:50.314Z",
+    "categories": [
+      32
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 74,
+  "fields": {
+    "category": 33,
+    "name": "Pulse Fit Smartwatch",
+    "slug": "pulse-fit-smartwatch",
+    "brand": "Pulse",
+    "vendor": "Pulse",
+    "product_image": "uploads/20260816112950_prod_smartwatch_lJGf9iq.jpg",
+    "quantity": 25,
+    "original_price": 5999.0,
+    "selling_price": 2999.0,
+    "description": "Track your health and stay connected on the go.",
+    "highlights": "Heart rate & SpO2 monitor\n7-day battery life\nAMOLED touch display\n100+ sport modes",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.349Z",
+    "updated_at": "2026-08-16T05:59:50.360Z",
+    "categories": [
+      33,
+      38
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 75,
+  "fields": {
+    "category": 35,
+    "name": "Classic Fit Cotton T-Shirt",
+    "slug": "classic-fit-cotton-t-shirt",
+    "brand": "Urban Thread",
+    "vendor": "Urban Thread",
+    "product_image": "uploads/20260816112950_prod_tshirt.jpg",
+    "quantity": 11,
+    "original_price": 999.0,
+    "selling_price": 499.0,
+    "description": "Everyday comfort in soft, breathable 100% cotton.",
+    "highlights": "100% pure cotton\nRegular fit\nMachine washable\nAvailable in multiple colors",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.413Z",
+    "updated_at": "2026-08-17T15:40:30.766Z",
+    "categories": [
+      22,
+      35
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 76,
+  "fields": {
+    "category": 48,
+    "name": "StrideMax Running Shoes",
+    "slug": "stridemax-running-shoes",
+    "brand": "StrideMax",
+    "vendor": "StrideMax",
+    "product_image": "uploads/20260816112950_prod_running_shoes.jpg",
+    "quantity": 56,
+    "original_price": 3499.0,
+    "selling_price": 1999.0,
+    "description": "Lightweight running shoes with responsive cushioning.",
+    "highlights": "Breathable mesh upper\nShock-absorbing sole\nAnti-slip grip\nLightweight design",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.455Z",
+    "updated_at": "2026-08-17T15:40:30.750Z",
+    "categories": [
+      48,
+      22
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 77,
+  "fields": {
+    "category": 36,
+    "name": "Heritage Leather Tote Bag",
+    "slug": "heritage-leather-tote-bag",
+    "brand": "Heritage",
+    "vendor": "Heritage",
+    "product_image": "uploads/20260816112950_prod_leather_bag.jpg",
+    "quantity": 23,
+    "original_price": 4999.0,
+    "selling_price": 2799.0,
+    "description": "A timeless tote crafted from genuine leather.",
+    "highlights": "Genuine leather\nSpacious main compartment\nAdjustable strap\nInterior zip pocket",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.490Z",
+    "updated_at": "2026-08-17T15:40:30.734Z",
+    "categories": [
+      22,
+      36
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 78,
+  "fields": {
+    "category": 38,
+    "name": "Chrono Steel Analog Watch",
+    "slug": "chrono-steel-analog-watch",
+    "brand": "Chrono",
+    "vendor": "Chrono",
+    "product_image": "uploads/20260816112950_prod_watch.jpg",
+    "quantity": 42,
+    "original_price": 5999.0,
+    "selling_price": 3299.0,
+    "description": "A sleek analog watch with a stainless steel strap.",
+    "highlights": "Stainless steel case\nWater resistant to 30m\nQuartz movement\n2-year warranty",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.534Z",
+    "updated_at": "2026-08-17T15:40:30.718Z",
+    "categories": [
+      22,
+      38
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 79,
+  "fields": {
+    "category": 35,
+    "name": "Slim Fit Denim Jacket",
+    "slug": "slim-fit-denim-jacket",
+    "brand": "Urban Thread",
+    "vendor": "Urban Thread",
+    "product_image": "uploads/20260816112950_prod_denim_jacket.jpg",
+    "quantity": 30,
+    "original_price": 2999.0,
+    "selling_price": 1699.0,
+    "description": "A versatile denim jacket for every season.",
+    "highlights": "Premium denim fabric\nSlim tailored fit\nButton closure\nMultiple pockets",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.570Z",
+    "updated_at": "2026-08-17T15:40:30.704Z",
+    "categories": [
+      22,
+      35
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 80,
+  "fields": {
+    "category": 37,
+    "name": "TrailBlaze Casual Sneakers",
+    "slug": "trailblaze-casual-sneakers",
+    "brand": "StrideMax",
+    "vendor": "StrideMax",
+    "product_image": "uploads/20260816112950_prod_sneakers.jpg",
+    "quantity": 25,
+    "original_price": 2799.0,
+    "selling_price": 1499.0,
+    "description": "Everyday sneakers that pair comfort with style.",
+    "highlights": "Cushioned insole\nDurable rubber outsole\nBreathable lining\nClassic lace-up",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.607Z",
+    "updated_at": "2026-08-17T15:40:30.690Z",
+    "categories": [
+      22,
+      37
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 81,
+  "fields": {
+    "category": 39,
+    "name": "Nordic 3-Seater Fabric Sofa",
+    "slug": "nordic-3-seater-fabric-sofa",
+    "brand": "Nordic Living",
+    "vendor": "Nordic Living",
+    "product_image": "uploads/20260816112950_prod_sofa.jpg",
+    "quantity": 41,
+    "original_price": 34999.0,
+    "selling_price": 24999.0,
+    "description": "A cozy 3-seater sofa that anchors any living room.",
+    "highlights": "High-density foam cushions\nSturdy wooden frame\nStain-resistant fabric\nEasy assembly",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.634Z",
+    "updated_at": "2026-08-17T15:40:30.675Z",
+    "categories": [
+      39,
+      23
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 82,
+  "fields": {
+    "category": 40,
+    "name": "Aria Modern Floor Lamp",
+    "slug": "aria-modern-floor-lamp",
+    "brand": "Aria",
+    "vendor": "Aria",
+    "product_image": "uploads/20260816112950_prod_floor_lamp.jpg",
+    "quantity": 14,
+    "original_price": 3499.0,
+    "selling_price": 1999.0,
+    "description": "Add warm ambient lighting to any corner.",
+    "highlights": "Adjustable brightness\nEnergy-efficient LED\nMinimalist design\nStable weighted base",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.679Z",
+    "updated_at": "2026-08-17T15:40:30.662Z",
+    "categories": [
+      23,
+      40
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 83,
+  "fields": {
+    "category": 41,
+    "name": "SteelBrew Electric Kettle 1.5L",
+    "slug": "steelbrew-electric-kettle-15l",
+    "brand": "SteelBrew",
+    "vendor": "SteelBrew",
+    "product_image": "uploads/20260816112950_prod_kettle.jpg",
+    "quantity": 19,
+    "original_price": 1799.0,
+    "selling_price": 999.0,
+    "description": "Boil water quickly and safely with auto shut-off.",
+    "highlights": "1.5 litre capacity\nAuto shut-off & boil-dry protection\nStainless steel body\n1500W fast heating",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.749Z",
+    "updated_at": "2026-08-17T15:40:30.650Z",
+    "categories": [
+      23,
+      41
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 84,
+  "fields": {
+    "category": 39,
+    "name": "Nordic Wooden Bookshelf",
+    "slug": "nordic-wooden-bookshelf",
+    "brand": "Nordic Living",
+    "vendor": "Nordic Living",
+    "product_image": "uploads/20260816112950_prod_bookshelf.jpg",
+    "quantity": 40,
+    "original_price": 7999.0,
+    "selling_price": 5499.0,
+    "description": "A 5-tier bookshelf that blends function and style.",
+    "highlights": "5 spacious shelves\nEngineered wood\nEasy to assemble\nScratch-resistant finish",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.819Z",
+    "updated_at": "2026-08-17T15:40:30.633Z",
+    "categories": [
+      39,
+      23
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 85,
+  "fields": {
+    "category": 40,
+    "name": "Aria Table Lamp Duo Pack",
+    "slug": "aria-table-lamp-duo-pack",
+    "brand": "Aria",
+    "vendor": "Aria",
+    "product_image": "uploads/20260816112950_prod_table_lamp.jpg",
+    "quantity": 46,
+    "original_price": 2499.0,
+    "selling_price": 1399.0,
+    "description": "Set of two bedside table lamps with soft-touch switch.",
+    "highlights": "Set of 2 lamps\nSoft ambient glow\nFabric shade\nCompact footprint",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.875Z",
+    "updated_at": "2026-08-17T15:40:30.616Z",
+    "categories": [
+      23,
+      40
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 86,
+  "fields": {
+    "category": 24,
+    "name": "Velour Signature Eau de Parfum",
+    "slug": "velour-signature-eau-de-parfum",
+    "brand": "Velour",
+    "vendor": "Velour",
+    "product_image": "uploads/20260816112950_prod_perfume.jpg",
+    "quantity": 56,
+    "original_price": 3999.0,
+    "selling_price": 2499.0,
+    "description": "A long-lasting fragrance with notes of amber and jasmine.",
+    "highlights": "50ml bottle\nUp to 8-hour longevity\nAmber & jasmine notes\nElegant glass bottle",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.927Z",
+    "updated_at": "2026-08-16T05:59:50.938Z",
+    "categories": [
+      24
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 87,
+  "fields": {
+    "category": 45,
+    "name": "Blossom Matte Lipstick Set",
+    "slug": "blossom-matte-lipstick-set",
+    "brand": "Blossom",
+    "vendor": "Blossom",
+    "product_image": "uploads/20260816112950_prod_lipstick.jpg",
+    "quantity": 19,
+    "original_price": 1499.0,
+    "selling_price": 799.0,
+    "description": "A set of 3 richly pigmented matte lipsticks.",
+    "highlights": "Set of 3 shades\nLong-lasting matte finish\nEnriched with vitamin E\nCruelty-free",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:50.981Z",
+    "updated_at": "2026-08-17T15:40:30.599Z",
+    "categories": [
+      24,
+      45
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 88,
+  "fields": {
+    "category": 44,
+    "name": "Velour Citrus Cologne Spray",
+    "slug": "velour-citrus-cologne-spray",
+    "brand": "Velour",
+    "vendor": "Velour",
+    "product_image": "uploads/20260816112951_prod_cologne.jpg",
+    "quantity": 10,
+    "original_price": 2999.0,
+    "selling_price": 1799.0,
+    "description": "A refreshing citrus cologne for daily wear.",
+    "highlights": "100ml bottle\nFresh citrus & musk\nLong-lasting spray\nTravel-friendly size",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.022Z",
+    "updated_at": "2026-08-17T15:40:30.579Z",
+    "categories": [
+      24,
+      44
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 89,
+  "fields": {
+    "category": 43,
+    "name": "Blossom Hydrating Lip Care Kit",
+    "slug": "blossom-hydrating-lip-care-kit",
+    "brand": "Blossom",
+    "vendor": "Blossom",
+    "product_image": "uploads/20260816112951_prod_lip_care.jpg",
+    "quantity": 59,
+    "original_price": 999.0,
+    "selling_price": 599.0,
+    "description": "Nourish and protect your lips with this hydrating kit.",
+    "highlights": "3-piece kit\nShea butter formula\nNon-sticky finish\nSuitable for daily use",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.066Z",
+    "updated_at": "2026-08-17T15:40:30.561Z",
+    "categories": [
+      24,
+      43
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 90,
+  "fields": {
+    "category": 46,
+    "name": "PowerFlex Adjustable Dumbbell Set",
+    "slug": "powerflex-adjustable-dumbbell-set",
+    "brand": "PowerFlex",
+    "vendor": "PowerFlex",
+    "product_image": "uploads/20260816112951_prod_dumbbells.jpg",
+    "quantity": 28,
+    "original_price": 5999.0,
+    "selling_price": 3999.0,
+    "description": "A space-saving adjustable dumbbell set for home workouts.",
+    "highlights": "5-25kg adjustable per dumbbell\nQuick-lock mechanism\nDurable cast iron\nCompact storage tray",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.109Z",
+    "updated_at": "2026-08-17T15:40:30.543Z",
+    "categories": [
+      46,
+      25
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 91,
+  "fields": {
+    "category": 47,
+    "name": "ProKick Match Football",
+    "slug": "prokick-match-football",
+    "brand": "ProKick",
+    "vendor": "ProKick",
+    "product_image": "uploads/20260816112951_prod_football.jpg",
+    "quantity": 20,
+    "original_price": 1499.0,
+    "selling_price": 899.0,
+    "description": "A durable match-quality football for all surfaces.",
+    "highlights": "Size 5, FIFA-spec\nWater-resistant outer\nMachine-stitched panels\nHigh-visibility design",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.158Z",
+    "updated_at": "2026-08-17T15:40:30.523Z",
+    "categories": [
+      25,
+      47
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 92,
+  "fields": {
+    "category": 46,
+    "name": "PowerFlex Resistance Band Kit",
+    "slug": "powerflex-resistance-band-kit",
+    "brand": "PowerFlex",
+    "vendor": "PowerFlex",
+    "product_image": "uploads/20260816112951_prod_resistance_bands.jpg",
+    "quantity": 21,
+    "original_price": 1299.0,
+    "selling_price": 699.0,
+    "description": "A 5-band resistance kit for strength and mobility training.",
+    "highlights": "5 resistance levels\nIncludes door anchor\nPortable carry bag\nSuitable for all fitness levels",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.217Z",
+    "updated_at": "2026-08-17T15:40:30.503Z",
+    "categories": [
+      46,
+      25
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 93,
+  "fields": {
+    "category": 47,
+    "name": "ProKick Basketball Pro",
+    "slug": "prokick-basketball-pro",
+    "brand": "ProKick",
+    "vendor": "ProKick",
+    "product_image": "uploads/20260816112951_prod_basketball.jpg",
+    "quantity": 28,
+    "original_price": 1799.0,
+    "selling_price": 999.0,
+    "description": "An indoor/outdoor basketball with excellent grip.",
+    "highlights": "Composite leather cover\nDeep channel grip\nOfficial size & weight\nIndoor/outdoor use",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.256Z",
+    "updated_at": "2026-08-17T15:40:30.483Z",
+    "categories": [
+      25,
+      47
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 94,
+  "fields": {
+    "category": 49,
+    "name": "The Silent Horizon (Fiction)",
+    "slug": "the-silent-horizon-fiction",
+    "brand": "Penfield Press",
+    "vendor": "Penfield Press",
+    "product_image": "uploads/20260816112951_prod_fiction_book.jpg",
+    "quantity": 37,
+    "original_price": 599.0,
+    "selling_price": 349.0,
+    "description": "A gripping mystery novel that keeps you guessing until the last page.",
+    "highlights": "412 pages\nPaperback edition\nBestselling mystery\nAward-nominated author",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.309Z",
+    "updated_at": "2026-08-17T15:40:30.464Z",
+    "categories": [
+      26,
+      49
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 95,
+  "fields": {
+    "category": 50,
+    "name": "Atomic Focus: Mastering Deep Work",
+    "slug": "atomic-focus-mastering-deep-work",
+    "brand": "Penfield Press",
+    "vendor": "Penfield Press",
+    "product_image": "uploads/20260816112951_prod_focus_book.jpg",
+    "quantity": 30,
+    "original_price": 499.0,
+    "selling_price": 299.0,
+    "description": "A practical guide to building focus in a distracted world.",
+    "highlights": "288 pages\nNon-fiction / self-help\nActionable frameworks\nBestseller",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.376Z",
+    "updated_at": "2026-08-17T15:40:30.449Z",
+    "categories": [
+      26,
+      50
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 96,
+  "fields": {
+    "category": 51,
+    "name": "Chronicles of the Northern Sky",
+    "slug": "chronicles-of-the-northern-sky",
+    "brand": "Wanderline Books",
+    "vendor": "Wanderline Books",
+    "product_image": "uploads/20260816112951_prod_fantasy_book.jpg",
+    "quantity": 19,
+    "original_price": 699.0,
+    "selling_price": 449.0,
+    "description": "An epic fantasy adventure spanning three kingdoms.",
+    "highlights": "560 pages\nHardcover collector's edition\nFirst in a trilogy\nMaps included",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.424Z",
+    "updated_at": "2026-08-17T15:40:30.436Z",
+    "categories": [
+      26,
+      51
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 97,
+  "fields": {
+    "category": 53,
+    "name": "Golden Harvest Basmati Rice 5kg",
+    "slug": "golden-harvest-basmati-rice-5kg",
+    "brand": "Golden Harvest",
+    "vendor": "Golden Harvest",
+    "product_image": "uploads/20260816112951_prod_rice.jpg",
+    "quantity": 32,
+    "original_price": 799.0,
+    "selling_price": 599.0,
+    "description": "Premium long-grain basmati rice, aged for aroma and taste.",
+    "highlights": "5kg pack\nAged for enhanced aroma\nLong-grain premium quality\nSourced from Himalayan foothills",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.472Z",
+    "updated_at": "2026-08-17T15:40:30.420Z",
+    "categories": [
+      53,
+      27
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 98,
+  "fields": {
+    "category": 52,
+    "name": "PureLeaf Assam Tea 500g",
+    "slug": "pureleaf-assam-tea-500g",
+    "brand": "PureLeaf",
+    "vendor": "PureLeaf",
+    "product_image": "uploads/20260816112951_prod_tea.jpg",
+    "quantity": 55,
+    "original_price": 399.0,
+    "selling_price": 279.0,
+    "description": "Rich and malty Assam tea leaves for the perfect cup.",
+    "highlights": "500g pack\nStrong malty flavor\nSingle-origin Assam\nResealable pack",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.515Z",
+    "updated_at": "2026-08-17T15:40:30.402Z",
+    "categories": [
+      27,
+      52
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 99,
+  "fields": {
+    "category": 55,
+    "name": "CuddleCo Plush Teddy Bear (24-inch)",
+    "slug": "cuddleco-plush-teddy-bear-24-inch",
+    "brand": "CuddleCo",
+    "vendor": "CuddleCo",
+    "product_image": "uploads/20260816112951_prod_teddy_bear.jpg",
+    "quantity": 40,
+    "original_price": 1499.0,
+    "selling_price": 899.0,
+    "description": "An extra-soft, huggable teddy bear that makes the perfect gift.",
+    "highlights": "24-inch height\nUltra-soft plush fabric\nChild-safe stitching\nMachine washable",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.565Z",
+    "updated_at": "2026-08-17T15:40:30.385Z",
+    "categories": [
+      55,
+      28
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 100,
+  "fields": {
+    "category": 54,
+    "name": "BrainBox 500-Piece Puzzle",
+    "slug": "brainbox-500-piece-puzzle",
+    "brand": "BrainBox",
+    "vendor": "BrainBox",
+    "product_image": "uploads/20260816112951_prod_puzzle.jpg",
+    "quantity": 44,
+    "original_price": 899.0,
+    "selling_price": 499.0,
+    "description": "A challenging 500-piece jigsaw puzzle for family game night.",
+    "highlights": "500 pieces\nPremium thick cardboard\nVivid print quality\nAges 8+",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.620Z",
+    "updated_at": "2026-08-17T15:40:30.369Z",
+    "categories": [
+      54,
+      28
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 101,
+  "fields": {
+    "category": 51,
+    "name": "SkyBounce Foam Play Ball Set",
+    "slug": "skybounce-foam-play-ball-set",
+    "brand": "SkyBounce",
+    "vendor": "SkyBounce",
+    "product_image": "uploads/20260816112951_prod_play_balls.jpg",
+    "quantity": 9,
+    "original_price": 699.0,
+    "selling_price": 399.0,
+    "description": "A set of 3 soft foam balls, safe for indoor and outdoor play.",
+    "highlights": "Set of 3 balls\nSoft foam, safe for indoors\nLightweight & durable\nAges 3+",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-16T05:59:51.679Z",
+    "updated_at": "2026-08-17T15:40:30.354Z",
+    "categories": [
+      51,
+      28
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 102,
+  "fields": {
+    "category": 34,
+    "name": "iPhone 17",
+    "slug": "iphone-17",
+    "brand": "Apple",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260823115700_iphone-17.jpg",
+    "quantity": 60,
+    "original_price": 84900.0,
+    "selling_price": 79900.0,
+    "description": "Apple iPhone 17 256 GB: 15.93 cm (6.3″) Display with Promotion, A19 Chip, Center Stage Front Camera for Smarter Group Selfies, Improved Scratch Resistance, All-Day Battery Life; Lavender",
+    "highlights": "About this item\r\nDESIGNED TO DELIGHT. BUILT TO LAST — iPhone 17 comes in five gorgeous colours, with a brighter 15.93 cm (6.3″) display and a Ceramic Shield 2 front that’s 3x more scratch resistant.\r\nSMOOTHER. BRIGHTER. BRILLIANT — Smooth scrolling with ProMotion up to 120Hz, better outdoor contrast with 3,000 nits peak brightness and 33% fewer reflections compared with previous generation.\r\n18MP CENTER STAGE FRONT CAMERA — Flexible ways to frame your shot. Smarter group selfies, Dual Capture video for simultaneous front and rear recording, and more.\r\nSTUNNING SHOTS — Capture super-high-resolution shots by default with the 48MP Dual Fusion camera system, 4x optical zoom range and 48MP Fusion Ultra Wide camera.\r\nA19 CHIP. POWER PLAYER. ENERGY EXPERT — With a 5-core GPU, the enhanced neural engine helps power everything you do on iPhone — from Apple Intelligence to AAA games.\r\nCHARGES FAST.  All-day battery life with up to 30 hours of video playback. Charge up to 50% in 20 min.",
+    "status": false,
+    "trending": true,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": false,
+    "created_at": "2026-08-17T14:21:30.112Z",
+    "updated_at": "2026-09-07T12:24:18.752Z",
+    "categories": [
+      21,
+      29
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 104,
+  "fields": {
+    "category": 21,
+    "name": "Macbook Neo",
+    "slug": "macbook-neo",
+    "brand": "Apple",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260830190703_1.webp",
+    "quantity": 20,
+    "original_price": 89900.0,
+    "selling_price": 83490.0,
+    "description": "Apple 2026 MacBook Neo 13\" Laptop with A18 Pro chip: Built for AI and Apple Intelligence, Liquid Retina Display, 8GB Unified Memory, 512GB SSD Storage, 1080p FaceTime HD Camera, Touch ID; Indigo",
+    "highlights": "HELLO, MACBOOK NEO — Ready for whatever your day brings, MacBook Neo flies through everyday tasks and apps. Choose from four stunning colours in a durable aluminium design. With a brilliant 33.02 cm (13″) Liquid Retina display, the A18 Pro chip built for AI and Apple Intelligence, and up to 16 hours of battery life, it’s an amazing Mac at a surprising price.\r\nTHE MOST COLOURFUL MACBOOK LINE-UP EVER — Choose from Silver, Blush, Citrus or Indigo — each with a colour-coordinated keyboard to complete the look. And with a durable aluminium design, MacBook Neo is built to go wherever you go.\r\nPOWER FOR EVERYDAY TASKS — Ready the moment you open it, MacBook Neo with the A18 Pro chip delivers the performance and AI capabilities you need to get things done, whether you’re editing family photos, powering through spreadsheets, using AI to summarise class notes or playing the latest Apple Arcade game.\r\nUP TO 16 HOURS OF BATTERY LIFE — With all-day battery life.",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-08-30T13:37:03.215Z",
+    "updated_at": "2026-08-30T13:44:26.062Z",
+    "categories": [
+      34,
+      21,
+      30
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 105,
+  "fields": {
+    "category": 31,
+    "name": "boAt Rockerz 450",
+    "slug": "boat-rockerz-450",
+    "brand": "boAt",
+    "vendor": "ShopKart",
+    "product_image": "real/prod_headphones.jpg",
+    "quantity": 25,
+    "original_price": 1999.0,
+    "selling_price": 1499.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.222Z",
+    "updated_at": "2026-09-05T04:34:54.233Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 106,
+  "fields": {
+    "category": 33,
+    "name": "Noise ColorFit Pro 4",
+    "slug": "noise-colorfit-pro-4",
+    "brand": "Noise",
+    "vendor": "ShopKart",
+    "product_image": "real/prod_smartwatch.jpg",
+    "quantity": 25,
+    "original_price": 2999.0,
+    "selling_price": 2399.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.244Z",
+    "updated_at": "2026-09-05T04:34:54.252Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 107,
+  "fields": {
+    "category": 22,
+    "name": "Puma Men Sneakers",
+    "slug": "puma-men-sneakers",
+    "brand": "Puma",
+    "vendor": "ShopKart",
+    "product_image": "real/prod_running_shoes.jpg",
+    "quantity": 25,
+    "original_price": 2999.0,
+    "selling_price": 2099.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.261Z",
+    "updated_at": "2026-09-05T04:34:54.270Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 108,
+  "fields": {
+    "category": 22,
+    "name": "Safari Laptop Backpack",
+    "slug": "safari-laptop-backpack",
+    "brand": "Safari",
+    "vendor": "ShopKart",
+    "product_image": "real/prod_leather_bag.jpg",
+    "quantity": 25,
+    "original_price": 1499.0,
+    "selling_price": 1274.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.280Z",
+    "updated_at": "2026-09-05T04:34:54.288Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 109,
+  "fields": {
+    "category": 32,
+    "name": "Canon EOS 1500D",
+    "slug": "canon-eos-1500d",
+    "brand": "Canon",
+    "vendor": "ShopKart",
+    "product_image": "real/prod_camera.jpg",
+    "quantity": 25,
+    "original_price": 36999.0,
+    "selling_price": 28999.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.298Z",
+    "updated_at": "2026-09-05T04:34:54.304Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 110,
+  "fields": {
+    "category": 29,
+    "name": "Samsung Galaxy S26 Ultra 5G",
+    "slug": "Samsung-Galaxy-S26-Ultra-5G",
+    "brand": "Samsung",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260927111411_s261.jpg",
+    "quantity": 31,
+    "original_price": 169999.0,
+    "selling_price": 130999.0,
+    "description": "Samsung Galaxy S26 Ultra 5G ( 12GB RAM, 256GB Storage) with Built-in Privacy Display, AI Phone, Photo Assist, Creative Studio, 200MP Camera, 5000mAh Battery and Snapdragon 8 Elite Gen 5",
+    "highlights": "Built-in Privacy Display\r\n200MP Pro-Grade Camera\r\nGalaxy AI with Agentic AI\r\nSnapdragon 8 Elite Gen 5 for Galaxy\r\n60W Super Fast Charging\r\n25W Wireless Charging\r\nSamsung Knox Security\r\nSlim & Premium Ultra Design\r\nAdvanced Night Photography\r\nEnhanced Gaming Performance",
+    "status": false,
+    "trending": true,
+    "featured": true,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-09-05T04:34:54.315Z",
+    "updated_at": "2026-09-27T05:44:11.841Z",
+    "categories": [
+      21
+    ]
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 114,
+  "fields": {
+    "category": 29,
+    "name": "Samsung Galaxy S24 Ultra 12+GB Titanium Gray",
+    "slug": "samsung-galaxy-s24-ultra-12gb-titanium-gray",
+    "brand": "Samsung",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_smartphone.jpg",
+    "quantity": 50,
+    "original_price": 1299.0,
+    "selling_price": 999.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": true,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.242Z",
+    "updated_at": "2026-11-13T16:13:19.481Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 115,
+  "fields": {
+    "category": 35,
+    "name": "Nike Jordan Brooklyn Fleece Men's Pullover Hoodie",
+    "slug": "nike-jordan-brooklyn-fleece-mens-pullover-hoodie",
+    "brand": "Nike",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_denim_jacket.jpg",
+    "quantity": 50,
+    "original_price": 65.0,
+    "selling_price": 45.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.253Z",
+    "updated_at": "2026-11-13T16:13:19.471Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 116,
+  "fields": {
+    "category": 42,
+    "name": "Seamless Bag Inflatable Lounge Chair Grey",
+    "slug": "seamless-bag-inflatable-lounge-chair-grey",
+    "brand": "ModernHome",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_sofa.jpg",
+    "quantity": 50,
+    "original_price": 48.0,
+    "selling_price": 32.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.266Z",
+    "updated_at": "2026-11-13T16:13:19.461Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 117,
+  "fields": {
+    "category": 62,
+    "name": "Diamond Stud Earrings (1/3 ct. t.w.) in 14K White Gold",
+    "slug": "diamond-stud-earrings-13-ct-tw-in-14k-white-gold",
+    "brand": "LuxuryStore",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_floor_lamp.jpg",
+    "quantity": 50,
+    "original_price": 450.0,
+    "selling_price": 295.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": true,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.276Z",
+    "updated_at": "2026-11-13T16:13:19.452Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 118,
+  "fields": {
+    "category": 25,
+    "name": "Nike Invincible 3 Premium Running Shoes",
+    "slug": "nike-invincible-3-premium-running-shoes",
+    "brand": "Nike",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_sneakers.jpg",
+    "quantity": 50,
+    "original_price": 220.0,
+    "selling_price": 180.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": true,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.287Z",
+    "updated_at": "2026-11-13T16:13:19.440Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 119,
+  "fields": {
+    "category": 59,
+    "name": "Lay's Classic Salted Potato Chips 170g",
+    "slug": "lays-classic-salted-potato-chips-170g",
+    "brand": "Lays",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111953_prod_rice.jpg",
+    "quantity": 50,
+    "original_price": 30.0,
+    "selling_price": 24.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.299Z",
+    "updated_at": "2026-11-13T16:13:19.428Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 120,
+  "fields": {
+    "category": 27,
+    "name": "Fresh Farm Golden Potatoes 1kg Pack",
+    "slug": "fresh-farm-golden-potatoes-1kg-pack",
+    "brand": "FarmFresh",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111953_prod_rice.jpg",
+    "quantity": 50,
+    "original_price": 12.0,
+    "selling_price": 8.75,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.309Z",
+    "updated_at": "2026-11-13T16:13:19.418Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 121,
+  "fields": {
+    "category": 60,
+    "name": "Faragalla Natural Mango Drink 6 x 250ml",
+    "slug": "faragalla-natural-mango-drink-6-x-250ml",
+    "brand": "Faragalla",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111953_prod_tea.jpg",
+    "quantity": 50,
+    "original_price": 6.0,
+    "selling_price": 4.16,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.319Z",
+    "updated_at": "2026-11-13T16:13:19.405Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 122,
+  "fields": {
+    "category": 61,
+    "name": "Fairy Max Plus Original Dishwash Liquid 600ml",
+    "slug": "fairy-max-plus-original-dishwash-liquid-600ml",
+    "brand": "Fairy",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111953_prod_tea.jpg",
+    "quantity": 50,
+    "original_price": 5.5,
+    "selling_price": 3.64,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.329Z",
+    "updated_at": "2026-11-13T16:13:19.389Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 123,
+  "fields": {
+    "category": 59,
+    "name": "Mars Minis Chocolate Fun Size Bag 180g",
+    "slug": "mars-minis-chocolate-fun-size-bag-180g",
+    "brand": "Mars",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111953_prod_tea.jpg",
+    "quantity": 50,
+    "original_price": 9.0,
+    "selling_price": 6.24,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.339Z",
+    "updated_at": "2026-11-13T16:13:19.381Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 124,
+  "fields": {
+    "category": 41,
+    "name": "Digital Air Fryer 3.8 Liters with Timer & Temperature",
+    "slug": "digital-air-fryer-38-liters-with-timer-temperature",
+    "brand": "Philips",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_watch.jpg",
+    "quantity": 50,
+    "original_price": 35.0,
+    "selling_price": 21.81,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.347Z",
+    "updated_at": "2026-11-13T16:13:19.368Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 125,
+  "fields": {
+    "category": 42,
+    "name": "Nordic Minimalist Orange Ceramic Vase Set (3 Pieces)",
+    "slug": "nordic-minimalist-orange-ceramic-vase-set-3-pieces",
+    "brand": "NordicHome",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_leather_bag.jpg",
+    "quantity": 50,
+    "original_price": 6.0,
+    "selling_price": 3.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.357Z",
+    "updated_at": "2026-11-13T16:13:19.357Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 126,
+  "fields": {
+    "category": 42,
+    "name": "ELECDON Couple Figurine Romantic Art Decor",
+    "slug": "elecdon-couple-figurine-romantic-art-decor",
+    "brand": "ELECDON",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_table_lamp.jpg",
+    "quantity": 50,
+    "original_price": 48.0,
+    "selling_price": 32.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.365Z",
+    "updated_at": "2026-11-13T16:13:19.344Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 127,
+  "fields": {
+    "category": 41,
+    "name": "Commercial Heavy Duty 1600W Blender Made in USA",
+    "slug": "commercial-heavy-duty-1600w-blender-made-in-usa",
+    "brand": "Blendtec",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_kettle.jpg",
+    "quantity": 50,
+    "original_price": 550.0,
+    "selling_price": 416.37,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.374Z",
+    "updated_at": "2026-11-13T16:13:19.332Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 128,
+  "fields": {
+    "category": 41,
+    "name": "LG 8kg Fully Automatic Front Load Washing Machine",
+    "slug": "lg-8kg-fully-automatic-front-load-washing-machine",
+    "brand": "LG",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_kettle.jpg",
+    "quantity": 50,
+    "original_price": 450.0,
+    "selling_price": 320.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": false,
+    "is_bestseller": true,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.385Z",
+    "updated_at": "2026-11-13T16:13:19.320Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 129,
+  "fields": {
+    "category": 35,
+    "name": "Adidas Tiro 23 League Soccer Shorts",
+    "slug": "adidas-tiro-23-league-soccer-shorts",
+    "brand": "Adidas",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_running_shoes.jpg",
+    "quantity": 50,
+    "original_price": 15.0,
+    "selling_price": 8.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.397Z",
+    "updated_at": "2026-11-13T16:13:19.309Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 130,
+  "fields": {
+    "category": 62,
+    "name": "Canvas Weekend Duffle Bag Lightweight Gym Bag",
+    "slug": "canvas-weekend-duffle-bag-lightweight-gym-bag",
+    "brand": "OpenStory",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_leather_bag.jpg",
+    "quantity": 50,
+    "original_price": 35.0,
+    "selling_price": 21.99,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.406Z",
+    "updated_at": "2026-11-13T16:13:19.297Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 131,
+  "fields": {
+    "category": 62,
+    "name": "Men's Genuine Buffalo Leather Belt 1 1/2-Inch",
+    "slug": "mens-genuine-buffalo-leather-belt-1-12-inch",
+    "brand": "Timberland",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_watch.jpg",
+    "quantity": 50,
+    "original_price": 45.0,
+    "selling_price": 30.08,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.416Z",
+    "updated_at": "2026-11-13T16:13:19.286Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 132,
+  "fields": {
+    "category": 35,
+    "name": "Burberry Check Cotton Shirt Archive Beige",
+    "slug": "burberry-check-cotton-shirt-archive-beige",
+    "brand": "Burberry",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_tshirt.jpg",
+    "quantity": 50,
+    "original_price": 750.0,
+    "selling_price": 626.0,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.426Z",
+    "updated_at": "2026-11-13T16:13:19.275Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.product",
+  "pk": 133,
+  "fields": {
+    "category": 35,
+    "name": "Nike Sportswear Club Fleece Pullover Hoodie",
+    "slug": "nike-sportswear-club-fleece-pullover-hoodie",
+    "brand": "Nike",
+    "vendor": "ShopKart",
+    "product_image": "uploads/20260816111952_prod_denim_jacket.jpg",
+    "quantity": 59,
+    "original_price": 65.0,
+    "selling_price": 43.98,
+    "description": "",
+    "highlights": "",
+    "status": false,
+    "trending": false,
+    "featured": true,
+    "is_bestseller": false,
+    "free_delivery": true,
+    "created_at": "2026-11-12T16:17:27.437Z",
+    "updated_at": "2026-11-13T16:13:19.255Z",
+    "categories": []
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 1,
+  "fields": {
+    "product": 102,
+    "name": "Lavender",
+    "color_code": "#D8B4E2",
+    "image": "uploads/20260905220428_iphone-17.jpg",
+    "price": null,
+    "original_price": null,
+    "quantity": 20,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:13.451Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 2,
+  "fields": {
+    "product": 102,
+    "name": "Space Black",
+    "color_code": "#1E2024",
+    "image": "uploads/20260905220854_b1.jpg",
+    "price": null,
+    "original_price": null,
+    "quantity": 10,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:13.846Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 3,
+  "fields": {
+    "product": 102,
+    "name": "Ocean Blue",
+    "color_code": "#7AA9C8",
+    "image": "uploads/20260907175255_blue1.jpg",
+    "price": null,
+    "original_price": null,
+    "quantity": 12,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:14.710Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 4,
+  "fields": {
+    "product": 102,
+    "name": "White",
+    "color_code": "#E8E8E4",
+    "image": "uploads/20260907175418_w1.jpg",
+    "price": null,
+    "original_price": null,
+    "quantity": 18,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:15.369Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 5,
+  "fields": {
+    "product": 102,
+    "name": "Sage Green",
+    "color_code": "#8CA88E",
+    "image": "uploads/20260907175418_g1.jpeg",
+    "price": null,
+    "original_price": null,
+    "quantity": 10,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.198Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 6,
+  "fields": {
+    "product": 75,
+    "name": "Pure White",
+    "color_code": "#FFFFFF",
+    "image": "uploads/20260816112950_prod_tshirt.jpg",
+    "price": 499.0,
+    "original_price": null,
+    "quantity": 25,
+    "is_default": true,
+    "created_at": "2026-08-17T16:42:16.880Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 7,
+  "fields": {
+    "product": 75,
+    "name": "Midnight Black",
+    "color_code": "#18181B",
+    "image": "uploads/20260816112950_prod_tshirt.jpg",
+    "price": 499.0,
+    "original_price": null,
+    "quantity": 20,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.890Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 8,
+  "fields": {
+    "product": 75,
+    "name": "Navy Blue",
+    "color_code": "#1E3A8A",
+    "image": "uploads/20260816112950_prod_tshirt.jpg",
+    "price": 499.0,
+    "original_price": null,
+    "quantity": 15,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.900Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 9,
+  "fields": {
+    "product": 76,
+    "name": "Crimson Red",
+    "color_code": "#DC2626",
+    "image": "uploads/20260816112950_prod_running_shoes.jpg",
+    "price": 1999.0,
+    "original_price": null,
+    "quantity": 15,
+    "is_default": true,
+    "created_at": "2026-08-17T16:42:16.916Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 10,
+  "fields": {
+    "product": 76,
+    "name": "Stealth Black",
+    "color_code": "#111827",
+    "image": "uploads/20260816112950_prod_running_shoes.jpg",
+    "price": 1999.0,
+    "original_price": null,
+    "quantity": 18,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.929Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 11,
+  "fields": {
+    "product": 76,
+    "name": "Royal Blue",
+    "color_code": "#2563EB",
+    "image": "uploads/20260816112950_prod_running_shoes.jpg",
+    "price": 1999.0,
+    "original_price": null,
+    "quantity": 10,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.942Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 12,
+  "fields": {
+    "product": 71,
+    "name": "Matte Black",
+    "color_code": "#18181B",
+    "image": "uploads/20260816170355_4aeaf3e24de6a84e7fdb82f969c27ea3.jpg",
+    "price": 3499.0,
+    "original_price": null,
+    "quantity": 12,
+    "is_default": true,
+    "created_at": "2026-08-17T16:42:16.961Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 13,
+  "fields": {
+    "product": 71,
+    "name": "Silver Platinum",
+    "color_code": "#E2E8F0",
+    "image": "uploads/20260816170355_4aeaf3e24de6a84e7fdb82f969c27ea3.jpg",
+    "price": 3499.0,
+    "original_price": null,
+    "quantity": 8,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.972Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 14,
+  "fields": {
+    "product": 71,
+    "name": "Midnight Navy",
+    "color_code": "#1E293B",
+    "image": "uploads/20260816170355_4aeaf3e24de6a84e7fdb82f969c27ea3.jpg",
+    "price": 3499.0,
+    "original_price": null,
+    "quantity": 6,
+    "is_default": false,
+    "created_at": "2026-08-17T16:42:16.982Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 15,
+  "fields": {
+    "product": 104,
+    "name": "Indigo",
+    "color_code": "indigo",
+    "image": "uploads/20260830190703_1_nRv53Qs.webp",
+    "price": 89900.0,
+    "original_price": 83490.0,
+    "quantity": 10,
+    "is_default": true,
+    "created_at": "2026-08-30T13:37:03.229Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 18,
+  "fields": {
+    "product": 110,
+    "name": "sky blude",
+    "color_code": "#87CEFA",
+    "image": "uploads/20260927111345_s261.jpg",
+    "price": 130999.0,
+    "original_price": 169999.0,
+    "quantity": 21,
+    "is_default": true,
+    "created_at": "2026-09-27T05:43:45.991Z"
+  }
+},
+{
+  "model": "shop.productcolor",
+  "pk": 19,
+  "fields": {
+    "product": 110,
+    "name": "Black",
+    "color_code": "#000000",
+    "image": "uploads/20260927111345_b1.jpg",
+    "price": 130999.0,
+    "original_price": 169999.0,
+    "quantity": 10,
+    "is_default": false,
+    "created_at": "2026-09-27T05:43:45.996Z"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 1,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260817215251_7.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 2,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260906201242_2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 5,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173456_b2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 6,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173500_2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 8,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_c2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 9,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 10,
+  "fields": {
+    "color": 4,
+    "image": "uploads/iphone_17_silver_front.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 11,
+  "fields": {
+    "color": 4,
+    "image": "uploads/20260907173639_2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 12,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907175221_g3.webp"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 13,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907174950_2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 15,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173234_buy-shop-compare-apple-iphone-17-256_EYPsA7O.image.w1opDZiWtHRWelfv.Woblo.png"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 16,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173506_9.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 18,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173516_10.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 19,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260907173355_BUY-SH1.PNG"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 20,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260907172906_9.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 21,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260907172911_10.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 22,
+  "fields": {
+    "color": 1,
+    "image": "uploads/20260907172917_11.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 23,
+  "fields": {
+    "color": 2,
+    "image": "uploads/20260907173522_b4.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 24,
+  "fields": {
+    "color": 4,
+    "image": "uploads/20260907173654_BUY-SH2.PNG"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 25,
+  "fields": {
+    "color": 4,
+    "image": "uploads/20260907173710_9.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 28,
+  "fields": {
+    "color": 4,
+    "image": "uploads/20260907173748_10.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 29,
+  "fields": {
+    "color": 4,
+    "image": "uploads/20260907173755_w4.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 30,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907174956_BUY-SH3.PNG"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 31,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907175229_9.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 32,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907175236_10.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 33,
+  "fields": {
+    "color": 5,
+    "image": "uploads/20260907175244_g2.webp"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 34,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_BUY-SH4.PNG"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 35,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_9.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 36,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_10.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 37,
+  "fields": {
+    "color": 3,
+    "image": "uploads/20260907175255_c4.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 38,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111817_s262.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 39,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111820_s263.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 40,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111823_s264.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 41,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111828_s265.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 42,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111832_b3.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 43,
+  "fields": {
+    "color": 19,
+    "image": "uploads/20260927111836_b2.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 44,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s262.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 45,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s263.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 46,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s264.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 47,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s265.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 48,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s1.jpg"
+  }
+},
+{
+  "model": "shop.productcolorimage",
+  "pk": 49,
+  "fields": {
+    "color": 18,
+    "image": "uploads/20260927111838_s266.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 7,
+  "fields": {
+    "product": 69,
+    "image": "uploads/20260816120600_17.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 8,
+  "fields": {
+    "product": 69,
+    "image": "uploads/20260816120600_17pro1.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 9,
+  "fields": {
+    "product": 69,
+    "image": "uploads/20260816120600_17pro2.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 10,
+  "fields": {
+    "product": 69,
+    "image": "uploads/20260816120600_17pro3.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 11,
+  "fields": {
+    "product": 70,
+    "image": "uploads/20260816171922_chip.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 12,
+  "fields": {
+    "product": 70,
+    "image": "uploads/20260816171922_1.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 13,
+  "fields": {
+    "product": 70,
+    "image": "uploads/20260816171922_2.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 14,
+  "fields": {
+    "product": 70,
+    "image": "uploads/20260816171922_3.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 15,
+  "fields": {
+    "product": 102,
+    "image": "uploads/20260817215251_7.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 17,
+  "fields": {
+    "product": 102,
+    "image": "uploads/20260817215251_9.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 18,
+  "fields": {
+    "product": 102,
+    "image": "uploads/20260817215409_11.jpg"
+  }
+},
+{
+  "model": "shop.productimage",
+  "pk": 23,
+  "fields": {
+    "product": 102,
+    "image": "uploads/20260906201348_8.jpg"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 1,
+  "fields": {
+    "code": "WELCOME10",
+    "discount_type": "percentage",
+    "discount_value": 10.0,
+    "min_order_amount": 0.0,
+    "max_discount": 500.0,
+    "description": "10% OFF on all orders",
+    "active": true,
+    "created_at": "2026-08-23T06:03:47.285Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 2,
+  "fields": {
+    "code": "SAVE20",
+    "discount_type": "percentage",
+    "discount_value": 20.0,
+    "min_order_amount": 1000.0,
+    "max_discount": 1000.0,
+    "description": "20% OFF on orders over Rs.1000",
+    "active": true,
+    "created_at": "2026-08-23T06:03:47.331Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 3,
+  "fields": {
+    "code": "FLAT100",
+    "discount_type": "fixed",
+    "discount_value": 100.0,
+    "min_order_amount": 499.0,
+    "max_discount": null,
+    "description": "Flat Rs.100 OFF on orders over Rs.499",
+    "active": true,
+    "created_at": "2026-08-23T06:03:47.341Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 4,
+  "fields": {
+    "code": "FESTIVE500",
+    "discount_type": "fixed",
+    "discount_value": 500.0,
+    "min_order_amount": 2000.0,
+    "max_discount": null,
+    "description": "Festive Special: Rs.500 OFF on orders over Rs.2000",
+    "active": true,
+    "created_at": "2026-08-23T06:03:47.350Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 5,
+  "fields": {
+    "code": "TEST20",
+    "discount_type": "percentage",
+    "discount_value": 20.0,
+    "min_order_amount": 500.0,
+    "max_discount": 1000.0,
+    "description": "20% OFF on Rs.500+",
+    "active": true,
+    "created_at": "2026-08-23T06:08:47.091Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 6,
+  "fields": {
+    "code": "APITEST10",
+    "discount_type": "percentage",
+    "discount_value": 10.0,
+    "min_order_amount": 50.0,
+    "max_discount": null,
+    "description": "",
+    "active": true,
+    "created_at": "2026-08-30T12:31:54.533Z"
+  }
+},
+{
+  "model": "shop.coupon",
+  "pk": 7,
+  "fields": {
+    "code": "VERIFY10",
+    "discount_type": "percentage",
+    "discount_value": 10.0,
+    "min_order_amount": 100.0,
+    "max_discount": null,
+    "description": "",
+    "active": true,
+    "created_at": "2026-08-30T12:36:59.942Z"
+  }
+}
+]

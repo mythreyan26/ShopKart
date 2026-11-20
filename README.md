@@ -1,51 +1,47 @@
-# ShopKart — Modern E-Commerce Platform & Multi-Device App
+# ShopKart — E-Commerce Platform & Multi-Device Application
 
-A modern, Amazon/Flipkart-style online store built with **Django 5 + Tailwind CSS + Alpine.js**, now featuring full **Universal Multi-Device App Support** (Progressive Web App + Mobile App + REST API).
+ShopKart is a full-featured e-commerce platform built with Django 5, Tailwind CSS, and Alpine.js, supporting web, Progressive Web App (PWA), and mobile clients.
 
-## Latest Features & Architecture
+## Architecture and Core Features
 
-🛍️ **Coupons & Promo Codes Engine**
-- Dynamic promo code engine with percentage discounts (e.g. `WELCOME10`, `SAVE20`) and fixed cash discounts (e.g. `FLAT100`, `FESTIVE500`).
-- Minimum order subtotal conditions, maximum discount caps, active validity toggles.
-- Integrated into Cart, Checkout, Order records, and REST API.
+### Promotional Codes and Discounts
+- Dynamic coupon engine supporting percentage discounts and fixed value reductions.
+- Enforces minimum order subtotals, maximum discount limits, and validity periods.
+- Integrated across cart calculations, checkout, order records, and API endpoints.
 
-🔍 **Instant Search Autocomplete**
-- Debounced live search suggestions in the desktop navbar and mobile search drawer.
-- Displays instant product thumbnails, price, discount badges, ratings, and one-click navigation.
+### Search and Autocomplete
+- Debounced live search suggestions available in navigation bars and mobile drawers.
+- Displays product thumbnails, pricing, discount tags, and direct product navigation.
 
-📦 **Order Status Tracking Stepper & Printable Tax Invoice**
-- Visual 4-step delivery progress bar: `Placed` → `Packed` → `Shipped` → `Delivered`.
-- Printable receipt `/orders/<id>/invoice` with itemized prices, coupon discounts, customer address, and tax invoice metadata.
+### Order Tracking and Invoicing
+- Visual multi-step fulfillment tracking: Placed, Packed, Shipped, Delivered.
+- Printable invoices (`/orders/<id>/invoice`) with itemized pricing, customer address details, and tax metadata.
 
-👤 **User Profile & Address Book Hub**
-- Dedicated `/profile` hub displaying customer lifetime spend, total orders, wishlist counters, and editable account details.
-- Comprehensive Address Book Manager: Add new addresses, set default shipping address, delete outdated addresses.
+### Customer Account and Address Management
+- Profile dashboard displaying order history, wishlist summaries, and account information.
+- Address book allowing users to add, set default shipping destinations, and delete addresses.
 
-⭐ **Customer Rating Breakdown & Reviews**
-- Visual 5-star rating distribution breakdown on product details pages.
-- Verified buyer review submission form with star ratings and headlines.
+### Product Reviews and Ratings
+- Star rating breakdown and distribution display on product pages.
+- Verified customer review submissions with star ratings and comments.
 
-🔔 **Floating Toast Notification System**
-- Modern floating animated toast alerts for instant feedback (item added, coupon applied, profile updated).
+### Real-Time Alerts
+- Non-blocking notification toasts for actions such as cart updates and coupon validation.
 
-📱 **Universal Multi-Device App Experience**
-- **Installable PWA**: 1-click installation on Android, iOS Safari, Windows, macOS, and Linux.
-- **Mobile Bottom Navigation Bar**: Quick thumb access to Home, Explore, Wishlist, Cart, and Account.
-- **Sticky Purchase Bar**: Quick mobile Add-to-Cart and Buy Now buttons.
-- **Offline Fallback Screen**: Service worker precaching with offline screen (`/offline/`).
+### Progressive Web App and Mobile Client
+- Installable PWA with service worker caching and offline fallback (`/offline/`).
+- Mobile navigation drawer, sticky purchase action bar, and responsive touch layout.
+- Cross-platform React Native and Expo client codebase located in `mobile_app/`.
 
-⚡ **Full RESTful JSON API Engine (`/api/`)**
-- Complete JSON endpoints covering Auth, Catalog, Live Search Autocomplete, Cart, Coupons, Wishlist, Addresses, Orders, and Reviews.
+### RESTful JSON API
+- Structured endpoints under `/api/` covering authentication, catalog browsing, cart operations, coupons, wishlists, address books, orders, and reviews.
 
-📲 **React Native + Expo Cross-Platform Mobile Client (`mobile_app/`)**
-- Dedicated mobile application codebase in `mobile_app/` ready to run on physical Android and iOS phones via Expo Go.
-
-## Getting started
+## Getting Started
 
 ```bash
-# 1. Create a virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
+# 1. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
@@ -53,35 +49,23 @@ pip install -r requirements.txt
 # 3. Apply database migrations
 python manage.py migrate
 
-# 4. Load demo data (8 categories, 33 products, sample reviews)
-python manage.py seed_data
+# 4. Load initial catalog data (or seed data for testing)
+python manage.py loaddata catalog_fixtures.json
 
-# 5. (Optional) create an admin account
+# 5. Create an administrative superuser (optional)
 python manage.py createsuperuser
 
-# 6. Run the dev server
+# 6. Start the development server
 python manage.py runserver
 ```
 
-Visit **http://127.0.0.1:8000/**
+Open **http://127.0.0.1:8000/** in your browser.
 
-### Demo login
-- Username: `demo_buyer`
-- Password: `demopass123`
+### Administration
+Access the administrative portal at `/admin` using your superuser credentials.
 
-### Admin panel
-Visit `/admin` with the superuser account you created to manage categories, products,
-orders, and reviews (Jazzmin theme included).
+## Deployment Notes
 
-## Notes
-
-- Styling is done via the **Tailwind CSS CDN** (no Node/build step required) plus
-  **Alpine.js** for interactivity (dropdowns, mobile menu, banner rotation, tabs). This
-  requires an internet connection in the browser to load those CDN scripts.
-- Product/category images are custom-generated SVG "studio" artwork (soft gradients +
-  icon), stored under `static/images/gen/`. Swap in real product photography any time by
-  uploading through the Django admin — the layout and image handling are unchanged.
-- Payments are simulated (Cash on Delivery / UPI / Card selection with no gateway
-  integration) — wire up Razorpay/Stripe when you're ready to go live.
-- `DEBUG = True` and a SQLite database are configured for local development. Switch to
-  Postgres + `DEBUG = False` + proper `ALLOWED_HOSTS` before deploying.
+- Frontend interactivity relies on Alpine.js and Tailwind CSS CDN scripts.
+- Catalog imagery is committed under `static/uploads/` and `static/images/` and served via Django's static handlers. For high-volume production deployments with frequent administrative uploads, configure persistent object storage (e.g., AWS S3 or Cloudinary).
+- Production deployment on Render with PostgreSQL requires setting `DATABASE_URL` and `DJANGO_SECRET_KEY` while ensuring `DEBUG=False`.
