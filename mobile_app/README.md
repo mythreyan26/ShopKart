@@ -1,18 +1,18 @@
 # ShopKart Mobile App (React Native + Expo)
 
-Cross-platform mobile application for **ShopKart**, powered by React Native and connecting to the Django REST API backend.
+Cross-platform mobile application for ShopKart, powered by React Native and connecting to the Django REST API backend.
 
 ---
 
 ## Features
 
-- 📱 **Multi-Platform**: Runs on **Android**, **iOS**, and **Web**.
-- 🏠 **Storefront**: Hero promotions, trending deals, bestsellers, live search.
-- 📦 **Interactive Catalog**: Hierarchical categories, subcategories, price sorting and filter chips.
-- 🎨 **Dynamic Color Variants**: Live price, stock, and gallery preview per color variant.
-- 🛒 **Full Cart & Checkout Flow**: Add/Update/Remove items, delivery fee thresholds, saved addresses, payment methods (COD / UPI / Card).
-- ❤️ **Wishlist**: 1-tap save and instant move to cart.
-- 👤 **User Accounts & Orders**: Registration, login, profile, and order status tracking.
+- **Multi-Platform**: Runs on Android, iOS, and Web.
+- **Storefront**: Promotional banners, featured deals, and live search autocomplete.
+- **Catalog**: Hierarchical categories, subcategories, and price filters.
+- **Color Variants**: Swatches, pricing, and image galleries per color option.
+- **Cart and Checkout**: Item management, coupon application, saved shipping addresses, and simulated payment methods (COD, UPI, Card).
+- **Wishlist**: Save items and move to cart.
+- **Customer Accounts**: Registration, authentication, profile management, and order tracking.
 
 ---
 

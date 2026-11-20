@@ -1,41 +1,27 @@
 # ShopKart Image Assets
 
-## What's in here
+## Assets Overview
 
-- **categories/** — 8 high-res (1000x1000) PNG images, one per category, named to
-  match exactly what's in your Django admin (e.g. `Electronics.png`).
-- **products/** — 33 high-res PNG images, one per seeded product, named
-  `Category__ProductName.png` so you can find the right one quickly.
+- **categories/** - 8 high-resolution (1000x1000) PNG images, one per category, matching categories configured in the Django admin (e.g. `Electronics.png`).
+- **products/** - 33 high-resolution PNG images, one per seeded product, named `Category__ProductName.png` for quick reference.
 
-These are the same premium gradient/icon "studio placeholder" images already used in
-the site — exported here as plain PNG files so you can review them outside the browser,
-or reuse the style elsewhere (e.g. presentation slides, a project report).
+These images are the gradient and icon studio placeholders used across the storefront, provided as PNG files for review or external presentation.
 
-## How to use them
+## How to Apply Them
 
-1. Go to `/admin` on your running site.
-2. Open a Category or Product.
-3. Under the image field, click "Choose File" and pick the matching PNG from this
-   folder.
-4. Save.
+1. Open `/admin` on your running instance.
+2. Select a Category or Product.
+3. In the image field, select "Choose File" and upload the corresponding PNG from this directory.
+4. Save the record.
 
-(Same steps as before — this folder just makes it easier to browse and pick the right
-file per product instead of digging through the raw SVGs.)
+## Using Custom Product Photography
 
-## Want real product photos instead?
+These graphics serve as visual placeholders. To use real photography, standard sources with free licenses include:
 
-These are illustrative placeholders, not real photography. If you'd rather use actual
-photos of real products, free, no-attribution-required sources include:
+- Unsplash: https://unsplash.com
+- Pexels: https://www.pexels.com
+- Pixabay: https://pixabay.com
 
-- https://unsplash.com — search the product name (e.g. "wireless headphones")
-- https://www.pexels.com
-- https://pixabay.com
-
-Download whatever fits, then upload it through the admin the same way. Aim for:
-- **Products** → portrait-ish (4:5) images, plain/light background
-- **Categories** → square images
-
-If you have access to an AI image generator (e.g. Midjourney, DALL-E, Bing Image
-Creator), you can also prompt for photorealistic product shots — try something like:
-"{product name}, studio product photography, white background, soft shadow, 4:5
-aspect ratio" — and upload those instead.
+Recommended dimensions:
+- Products: portrait aspect ratio (approximately 4:5) with neutral backgrounds.
+- Categories: square aspect ratio (1:1).

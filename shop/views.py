@@ -353,25 +353,6 @@ def login_page(request):
     if request.user.is_authenticated:
         return redirect("/")
 
-    # Check if current visitor is an admin (via admin session cookie or admin flag)
-    is_admin = False
-    admin_cookie = request.COOKIES.get('admin_sessionid')
-    if admin_cookie:
-        from django.contrib.sessions.models import Session
-        from django.contrib.auth import SESSION_KEY
-        from django.contrib.auth.models import User
-        try:
-            s = Session.objects.filter(session_key=admin_cookie).first()
-            if s:
-                data = s.get_decoded()
-                uid = data.get(SESSION_KEY)
-                if uid and User.objects.filter(pk=uid, is_staff=True).exists():
-                    is_admin = True
-        except Exception:
-            pass
-    if not is_admin and request.GET.get('admin'):
-        is_admin = True
-
     if request.method == 'POST':
         name = request.POST.get('username')
         pwd = request.POST.get('password')
@@ -382,7 +363,7 @@ def login_page(request):
             return redirect(request.GET.get('next') or "/")
         messages.error(request, "Invalid username or password")
         return redirect("/login")
-    return render(request, "shop/login.html", {'is_admin': is_admin})
+    return render(request, "shop/login.html")
 
 
 def register(request):
